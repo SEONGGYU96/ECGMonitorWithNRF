@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout>
+
+    <data>
+
+        <variable
+            name="device"
+            type="com.seoultech.ecgmonitor.device.Device" />
+
+    </data>
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/constraintlayout_itemdevice"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?colorSurface"
+    android:foreground="?selectableItemBackground"
+    android:paddingHorizontal="@dimen/entire_horizontal_margin"
+    android:paddingVertical="@dimen/item_vertical_padding">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/imageview_itemdevice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_devices_48" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/textview_itemdevice_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/device_item_name_margin_horizontal"
+        android:ellipsize="end"
+        android:singleLine="true"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+        android:textSize="18sp"
+        android:text="@{device.name}"
+        app:layout_constraintBottom_toTopOf="@id/textview_itemdevice_address"
+        app:layout_constraintStart_toEndOf="@id/imageview_itemdevice"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="device name" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/textview_itemdevice_address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+        tools:text="AA:BB:CC:DD:EE:FF"
+        android:text="@{device.address}"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@id/textview_itemdevice_name"
+        app:layout_constraintTop_toBottomOf="@id/textview_itemdevice_name" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

@@ -11,7 +11,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ScanActivity">
+        tools:context=".scan.ScanActivity">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appbarlayout_main"
@@ -42,6 +42,21 @@
                 tools:visibility="visible" />
 
         </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerview_main_device"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:clipToPadding="false"
+            android:paddingBottom="@dimen/entire_padding_bottom"
+            android:scrollbars="none"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/appbarlayout_main"
+            tools:listitem="@layout/item_device" />
 
         <include
             android:id="@+id/include_main_nopermission"

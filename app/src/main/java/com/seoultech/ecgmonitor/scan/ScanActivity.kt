@@ -1,4 +1,4 @@
-package com.seoultech.ecgmonitor
+package com.seoultech.ecgmonitor.scan
 
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
@@ -7,12 +7,13 @@ import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.android.material.button.MaterialButton
+import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.databinding.ActivityScanBinding
+import com.seoultech.ecgmonitor.device.DeviceAdapter
 import com.seoultech.ecgmonitor.extension.obtainViewModel
-import com.seoultech.ecgmonitor.scan.ScanStateLiveData
 import com.seoultech.ecgmonitor.utils.PermissionUtil
-import com.seoultech.ecgmonitor.viewmodel.ScanViewModel
 
 class ScanActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -32,27 +33,44 @@ class ScanActivity : AppCompatActivity(), View.OnClickListener {
 
         //init view model
         scanViewModel = obtainViewModel().apply {
-            getScanState().observe(this@ScanActivity, this@ScanActivity::startScan)
+            scanStateLiveData.observe(this@ScanActivity, this@ScanActivity::startScan)
         }
 
         //init ActionBar
         setSupportActionBar(binding.toolbarMain)
         supportActionBar?.setTitle(R.string.app_name)
 
-        //init OnClickListener
         binding.run {
+            //init OnClickListener
             includeMainNopermission
                 .findViewById<MaterialButton>(R.id.button_nopermission_grant)
                 .setOnClickListener(this@ScanActivity)
             includeMainBluetoothoff
                 .findViewById<MaterialButton>(R.id.button_bluetoothoff_on)
                 .setOnClickListener(this@ScanActivity)
+
+            recyclerviewMainDevice.run {
+                addItemDecoration(DividerItemDecoration(this@ScanActivity, DividerItemDecoration.VERTICAL))
+                adapter = DeviceAdapter(this@ScanActivity, scanViewModel.deviceLiveData)
+                    .apply {
+                        listener = { //Todo: go to ECG activity }
+                        }
+                    }
+                }
+            }
         }
-    }
 
     override fun onStop() {
         super.onStop()
         stopScan()
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        scanViewModel.run {
+            deviceLiveData.clear()
+            scanStateLiveData.clearRecords()
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int,
@@ -81,6 +99,8 @@ class ScanActivity : AppCompatActivity(), View.OnClickListener {
                     //check has device
                     if (!state.hasRecords()) {
                         includeMainNodevice.visibility = View.VISIBLE
+                    } else {
+                        includeMainNodevice.visibility = View.GONE
                     }
                 } else {
                     Log.d(TAG, "startScan() : Bluetooth is not enabled")
@@ -106,7 +126,8 @@ class ScanActivity : AppCompatActivity(), View.OnClickListener {
         when (v?.id) {
             R.id.button_nopermission_grant -> {
                 PermissionUtil.requestLocationPermission(
-                    this, REQUEST_ACCESS_FINE_LOCATION)
+                    this, REQUEST_ACCESS_FINE_LOCATION
+                )
             }
             R.id.button_bluetoothoff_on -> {
                 startActivity(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))

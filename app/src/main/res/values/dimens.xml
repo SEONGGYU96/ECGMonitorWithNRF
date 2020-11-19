@@ -2,4 +2,7 @@
 <resources>
     <dimen name="entire_horizontal_margin">16dp</dimen>
     <dimen name="entire_vertical_margin">16dp</dimen>
+    <dimen name="entire_padding_bottom">32dp</dimen>
+    <dimen name="item_vertical_padding">8dp</dimen>
+    <dimen name="device_item_name_margin_horizontal">16dp</dimen>
 </resources>

@@ -1,4 +1,4 @@
-package com.seoultech.ecgmonitor.viewmodel
+package com.seoultech.ecgmonitor.scan
 
 import android.app.Application
 import android.bluetooth.BluetoothAdapter
@@ -8,7 +8,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import com.seoultech.ecgmonitor.scan.ScanStateLiveData
+import com.seoultech.ecgmonitor.device.DeviceLiveData
 import com.seoultech.ecgmonitor.utils.BluetoothUtil
 import com.seoultech.ecgmonitor.utils.FilterUtils
 import com.seoultech.ecgmonitor.utils.PermissionUtil
@@ -21,10 +21,12 @@ class ScanViewModel(application: Application) : AndroidViewModel(application) {
         private const val TAG = "ScanViewModel"
     }
 
-    private val scanStateLiveData: ScanStateLiveData = ScanStateLiveData(
+    val scanStateLiveData: ScanStateLiveData = ScanStateLiveData(
         BluetoothUtil.isBluetoothEnabled(),
         PermissionUtil.isLocationPermissionsGranted(application)
     )
+
+    val deviceLiveData = DeviceLiveData()
 
     override fun onCleared() {
         super.onCleared()
@@ -35,15 +37,12 @@ class ScanViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun getScanState() = scanStateLiveData
-
     fun refresh() {
         scanStateLiveData.refresh()
     }
 
     fun startScan() {
         if (scanStateLiveData.isScanning()) {
-            Log.d(TAG, "startScan(): already scanning...")
             return
         }
         BluetoothUtil.startScan(scanCallback)
@@ -59,7 +58,7 @@ class ScanViewModel(application: Application) : AndroidViewModel(application) {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             if (!isNoise(result)) {
                 scanStateLiveData.setRecordFound()
-                Log.d(TAG, "device : " + result.device.name)
+                deviceLiveData.deviceDiscovered(result)
             }
         }
 
@@ -67,7 +66,7 @@ class ScanViewModel(application: Application) : AndroidViewModel(application) {
             for (result in results) {
                 if (!isNoise(result)) {
                     scanStateLiveData.setRecordFound()
-                    Log.d(TAG, "device : " + result.device.name)
+                    deviceLiveData.deviceDiscovered(result)
                     return
                 }
             }
@@ -83,7 +82,6 @@ class ScanViewModel(application: Application) : AndroidViewModel(application) {
             bluetoothStateBroadcastReceiver,
             IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
         )
-        Log.d(TAG, "register bluetooth state")
     }
 
     private val bluetoothStateBroadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -107,6 +105,7 @@ class ScanViewModel(application: Application) : AndroidViewModel(application) {
                     if (previousState != BluetoothAdapter.STATE_TURNING_OFF && previousState != BluetoothAdapter.STATE_OFF) {
                         stopScan()
                         scanStateLiveData.setBluetoothEnabled(false)
+                        deviceLiveData.bluetoothDisabled()
                     }
                 }
             }
