@@ -1,6 +1,7 @@
 package com.seoultech.ecgmonitor.utils
 
-import android.bluetooth.BluetoothAdapter
+import android.bluetooth.*
+import android.content.Context
 import android.util.Log
 import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat
 import no.nordicsemi.android.support.v18.scanner.ScanCallback
@@ -29,5 +30,17 @@ object BluetoothUtil {
     fun stopScan(scanCallback: ScanCallback) {
         bluetoothLeScanner.stopScan(scanCallback)
         Log.d(TAG, "stopScan() : stop")
+    }
+
+    fun connect(context: Context, bluetoothDevice: BluetoothDevice, callback: BluetoothGattCallback) {
+//        if (bluetoothAdapter == null) {
+//            Log.d(TAG, "connect() : bluetoothAdapter is null")
+//            return
+//        }
+        Log.d(TAG, "connect() : Try connection")
+//        bluetoothDevice.createBond()
+//        val request = ConnectRequest(bluetoothDevice)
+//        request.connect()
+        val bluetoothGatt = bluetoothDevice.connectGatt(context, false, callback)
     }
 }

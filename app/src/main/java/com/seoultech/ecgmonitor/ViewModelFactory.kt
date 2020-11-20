@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.seoultech.ecgmonitor.monitor.MonitorViewModel
 import com.seoultech.ecgmonitor.scan.ScanViewModel
 
 
@@ -15,6 +16,8 @@ class ViewModelFactory private constructor(private val application: Application)
             when {
                 isAssignableFrom(ScanViewModel::class.java) ->
                     ScanViewModel(application)
+                isAssignableFrom(MonitorViewModel::class.java) ->
+                    MonitorViewModel(application)
                 else ->
                     throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
             }

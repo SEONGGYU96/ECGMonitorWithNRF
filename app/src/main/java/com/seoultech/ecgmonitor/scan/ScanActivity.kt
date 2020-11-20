@@ -1,6 +1,7 @@
 package com.seoultech.ecgmonitor.scan
 
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -13,6 +14,8 @@ import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.databinding.ActivityScanBinding
 import com.seoultech.ecgmonitor.device.DeviceAdapter
 import com.seoultech.ecgmonitor.extension.obtainViewModel
+import com.seoultech.ecgmonitor.monitor.MonitorActivity
+import com.seoultech.ecgmonitor.utils.BluetoothUtil
 import com.seoultech.ecgmonitor.utils.PermissionUtil
 
 class ScanActivity : AppCompatActivity(), View.OnClickListener {
@@ -53,7 +56,8 @@ class ScanActivity : AppCompatActivity(), View.OnClickListener {
                 addItemDecoration(DividerItemDecoration(this@ScanActivity, DividerItemDecoration.VERTICAL))
                 adapter = DeviceAdapter(this@ScanActivity, scanViewModel.deviceLiveData)
                     .apply {
-                        listener = { //Todo: go to ECG activity }
+                        listener = {
+                            startConnectionActivity(it)
                         }
                     }
                 }
@@ -120,6 +124,15 @@ class ScanActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun stopScan() {
         scanViewModel.stopScan()
+    }
+
+    private fun startConnectionActivity(device: BluetoothDevice) {
+        stopScan()
+
+        val intent = Intent(this, MonitorActivity::class.java).apply {
+            putExtra("device", device)
+        }
+        startActivity(intent)
     }
 
     override fun onClick(v: View?) {
