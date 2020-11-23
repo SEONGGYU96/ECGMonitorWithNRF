@@ -27,6 +27,10 @@ class MonitorViewModel(application: Application)
         BluetoothUtil.connect(getApplication(), device, this)
     }
 
+    fun disconnect() {
+        BluetoothUtil.disconnect()
+    }
+
     override fun onConnected() {
         _isConnected.postValue(true)
     }

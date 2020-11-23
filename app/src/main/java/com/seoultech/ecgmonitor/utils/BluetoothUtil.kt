@@ -12,6 +12,7 @@ object BluetoothUtil {
     private const val TAG = "BluetoothUtil"
     private val bluetoothAdapter: BluetoothAdapter? by lazy { BluetoothAdapter.getDefaultAdapter() }
     private val bluetoothLeScanner: BluetoothLeScannerCompat by lazy { BluetoothLeScannerCompat.getScanner() }
+    private var gatt : BluetoothGatt? = null
 
     fun isBluetoothEnabled(): Boolean {
         return bluetoothAdapter != null && bluetoothAdapter!!.isEnabled
@@ -35,7 +36,7 @@ object BluetoothUtil {
 
     fun connect(context: Context, bluetoothDevice: BluetoothDevice, callback: BluetoothConnectStateCallback) {
         Log.d(TAG, "connect() : Try connection")
-        bluetoothDevice.connectGatt(context, false, object : BluetoothGattCallback() {
+        gatt = bluetoothDevice.connectGatt(context, false, object : BluetoothGattCallback() {
             private val TAG = "BluetoothGattCallback"
 
             override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
@@ -73,13 +74,22 @@ object BluetoothUtil {
                                                  characteristic: BluetoothGattCharacteristic?) {
                 if (characteristic != null) {
                     val value = characteristic.getIntValue(getFormat(characteristic), 0)
-                    Log.d(TAG, "onCharacteristicChanged(): received value : $value")
+                    //Log.d(TAG, "onCharacteristicChanged(): received value : $value")
                     callback.onValueChanged(value)
                 } else {
                     Log.d(TAG, "onCharacteristicChanged(): characteristic is null")
                 }
             }
         })
+    }
+
+    fun disconnect() {
+        if (gatt == null) {
+            Log.d(TAG, "disconnect() : Bluetooth GATT not connected")
+        } else {
+            gatt!!.disconnect()
+            Log.d(TAG, "disconnect() : Bluetooth GATT disconnected")
+        }
     }
 
     private fun getFormat(characteristic: BluetoothGattCharacteristic): Int {

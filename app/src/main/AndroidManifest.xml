@@ -13,7 +13,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".monitor.MonitorActivity"></activity>
+        <activity android:name=".monitor.MonitorActivity"
+            android:configChanges="screenSize|orientation"/>
         <activity android:name=".scan.ScanActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

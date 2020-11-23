@@ -27,10 +27,8 @@ class ECGGraph @JvmOverloads constructor(context: Context,
         setTouchEnabled(false)
 
         xAxis.run {
-            isEnabled = true
-            position = XAxis.XAxisPosition.BOTTOM_INSIDE
-            axisLineColor = Color.BLACK
-            setDrawAxisLine(true)
+            isEnabled = false
+            setDrawAxisLine(false)
             setDrawGridLines(false)
             //set right padding of viewport
             //for put a last vertex on center of viewport
@@ -38,12 +36,10 @@ class ECGGraph @JvmOverloads constructor(context: Context,
         }
 
         axisLeft.run {
-            isEnabled = true
-            textColor = Color.BLACK
-            axisLineColor = Color.BLACK
+            isEnabled = false
             labelCount = 0
             setDrawGridLines(false)
-            setDrawAxisLine(true)
+            setDrawAxisLine(false)
         }
 
         axisRight.isEnabled = false
