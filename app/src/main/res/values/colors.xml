@@ -4,4 +4,5 @@
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
     <color name="colorAccentOnPrimary">@color/white</color>
+    <color name="colorMonitorBackground">#E8E8E8</color>
 </resources>
