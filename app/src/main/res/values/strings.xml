@@ -1,3 +1,8 @@
 <resources>
-    <string name="app_name">ECGMonitor</string>
+    <string name="app_name">ECG Monitor</string>
+    <string name="location_permission_required">LOCATION PERMISSION REQUIRED</string>
+    <string name="location_permission_grant">GRANT PERMISSION</string>
+    <string name="bluetooth_disabled">BLUETOOTH DISABLED</string>
+    <string name="bluetooth_on">ENABLE BLUETOOTH</string>
+    <string name="info_no_device">CAN NOT FIND ANY DEVICE</string>
 </resources>
