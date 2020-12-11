@@ -47,7 +47,4 @@ dependencies {
 
     //New BluetoothLeScanner by nordic
     implementation 'no.nordicsemi.android.support.v18:scanner:1.4.3'
-
-    //For MPChartAndroid
-    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 }

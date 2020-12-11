@@ -13,7 +13,7 @@
         android:layout_height="match_parent"
         tools:context=".monitor.MonitorActivity">
 
-        <com.seoultech.ecgmonitor.graph.ECGGraph
+        <com.seoultech.ecgmonitor.graph.ECGViewer
             android:id="@+id/ecggraph_monitor"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
