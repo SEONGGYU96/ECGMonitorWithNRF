@@ -37,6 +37,7 @@ class MonitorActivity : AppCompatActivity() {
                     this@MonitorActivity.isConnected = true
                     Toast.makeText(this@MonitorActivity, "Connected", Toast.LENGTH_SHORT).show()
                     changeScreenMode()
+                    binding.ecggraphMonitor.start()
                 } else {
                     if (this@MonitorActivity.isConnected) {
                         this@MonitorActivity.isConnected = false
@@ -47,7 +48,7 @@ class MonitorActivity : AppCompatActivity() {
                 }
             })
             receivedValue.observe(this@MonitorActivity) {
-                binding.ecggraphMonitor.addValue(it.toDouble())
+                binding.ecggraphMonitor.addValue(it.toFloat())
             }
             isFailure.observe(this@MonitorActivity) {
                 if (it) {
@@ -64,9 +65,15 @@ class MonitorActivity : AppCompatActivity() {
         monitorViewModel.connect(device!!)
     }
 
+    override fun onPause() {
+        super.onPause()
+        binding.ecggraphMonitor.stop()
+    }
+
     override fun onResume() {
         super.onResume()
         changeScreenMode()
+        binding.ecggraphMonitor.start()
     }
 
     private fun changeScreenMode() {
