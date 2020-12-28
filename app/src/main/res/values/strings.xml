@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ECG Monitor</string>
+    <string name="app_name">SeoulTech\nECG Monitor</string>
     <string name="location_permission_required">LOCATION PERMISSION REQUIRED</string>
     <string name="location_permission_grant">GRANT PERMISSION</string>
     <string name="bluetooth_disabled">BLUETOOTH DISABLED</string>
