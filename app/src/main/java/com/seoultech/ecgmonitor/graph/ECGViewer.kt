@@ -25,6 +25,8 @@ class ECGViewer @JvmOverloads constructor(context: Context,
         private const val TAG = "ECGView"
         private const val GRAPH_COLOR = "#C14D4D"
         private const val GRAPH_WIDTH = 2f
+        private const val CURRENT_DOT_COLOR = "#C14D4D"
+        private const val CURRENT_DOT_RADIUS = 10f
         private const val CURRENT_LINE_COLOR = "#150A7A"
         private const val CURRENT_LINE_WIDTH = 2f
         private const val HORIZONTAL_GRID_COLOR = "#C5C5C5"
@@ -46,6 +48,10 @@ class ECGViewer @JvmOverloads constructor(context: Context,
         strokeWidth = GRAPH_WIDTH
     }
 
+    private val currentDotPaint = Paint(ANTI_ALIAS_FLAG).apply {
+        color = Color.parseColor(CURRENT_DOT_COLOR)
+    }
+
     // For cursor (vertical) line.
     private val cursorLinePaint = Paint().apply {
         color = Color.parseColor(CURRENT_LINE_COLOR)
@@ -53,13 +59,14 @@ class ECGViewer @JvmOverloads constructor(context: Context,
         strokeWidth = CURRENT_LINE_WIDTH
     }
 
-    // For grid line.
+    // For horizontal grid line.
     private val horizontalGridPaint = Paint().apply {
         color = Color.parseColor(HORIZONTAL_GRID_COLOR)
         style = Paint.Style.STROKE
         strokeWidth = GRID_WIDTH
     }
 
+    // For vertical line
     private val verticalGridPaint = Paint().apply {
         color = Color.parseColor(VERTICAL_GRID_COLOR)
         style = Paint.Style.STROKE
@@ -126,9 +133,6 @@ class ECGViewer @JvmOverloads constructor(context: Context,
         // Draw current graph using heart rate data of current cycle. It starts from start of view.
         // But It may be draw to the end of view.
         drawCurrentGraph(canvas)
-
-        // Draw cursor at point means current time. It is vertical line.
-        drawCursorLine(canvas)
     }
 
     // Fill background.
@@ -195,11 +199,22 @@ class ECGViewer @JvmOverloads constructor(context: Context,
             lastX = currentX
             lastY = currentY
         }
+
+        if (dataList.isNotEmpty()) {
+            // Draw cursor at point means current time. It is vertical line.
+            drawCursorLine(canvas, lastX)
+
+            // Draw current dot at point means current value.
+            drawCurrentDot(canvas, lastX, lastY)
+        }
+    }
+
+    private fun drawCurrentDot(canvas: Canvas, centerX: Float, centerY: Float) {
+        canvas.drawCircle(centerX, centerY, CURRENT_DOT_RADIUS, currentDotPaint)
     }
 
     // Draw cursor at point means current time. It is vertical line.
-    private fun drawCursorLine(canvas: Canvas) {
-        val x = convertToX(currentHeartRateList.last().time)
+    private fun drawCursorLine(canvas: Canvas, x: Float) {
         canvas.drawLine(x, 0f, x, height.toFloat(), cursorLinePaint)
     }
 
