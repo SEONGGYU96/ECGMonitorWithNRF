@@ -27,7 +27,8 @@ class ECGViewer @JvmOverloads constructor(context: Context,
         private const val GRAPH_WIDTH = 2f
         private const val CURRENT_LINE_COLOR = "#150A7A"
         private const val CURRENT_LINE_WIDTH = 2f
-        private const val GRID_COLOR = "#C5C5C5"
+        private const val HORIZONTAL_GRID_COLOR = "#C5C5C5"
+        private const val VERTICAL_GRID_COLOR = "#F3F3F3"
         private const val GRID_WIDTH = 2f
         private const val NUMBER_OF_HORIZONTAL_GRID = 4
 
@@ -53,8 +54,14 @@ class ECGViewer @JvmOverloads constructor(context: Context,
     }
 
     // For grid line.
-    private val gridPaint = Paint().apply {
-        color = Color.parseColor(GRID_COLOR)
+    private val horizontalGridPaint = Paint().apply {
+        color = Color.parseColor(HORIZONTAL_GRID_COLOR)
+        style = Paint.Style.STROKE
+        strokeWidth = GRID_WIDTH
+    }
+
+    private val verticalGridPaint = Paint().apply {
+        color = Color.parseColor(VERTICAL_GRID_COLOR)
         style = Paint.Style.STROKE
         strokeWidth = GRID_WIDTH
     }
@@ -136,7 +143,7 @@ class ECGViewer @JvmOverloads constructor(context: Context,
             // View height / number of horizontal grid = spacing of horizontal grid
             val unit = height / NUMBER_OF_HORIZONTAL_GRID.toFloat()
             for (i in 1 .. NUMBER_OF_HORIZONTAL_GRID) {
-                drawLine(0f, i * unit, width.toFloat(), i * unit, gridPaint)
+                drawLine(0f, i * unit, width.toFloat(), i * unit, horizontalGridPaint)
             }
         }
 
@@ -145,7 +152,7 @@ class ECGViewer @JvmOverloads constructor(context: Context,
             // view width / second per screen = spacing of vertical grid per a second
             val unit = width / SECOND_PER_SCREEN.toFloat()
             for (x in 1 until SECOND_PER_SCREEN) {
-                drawLine(x * unit, 0f, x * unit, height.toFloat(), gridPaint)
+                drawLine(x * unit, 0f, x * unit, height.toFloat(), verticalGridPaint)
             }
         }
     }
