@@ -36,7 +36,7 @@ object BluetoothUtil {
 
     fun connect(context: Context, bluetoothDevice: BluetoothDevice, callback: BluetoothConnectStateCallback) {
         Log.d(TAG, "connect() : Try connection")
-        gatt = bluetoothDevice.connectGatt(context, false, object : BluetoothGattCallback() {
+        gatt = bluetoothDevice.connectGatt(context, true, object : BluetoothGattCallback() {
             private val TAG = "BluetoothGattCallback"
 
             override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {

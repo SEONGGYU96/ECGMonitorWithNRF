@@ -1,20 +1,21 @@
 package com.seoultech.ecgmonitor.monitor
 
 import android.bluetooth.BluetoothDevice
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.Window
 import android.view.WindowInsets
 import android.view.WindowInsetsController
-import android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.databinding.ActivityMonitorBinding
 import com.seoultech.ecgmonitor.extension.obtainViewModel
+import com.seoultech.ecgmonitor.service.ConnectingService
 
 class MonitorActivity : AppCompatActivity() {
 
@@ -25,6 +26,7 @@ class MonitorActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMonitorBinding
     private lateinit var monitorViewModel: MonitorViewModel
+    private var device: BluetoothDevice? = null
     private var isConnected = false
     private var isFullScreen = false
 
@@ -43,7 +45,7 @@ class MonitorActivity : AppCompatActivity() {
                         this@MonitorActivity.isConnected = false
                         Toast.makeText(this@MonitorActivity, "Disconnected", Toast.LENGTH_SHORT)
                             .show()
-                        finish()
+                        //finish()
                     }
                 }
             })
@@ -57,23 +59,32 @@ class MonitorActivity : AppCompatActivity() {
                 }
             }
         }
-        val device = intent.getParcelableExtra<BluetoothDevice>(EXTRA_DEVICE)
+        device = intent.getParcelableExtra(EXTRA_DEVICE)
         if (device == null) {
             Log.e(TAG, "device is null")
             finish()
+        } else {
+            monitorViewModel.connect(device!!)
         }
-        monitorViewModel.connect(device!!)
     }
 
     override fun onPause() {
         super.onPause()
         binding.ecggraphMonitor.stop()
+        device?.let {
+            ContextCompat.startForegroundService(
+                this,
+                Intent(this, ConnectingService::class.java).apply {
+                    putExtra("device", it)
+                })
+        }
     }
 
     override fun onResume() {
         super.onResume()
         changeScreenMode()
         binding.ecggraphMonitor.start()
+        stopService(Intent(this, ConnectingService::class.java))
     }
 
     private fun changeScreenMode() {
@@ -84,7 +95,7 @@ class MonitorActivity : AppCompatActivity() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
             window.decorView.windowInsetsController?.run {
                 hide(WindowInsets.Type.statusBars())
-                hide(WindowInsets.Type.navigationBars())
+                //hide(WindowInsets.Type.navigationBars())
                 systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_BARS_BY_SWIPE
             }
         } else {
@@ -96,11 +107,6 @@ class MonitorActivity : AppCompatActivity() {
                     or View.SYSTEM_UI_FLAG_FULLSCREEN)
         }
         isFullScreen = true
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        monitorViewModel.disconnect()
     }
 
     private fun obtainViewModel() = obtainViewModel(MonitorViewModel::class.java)
