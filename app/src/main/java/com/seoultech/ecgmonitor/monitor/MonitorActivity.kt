@@ -33,14 +33,15 @@ class MonitorActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_monitor)
+
         monitorViewModel = obtainViewModel().apply {
+            //Observe the state of connection withe the device
             isConnected.observe(this@MonitorActivity, {
-                if (it) {
+                if (it) { //connected
                     this@MonitorActivity.isConnected = true
                     Toast.makeText(this@MonitorActivity, "Connected", Toast.LENGTH_SHORT).show()
-                    changeScreenMode()
-                    binding.ecggraphMonitor.start()
-                } else {
+
+                } else { //disconnected
                     if (this@MonitorActivity.isConnected) {
                         this@MonitorActivity.isConnected = false
                         Toast.makeText(this@MonitorActivity, "Disconnected", Toast.LENGTH_SHORT)
@@ -49,9 +50,13 @@ class MonitorActivity : AppCompatActivity() {
                     }
                 }
             })
+
+            //Observing heart rate value
             receivedValue.observe(this@MonitorActivity) {
                 binding.ecggraphMonitor.addValue(it.toFloat())
             }
+
+            //Observing failure of connection state
             isFailure.observe(this@MonitorActivity) {
                 if (it) {
                     Toast.makeText(this@MonitorActivity, "Fail", Toast.LENGTH_SHORT).show()
@@ -59,31 +64,38 @@ class MonitorActivity : AppCompatActivity() {
                 }
             }
         }
+
+        //Get the device from ScanActivity.
         device = intent.getParcelableExtra(EXTRA_DEVICE)
+
+        //The device of intent may be null when start this activity from SplashActivity
         if (device == null) {
-            Log.e(TAG, "device is null")
-            finish()
+            Log.e(TAG, "device is null. May be this is already connected.")
         } else {
+            //Connect with this device for first time.
             monitorViewModel.connect(device!!)
         }
     }
 
     override fun onPause() {
         super.onPause()
+        //Stop drawing graph when this application is gone to background
         binding.ecggraphMonitor.stop()
-        device?.let {
-            ContextCompat.startForegroundService(
-                this,
-                Intent(this, ConnectingService::class.java).apply {
-                    putExtra("device", it)
-                })
-        }
+
+        //Start ForegroundService for prevent destroy application.
+        //If this application is destroyed, Connection will be disconnected too.
+        ContextCompat.startForegroundService(
+            this, Intent(this, ConnectingService::class.java)
+        )
     }
 
     override fun onResume() {
         super.onResume()
+        //change screen to landscape
         changeScreenMode()
+        //start graph
         binding.ecggraphMonitor.start()
+        //Stop ForegroundService. Activity is replace the role of preventing destroy
         stopService(Intent(this, ConnectingService::class.java))
     }
 

@@ -24,6 +24,11 @@ class BluetoothGattConnector(private val context: Context) : BluetoothGattConnec
         callback: BluetoothConnectStateCallback
     ) {
         Log.d(TAG, "connect() : Try connection")
+        
+        if (GattContainer.hasGatt()) {
+            Log.d(TAG, "connect() : Already connected.")
+            return
+        }
 
         //Connect
         GattContainer.gatt = bluetoothDevice.connectGatt(context, true, object : BluetoothGattCallback() {
@@ -90,6 +95,7 @@ class BluetoothGattConnector(private val context: Context) : BluetoothGattConnec
             Log.d(TAG, "disconnect() : Bluetooth GATT not connected")
         } else {
             GattContainer.gatt!!.disconnect()
+            GattContainer.gatt = null
             Log.d(TAG, "disconnect() : Bluetooth GATT disconnected")
         }
     }
