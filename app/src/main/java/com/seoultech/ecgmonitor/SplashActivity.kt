@@ -1,0 +1,15 @@
+package com.seoultech.ecgmonitor
+
+import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import com.seoultech.ecgmonitor.scan.ScanActivity
+
+class SplashActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        startActivity(Intent(this, ScanActivity::class.java))
+        finish()
+    }
+}
