@@ -1,4 +1,4 @@
-package com.seoultech.ecgmonitor.scan
+package com.seoultech.ecgmonitor.bluetooth.scan
 
 import androidx.lifecycle.LiveData
 

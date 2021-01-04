@@ -1,15 +1,14 @@
 package com.seoultech.ecgmonitor.monitor
 
-import android.app.Application
 import android.bluetooth.*
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.seoultech.ecgmonitor.bluetooth.BluetoothConnectStateCallback
-import com.seoultech.ecgmonitor.utils.BluetoothUtil
+import androidx.lifecycle.ViewModel
+import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothConnectStateCallback
+import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothGattConnector
 
-class MonitorViewModel(application: Application)
-    : AndroidViewModel(application), BluetoothConnectStateCallback {
+class MonitorViewModel(private val bluetoothGattConnector: BluetoothGattConnector)
+    : ViewModel(), BluetoothConnectStateCallback {
 
     private val _isConnected = MutableLiveData(false)
     val isConnected : LiveData<Boolean>
@@ -24,11 +23,11 @@ class MonitorViewModel(application: Application)
         get() = _isFailure
 
     fun connect(device: BluetoothDevice) {
-        BluetoothUtil.connect(getApplication(), device, this)
+        bluetoothGattConnector.connect(device, this)
     }
 
     fun disconnect() {
-        BluetoothUtil.disconnect()
+        bluetoothGattConnector.disconnect()
     }
 
     override fun onConnected() {

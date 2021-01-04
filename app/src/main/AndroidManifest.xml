@@ -26,7 +26,7 @@
         <activity
             android:name=".monitor.MonitorActivity"
             android:configChanges="screenSize|orientation" />
-        <activity android:name=".scan.ScanActivity">
+        <activity android:name="com.seoultech.ecgmonitor.bluetooth.scan.ScanActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -1,8 +1,7 @@
-package com.seoultech.ecgmonitor.utils
+package com.seoultech.ecgmonitor.bluetooth
 
 import android.os.ParcelUuid
 import no.nordicsemi.android.support.v18.scanner.ScanResult
-import kotlin.experimental.and
 
 object FilterUtils {
     private val EDDYSTONE_UUID =
@@ -78,6 +77,29 @@ object FilterUtils {
                     offset += length
                 }
             }
+        }
+        return false
+    }
+
+    fun isNoise(result: ScanResult): Boolean {
+        if (!result.isConnectable) {
+            return true
+        }
+
+        if (result.rssi < -80) {
+            return true
+        }
+
+        if (isBeacon(result)) {
+            return true
+        }
+
+        if (isAirDrop(result)) {
+            return true
+        }
+
+        if (isMeshDevice(result)) {
+            return true
         }
         return false
     }
