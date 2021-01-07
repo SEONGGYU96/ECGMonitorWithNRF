@@ -36,32 +36,34 @@ class MonitorActivity : AppCompatActivity() {
 
         monitorViewModel = obtainViewModel().apply {
             //Observe the state of connection withe the device
-            isConnected.observe(this@MonitorActivity, {
-                if (it) { //connected
-                    this@MonitorActivity.isConnected = true
-                    Toast.makeText(this@MonitorActivity, "Connected", Toast.LENGTH_SHORT).show()
+            gattLiveData.run {
+                isConnected.observe(this@MonitorActivity, {
+                    if (it) { //connected
+                        this@MonitorActivity.isConnected = true
+                        Toast.makeText(this@MonitorActivity, "Connected", Toast.LENGTH_SHORT).show()
 
-                } else { //disconnected
-                    if (this@MonitorActivity.isConnected) {
-                        this@MonitorActivity.isConnected = false
-                        Toast.makeText(this@MonitorActivity, "Disconnected", Toast.LENGTH_SHORT)
-                            .show()
-                        //finish()
+                    } else { //disconnected
+                        if (this@MonitorActivity.isConnected) {
+                            this@MonitorActivity.isConnected = false
+                            Toast.makeText(this@MonitorActivity, "Disconnected", Toast.LENGTH_SHORT)
+                                .show()
+                            //finish()
+                        }
                     }
-                }
-            })
+                })
 
-            //Observing heart rate value
-            receivedValue.observe(this@MonitorActivity) {
-                binding.ecggraphMonitor.addValue(it.toFloat())
-            }
+                //Observing heart rate value
+                receivedValue.observe(this@MonitorActivity, {
+                    binding.ecggraphMonitor.addValue(it)
+                })
 
-            //Observing failure of connection state
-            isFailure.observe(this@MonitorActivity) {
-                if (it) {
-                    Toast.makeText(this@MonitorActivity, "Fail", Toast.LENGTH_SHORT).show()
-                    finish()
-                }
+                //Observing failure of connection state
+                isFailure.observe(this@MonitorActivity, {
+                    if (it) {
+                        Toast.makeText(this@MonitorActivity, "Fail", Toast.LENGTH_SHORT).show()
+                        finish()
+                    }
+                })
             }
         }
 

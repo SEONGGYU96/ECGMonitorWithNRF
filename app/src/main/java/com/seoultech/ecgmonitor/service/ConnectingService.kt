@@ -3,22 +3,22 @@ package com.seoultech.ecgmonitor.service
 import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
-import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.seoultech.ecgmonitor.ECGMonitorApplication
 import com.seoultech.ecgmonitor.R
-import com.seoultech.ecgmonitor.bluetooth.GattContainer
+import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainer
 import com.seoultech.ecgmonitor.monitor.MonitorActivity
 
 class ConnectingService : Service() {
 
     companion object {
         private const val TAG = "ConnectingService"
-
     }
+
+    private val gettContainer: GattContainer by lazy { GattContainer.getInstance() }
 
     override fun onCreate() {
         super.onCreate()
@@ -26,7 +26,7 @@ class ConnectingService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val device = GattContainer.gatt
+        val device = gettContainer.gatt
         if (device == null) {
             Log.e(TAG, "device is null")
             stopSelf()

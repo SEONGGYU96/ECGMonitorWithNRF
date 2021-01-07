@@ -3,7 +3,7 @@ package com.seoultech.ecgmonitor.bluetooth.connect
 import android.bluetooth.*
 import android.content.Context
 import android.util.Log
-import com.seoultech.ecgmonitor.bluetooth.GattContainer
+import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainer
 
 /**
  * Bluetooth Gatt Connect Class
@@ -82,7 +82,7 @@ class BluetoothGattConnector(
                     //Characteristic is changed --> new heart rate value
                     val value = characteristic.getIntValue(getFormat(characteristic), 0)
                     //Log.d(TAG, "onCharacteristicChanged(): received value : $value")
-                    callback.onValueChanged(value)
+                    callback.onValueChanged(value.toFloat())
                 } else {
                     Log.d(TAG, "onCharacteristicChanged(): characteristic is null")
                 }
