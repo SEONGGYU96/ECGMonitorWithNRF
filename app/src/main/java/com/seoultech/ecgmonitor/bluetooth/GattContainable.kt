@@ -1,4 +1,4 @@
-package com.seoultech.ecgmonitor.bluetooth.connect
+package com.seoultech.ecgmonitor.bluetooth
 
 import android.bluetooth.BluetoothGatt
 

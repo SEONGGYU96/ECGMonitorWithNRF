@@ -8,7 +8,10 @@ import com.seoultech.ecgmonitor.bluetooth.GattContainer
 /**
  * Bluetooth Gatt Connect Class
  */
-class BluetoothGattConnector(private val context: Context) : BluetoothGattConnectible {
+class BluetoothGattConnector(
+    private val context: Context,
+    private val gattContainer: GattContainer
+) : BluetoothGattConnectible {
 
     companion object {
         private const val TAG = "BluetoothGattConnector"
@@ -25,13 +28,13 @@ class BluetoothGattConnector(private val context: Context) : BluetoothGattConnec
     ) {
         Log.d(TAG, "connect() : Try connection")
         
-        if (GattContainer.hasGatt()) {
+        if (gattContainer.hasGatt()) {
             Log.d(TAG, "connect() : Already connected.")
             return
         }
 
         //Connect
-        GattContainer.gatt = bluetoothDevice.connectGatt(context, true, object : BluetoothGattCallback() {
+        gattContainer.gatt = bluetoothDevice.connectGatt(context, true, object : BluetoothGattCallback() {
             private val TAG = "BluetoothGattCallback"
 
             override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
@@ -91,11 +94,11 @@ class BluetoothGattConnector(private val context: Context) : BluetoothGattConnec
      * Disconnect with the device.
      */
     override fun disconnect() {
-        if (GattContainer.hasGatt()) {
+        if (gattContainer.hasGatt()) {
             Log.d(TAG, "disconnect() : Bluetooth GATT not connected")
         } else {
-            GattContainer.gatt!!.disconnect()
-            GattContainer.gatt = null
+            gattContainer.gatt!!.disconnect()
+            gattContainer.gatt = null
             Log.d(TAG, "disconnect() : Bluetooth GATT disconnected")
         }
     }

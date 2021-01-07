@@ -5,6 +5,7 @@ import android.app.Application
 import android.bluetooth.BluetoothAdapter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.seoultech.ecgmonitor.bluetooth.GattContainer
 import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothGattConnector
 import com.seoultech.ecgmonitor.bluetooth.scan.BluetoothScanner
 import com.seoultech.ecgmonitor.bluetooth.scan.ScanStateLiveData
@@ -38,7 +39,7 @@ class ViewModelFactory private constructor(private val application: Application)
                 isAssignableFrom(ScanViewModel::class.java) ->
                     ScanViewModel(bluetoothScanner, scanStateLiveData, deviceLiveData)
                 isAssignableFrom(MonitorViewModel::class.java) ->
-                    MonitorViewModel(BluetoothGattConnector(application))
+                    MonitorViewModel(BluetoothGattConnector(application, GattContainer.getInstance()))
                 else ->
                     throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
             }

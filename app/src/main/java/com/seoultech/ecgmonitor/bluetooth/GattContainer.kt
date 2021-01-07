@@ -1,9 +1,10 @@
 package com.seoultech.ecgmonitor.bluetooth
 
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothGatt
-import com.seoultech.ecgmonitor.bluetooth.connect.GattContainable
 
-object GattContainer : GattContainable {
+class GattContainer private constructor(): GattContainable {
+
     private var _gatt: BluetoothGatt? = null
 
     override var gatt: BluetoothGatt?
@@ -14,5 +15,14 @@ object GattContainer : GattContainable {
 
     override fun hasGatt(): Boolean {
         return _gatt != null
+    }
+
+    companion object {
+        @SuppressLint("StaticFieldLeak")
+        @Volatile private var INSTANCE: GattContainer? = null
+        fun getInstance() =
+            INSTANCE ?: synchronized(GattContainer::class.java) {
+                INSTANCE ?: GattContainer().also { INSTANCE = it }
+            }
     }
 }

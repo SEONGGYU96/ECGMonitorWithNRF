@@ -10,6 +10,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.seoultech.ecgmonitor.ECGMonitorApplication
 import com.seoultech.ecgmonitor.R
+import com.seoultech.ecgmonitor.bluetooth.GattContainer
 import com.seoultech.ecgmonitor.monitor.MonitorActivity
 
 class ConnectingService : Service() {
@@ -25,20 +26,19 @@ class ConnectingService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val device = intent?.getParcelableExtra<BluetoothDevice>(MonitorActivity.EXTRA_DEVICE)
+        val device = GattContainer.gatt
         if (device == null) {
             Log.e(TAG, "device is null")
             stopSelf()
         }
         val pendingIntent: PendingIntent = Intent(this, MonitorActivity::class.java).apply {
             setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            putExtra("device", device)
         }.let {
             PendingIntent.getActivity(this, 0, it, PendingIntent.FLAG_UPDATE_CURRENT)
         }
 
         val notification: Notification = NotificationCompat.Builder(this, ECGMonitorApplication.CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_icon)
+            .setSmallIcon(R.drawable.ic_icon_transparent)
             .setShowWhen(false)
             .setContentText("Connecting device...")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
