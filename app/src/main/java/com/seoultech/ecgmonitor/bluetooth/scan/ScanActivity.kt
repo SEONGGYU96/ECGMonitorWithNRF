@@ -18,6 +18,7 @@ import com.seoultech.ecgmonitor.databinding.ActivityScanBinding
 import com.seoultech.ecgmonitor.device.DeviceAdapter
 import com.seoultech.ecgmonitor.extension.obtainViewModel
 import com.seoultech.ecgmonitor.monitor.MonitorActivity
+import com.seoultech.ecgmonitor.service.GattConnectionMaintenanceService
 import com.seoultech.ecgmonitor.utils.PermissionUtil
 
 class ScanActivity : AppCompatActivity(), View.OnClickListener {
@@ -61,7 +62,10 @@ class ScanActivity : AppCompatActivity(), View.OnClickListener {
                 //Set Adapter
                 adapter = DeviceAdapter(this@ScanActivity, scanViewModel.deviceLiveData)
                     .apply {
-                        listener = { startConnectionActivity(it) }
+                        listener = {
+                            startConnectionService(it)
+                            startMonitorActivity()
+                        }
                     }
             }
         }
@@ -150,16 +154,24 @@ class ScanActivity : AppCompatActivity(), View.OnClickListener {
         scanViewModel.stopScan()
     }
 
+    //Start service for connecting and maintaining it
+    private fun startConnectionService(device: BluetoothDevice) {
+        val intent = Intent(
+            this,
+            GattConnectionMaintenanceService::class.java
+        ).apply {
+            //You must hand over the device that attempts to connect
+            putExtra(GattConnectionMaintenanceService.EXTRA_DISCOVERED_DEVICE, device)
+        }
+        startService(intent)
+    }
+
     //Start next activity for connection
-    private fun startConnectionActivity(device: BluetoothDevice) {
+    private fun startMonitorActivity() {
         //Before start next activity, stop scanning
         stopScan()
 
-        val intent = Intent(this, MonitorActivity::class.java).apply {
-            //Put the device which just has found and selected
-            putExtra("device", device)
-        }
-        startActivity(intent)
+        startActivity(Intent(this, MonitorActivity::class.java))
     }
 
     //register BroadcastReceiver to know whether bluetooth is off

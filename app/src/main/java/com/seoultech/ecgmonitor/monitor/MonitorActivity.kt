@@ -1,32 +1,25 @@
 package com.seoultech.ecgmonitor.monitor
 
-import android.bluetooth.BluetoothDevice
-import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.databinding.ActivityMonitorBinding
 import com.seoultech.ecgmonitor.extension.obtainViewModel
-import com.seoultech.ecgmonitor.service.ConnectingService
 
 class MonitorActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "MonitorActivity"
-        const val EXTRA_DEVICE = "device"
     }
 
     private lateinit var binding: ActivityMonitorBinding
     private lateinit var monitorViewModel: MonitorViewModel
-    private var device: BluetoothDevice? = null
     private var isConnected = false
     private var isFullScreen = false
 
@@ -66,29 +59,12 @@ class MonitorActivity : AppCompatActivity() {
                 })
             }
         }
-
-        //Get the device from ScanActivity.
-        device = intent.getParcelableExtra(EXTRA_DEVICE)
-
-        //The device of intent may be null when start this activity from SplashActivity
-        if (device == null) {
-            Log.e(TAG, "device is null. May be this is already connected.")
-        } else {
-            //Connect with this device for first time.
-            monitorViewModel.connect(device!!)
-        }
     }
 
     override fun onPause() {
         super.onPause()
         //Stop drawing graph when this application is gone to background
         binding.ecggraphMonitor.stop()
-
-        //Start ForegroundService for prevent destroy application.
-        //If this application is destroyed, Connection will be disconnected too.
-        ContextCompat.startForegroundService(
-            this, Intent(this, ConnectingService::class.java)
-        )
     }
 
     override fun onResume() {
@@ -97,8 +73,6 @@ class MonitorActivity : AppCompatActivity() {
         changeScreenMode()
         //start graph
         binding.ecggraphMonitor.start()
-        //Stop ForegroundService. Activity is replace the role of preventing destroy
-        stopService(Intent(this, ConnectingService::class.java))
     }
 
     private fun changeScreenMode() {

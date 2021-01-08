@@ -1,6 +1,7 @@
 package com.seoultech.ecgmonitor.bluetooth.gatt
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothConnectStateCallback
@@ -27,10 +28,12 @@ class GattLiveData private constructor(): BluetoothConnectStateCallback {
         get() = _isFailure
 
     override fun onConnected() {
+        Log.d(TAG, "onConnected(): Connected!")
         _isConnected.postValue(true)
     }
 
     override fun onDisconnected() {
+        Log.d(TAG, "onConnected(): Disconnected")
         _isConnected.postValue(false)
     }
 
@@ -43,6 +46,8 @@ class GattLiveData private constructor(): BluetoothConnectStateCallback {
     }
 
     companion object {
+        private const val TAG = "GattLiveData"
+
         @SuppressLint("StaticFieldLeak")
         @Volatile
         private var INSTANCE: GattLiveData? = null

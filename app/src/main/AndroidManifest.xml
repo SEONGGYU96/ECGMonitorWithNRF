@@ -34,7 +34,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".service.ConnectingService" />
+        <service android:name=".service.GattConnectionMaintenanceService" />
     </application>
 
 </manifest>

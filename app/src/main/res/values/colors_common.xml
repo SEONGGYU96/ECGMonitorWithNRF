@@ -3,4 +3,5 @@
     <!-- Common -->
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
+    <color name="red">#ff3838</color>
 </resources>
