@@ -11,7 +11,9 @@ import androidx.databinding.DataBindingUtil
 import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.databinding.ActivityMonitorBinding
 import com.seoultech.ecgmonitor.extension.obtainViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MonitorActivity : AppCompatActivity() {
 
     companion object {

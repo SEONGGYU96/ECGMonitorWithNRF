@@ -11,11 +11,13 @@ import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainable
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainer
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattLiveData
 import com.seoultech.ecgmonitor.monitor.MonitorActivity
+import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * GATT 연결 및 유지 담당 서비스
  * 최초 연결 후 의도적인 연결 해제 외에는 종료되지 않아야 함
  */
+@AndroidEntryPoint
 class GattConnectionMaintenanceService : LifecycleService() {
 
     companion object {
