@@ -1,8 +1,11 @@
-package com.seoultech.ecgmonitor.scan
+package com.seoultech.ecgmonitor.bluetooth.scan
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -15,7 +18,7 @@ import com.seoultech.ecgmonitor.databinding.ActivityScanBinding
 import com.seoultech.ecgmonitor.device.DeviceAdapter
 import com.seoultech.ecgmonitor.extension.obtainViewModel
 import com.seoultech.ecgmonitor.monitor.MonitorActivity
-import com.seoultech.ecgmonitor.utils.BluetoothUtil
+import com.seoultech.ecgmonitor.service.GattConnectionMaintenanceService
 import com.seoultech.ecgmonitor.utils.PermissionUtil
 
 class ScanActivity : AppCompatActivity(), View.OnClickListener {
@@ -52,29 +55,39 @@ class ScanActivity : AppCompatActivity(), View.OnClickListener {
                 .findViewById<MaterialButton>(R.id.button_bluetoothoff_on)
                 .setOnClickListener(this@ScanActivity)
 
+            //init RecyclerView
             recyclerviewMainDevice.run {
+                //Add divider
                 addItemDecoration(DividerItemDecoration(this@ScanActivity, DividerItemDecoration.VERTICAL))
+                //Set Adapter
                 adapter = DeviceAdapter(this@ScanActivity, scanViewModel.deviceLiveData)
                     .apply {
                         listener = {
-                            startConnectionActivity(it)
+                            startConnectionService(it)
+                            startMonitorActivity()
                         }
                     }
-                }
             }
         }
+    }
 
     override fun onStop() {
         super.onStop()
+        //When Activity is gone to background, Scanning must stop. And don't get broadcast from bluetooth state
         stopScan()
+        try {
+            application.unregisterReceiver(bluetoothStateBroadcastReceiver)
+        } catch (e: IllegalArgumentException) {
+            Log.d(TAG, "onCleared() : Receiver not registered")
+        }
     }
 
     override fun onRestart() {
         super.onRestart()
-        scanViewModel.run {
-            deviceLiveData.clear()
-            scanStateLiveData.clearRecords()
-        }
+        //When Activity is back to foreground, previous results of scanning can be invalid. So clear these.
+        scanViewModel.clearDevices()
+        //register BroadcastReceiver to know whether bluetooth is off
+        registerBluetoothStateBroadcastReceiver()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int,
@@ -88,6 +101,20 @@ class ScanActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            R.id.button_nopermission_grant -> {
+                PermissionUtil.requestLocationPermission(
+                    this, REQUEST_ACCESS_FINE_LOCATION
+                )
+            }
+            R.id.button_bluetoothoff_on -> {
+                startActivity(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+            }
+        }
+    }
+
+    //Let's start scanning
     private fun startScan(state: ScanStateLiveData) {
         binding.run {
             //check location permission
@@ -122,28 +149,62 @@ class ScanActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    //Stop scanning
     private fun stopScan() {
         scanViewModel.stopScan()
     }
 
-    private fun startConnectionActivity(device: BluetoothDevice) {
-        stopScan()
-
-        val intent = Intent(this, MonitorActivity::class.java).apply {
-            putExtra("device", device)
+    //Start service for connecting and maintaining it
+    private fun startConnectionService(device: BluetoothDevice) {
+        val intent = Intent(
+            this,
+            GattConnectionMaintenanceService::class.java
+        ).apply {
+            //You must hand over the device that attempts to connect
+            putExtra(GattConnectionMaintenanceService.EXTRA_DISCOVERED_DEVICE, device)
         }
-        startActivity(intent)
+        startService(intent)
     }
 
-    override fun onClick(v: View?) {
-        when (v?.id) {
-            R.id.button_nopermission_grant -> {
-                PermissionUtil.requestLocationPermission(
-                    this, REQUEST_ACCESS_FINE_LOCATION
-                )
+    //Start next activity for connection
+    private fun startMonitorActivity() {
+        //Before start next activity, stop scanning
+        stopScan()
+
+        startActivity(Intent(this, MonitorActivity::class.java))
+    }
+
+    //register BroadcastReceiver to know whether bluetooth is off
+    private fun registerBluetoothStateBroadcastReceiver() {
+        application.registerReceiver(
+            bluetoothStateBroadcastReceiver,
+            IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+        )
+    }
+
+    private val bluetoothStateBroadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent == null) {
+                return
             }
-            R.id.button_bluetoothoff_on -> {
-                startActivity(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+
+            val state = intent.getIntExtra(
+                BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF
+            )
+            val previousState = intent.getIntExtra(
+                BluetoothAdapter.EXTRA_PREVIOUS_STATE, BluetoothAdapter.STATE_OFF
+            )
+
+            when (state) {
+                BluetoothAdapter.STATE_ON -> {
+                    scanViewModel.setBluetoothEnabled(true)
+                }
+                BluetoothAdapter.STATE_TURNING_OFF, BluetoothAdapter.STATE_OFF -> {
+                    if (previousState != BluetoothAdapter.STATE_TURNING_OFF && previousState != BluetoothAdapter.STATE_OFF) {
+                        stopScan()
+                        scanViewModel.setBluetoothEnabled(false)
+                    }
+                }
             }
         }
     }

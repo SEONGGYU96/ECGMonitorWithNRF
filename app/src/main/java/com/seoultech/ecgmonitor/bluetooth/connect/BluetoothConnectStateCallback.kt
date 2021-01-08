@@ -1,8 +1,8 @@
-package com.seoultech.ecgmonitor.bluetooth
+package com.seoultech.ecgmonitor.bluetooth.connect
 
 interface BluetoothConnectStateCallback {
     fun onConnected()
     fun onDisconnected()
-    fun onValueChanged(value: Int)
+    fun onValueChanged(value: Float)
     fun onFailure()
 }
