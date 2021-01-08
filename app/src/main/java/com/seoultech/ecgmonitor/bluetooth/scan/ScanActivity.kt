@@ -20,7 +20,9 @@ import com.seoultech.ecgmonitor.extension.obtainViewModel
 import com.seoultech.ecgmonitor.monitor.MonitorActivity
 import com.seoultech.ecgmonitor.service.GattConnectionMaintenanceService
 import com.seoultech.ecgmonitor.utils.PermissionUtil
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ScanActivity : AppCompatActivity(), View.OnClickListener {
 
     companion object {
