@@ -1,13 +1,14 @@
 package com.seoultech.ecgmonitor.bluetooth.scan
 
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.ViewModel
 import com.seoultech.ecgmonitor.device.DeviceLiveData
 import com.seoultech.ecgmonitor.bluetooth.FilterUtils
 import no.nordicsemi.android.support.v18.scanner.ScanCallback
 import no.nordicsemi.android.support.v18.scanner.ScanResult
 
-class ScanViewModel(
-    private val bluetoothScanner: BluetoothScanner,
+class ScanViewModel @ViewModelInject constructor(
+    private val bluetoothScanner: BluetoothScanable,
     private val _scanStateLiveData: ScanStateLiveData,
     private val _deviceLiveData: DeviceLiveData,
 ) : ViewModel() {
