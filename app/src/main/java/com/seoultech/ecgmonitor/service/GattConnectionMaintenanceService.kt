@@ -9,7 +9,7 @@ import androidx.lifecycle.Observer
 import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothGattConnectible
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainable
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattLiveData
-import com.seoultech.ecgmonitor.monitor.MonitorActivity
+import com.seoultech.ecgmonitor.monitor.MonitorFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -46,7 +46,7 @@ class GattConnectionMaintenanceService : LifecycleService() {
 
     //Notification 터치 시 동작할 PendingIntent
     private val pendingIntent: PendingIntent by lazy {
-        Intent(this, MonitorActivity::class.java).apply {
+        Intent(this, MonitorFragment::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }.let {
             PendingIntent.getActivity(this, 0, it, PendingIntent.FLAG_UPDATE_CURRENT)

@@ -17,8 +17,7 @@ import com.google.android.material.button.MaterialButton
 import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.databinding.ActivityScanBinding
 import com.seoultech.ecgmonitor.device.DeviceAdapter
-import com.seoultech.ecgmonitor.extension.obtainViewModel
-import com.seoultech.ecgmonitor.monitor.MonitorActivity
+import com.seoultech.ecgmonitor.monitor.MonitorFragment
 import com.seoultech.ecgmonitor.service.GattConnectionMaintenanceService
 import com.seoultech.ecgmonitor.utils.PermissionUtil
 import dagger.hilt.android.AndroidEntryPoint
@@ -172,7 +171,7 @@ class ScanActivity : AppCompatActivity(), View.OnClickListener {
         //Before start next activity, stop scanning
         stopScan()
 
-        startActivity(Intent(this, MonitorActivity::class.java))
+        startActivity(Intent(this, MonitorFragment::class.java))
     }
 
     //register BroadcastReceiver to know whether bluetooth is off
@@ -209,6 +208,4 @@ class ScanActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
     }
-
-    private fun obtainViewModel() = obtainViewModel(ScanViewModel::class.java)
 }
