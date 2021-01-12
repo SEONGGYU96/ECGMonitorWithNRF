@@ -6,12 +6,12 @@ import android.content.Intent
 import android.util.Log
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.Observer
-import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothGattConnector
+import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothGattConnectible
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainable
-import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainer
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattLiveData
 import com.seoultech.ecgmonitor.monitor.MonitorActivity
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 /**
  * GATT 연결 및 유지 담당 서비스
@@ -29,16 +29,20 @@ class GattConnectionMaintenanceService : LifecycleService() {
     }
 
     //GATT 객체 컨테이너 (싱글턴)
-    private val gattContainer: GattContainable by lazy { GattContainer.getInstance() }
+    @Inject
+    lateinit var gattContainer: GattContainable
 
     //GATT 연결 모듈
-    private val gattConnector: BluetoothGattConnector by lazy { GattConnectorAssembler.inject(this) }
+    @Inject
+    lateinit var gattConnector: BluetoothGattConnectible
 
     //GATT 연결 상태 라이브데이터 (싱글턴)
-    private val gattLiveData: GattLiveData by lazy { GattLiveData.getInstance() }
+    @Inject
+    lateinit var gattLiveData: GattLiveData
 
     //Notification 생성 모듈
-    private val notification: ECGNotification by lazy { ECGNotification(this) }
+    @Inject
+    lateinit var notification: NotificationGenerator
 
     //Notification 터치 시 동작할 PendingIntent
     private val pendingIntent: PendingIntent by lazy {

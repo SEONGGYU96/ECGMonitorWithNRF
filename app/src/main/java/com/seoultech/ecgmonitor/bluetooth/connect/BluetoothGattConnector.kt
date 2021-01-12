@@ -4,7 +4,6 @@ import android.bluetooth.*
 import android.content.Context
 import android.util.Log
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainable
-import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainer
 
 /**
  * Bluetooth Gatt Connect Class

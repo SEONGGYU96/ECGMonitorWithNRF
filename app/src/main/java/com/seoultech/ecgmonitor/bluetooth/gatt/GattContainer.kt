@@ -1,6 +1,5 @@
 package com.seoultech.ecgmonitor.bluetooth.gatt
 
-import android.annotation.SuppressLint
 import android.bluetooth.BluetoothGatt
 
 /**
