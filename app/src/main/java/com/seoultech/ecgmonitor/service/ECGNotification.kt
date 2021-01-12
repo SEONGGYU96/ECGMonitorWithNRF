@@ -13,7 +13,7 @@ import com.seoultech.ecgmonitor.R
 /**
  * ForegroundService에 사용되는 Notification 생성 클래스
  */
-class ECGNotification(private val context: Context) {
+class ECGNotification(private val context: Context) : NotificationGenerator {
 
     companion object {
         private const val CHANNEL_ID = "ecg_monitor"
@@ -30,7 +30,7 @@ class ECGNotification(private val context: Context) {
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
 
     //정상 연결 상태 Notification 생성/반환
-    fun getConnectingNotification(pendingIntent: PendingIntent): Notification {
+    override fun getConnectingNotification(pendingIntent: PendingIntent): Notification {
         if (connectedNotification == null) {
             connectedNotification = generateNotification(true, pendingIntent)
         }
@@ -38,7 +38,7 @@ class ECGNotification(private val context: Context) {
     }
 
     //연결 끊김 상태 Notification 생성/반환
-    fun getDisconnectedNotification(pendingIntent: PendingIntent): Notification {
+    override fun getDisconnectedNotification(pendingIntent: PendingIntent): Notification {
         if (disconnectedNotification == null) {
             disconnectedNotification = generateNotification(false, pendingIntent)
         }

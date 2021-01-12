@@ -1,6 +1,5 @@
 package com.seoultech.ecgmonitor.bluetooth.gatt
 
-import android.annotation.SuppressLint
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,7 +9,7 @@ import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothConnectStateCallback
  * BLE 디바이스와의 연결 상태 및 송신 값 LiveData를 가지고 있는 클래스
  * 싱글턴
  */
-class GattLiveData private constructor(): BluetoothConnectStateCallback {
+class GattLiveData : BluetoothConnectStateCallback {
 
     //연결 여부
     private var _isConnected = MutableLiveData<Boolean>()
@@ -47,13 +46,5 @@ class GattLiveData private constructor(): BluetoothConnectStateCallback {
 
     companion object {
         private const val TAG = "GattLiveData"
-
-        @SuppressLint("StaticFieldLeak")
-        @Volatile
-        private var INSTANCE: GattLiveData? = null
-        fun getInstance() =
-            INSTANCE ?: synchronized(GattLiveData::class.java) {
-                INSTANCE ?: GattLiveData().also { INSTANCE = it }
-            }
     }
 }

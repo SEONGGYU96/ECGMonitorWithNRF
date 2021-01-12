@@ -3,14 +3,14 @@ package com.seoultech.ecgmonitor.bluetooth.connect
 import android.bluetooth.*
 import android.content.Context
 import android.util.Log
-import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainer
+import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainable
 
 /**
  * Bluetooth Gatt Connect Class
  */
 class BluetoothGattConnector(
     private val context: Context,
-    private val gattContainer: GattContainer
+    private val gattContainer: GattContainable
 ) : BluetoothGattConnectible {
 
     companion object {

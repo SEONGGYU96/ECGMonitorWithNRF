@@ -9,6 +9,7 @@ import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -32,7 +33,7 @@ class ScanActivity : AppCompatActivity(), View.OnClickListener {
 
     lateinit var binding: ActivityScanBinding
 
-    private lateinit var scanViewModel: ScanViewModel
+    private val scanViewModel: ScanViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,9 +41,7 @@ class ScanActivity : AppCompatActivity(), View.OnClickListener {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_scan)
 
         //init view model
-        scanViewModel = obtainViewModel().apply {
-            scanStateLiveData.observe(this@ScanActivity, this@ScanActivity::startScan)
-        }
+        scanViewModel.scanStateLiveData.observe(this@ScanActivity, this@ScanActivity::startScan)
 
         //init ActionBar
         setSupportActionBar(binding.toolbarMain)

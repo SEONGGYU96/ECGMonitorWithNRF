@@ -1,6 +1,5 @@
 package com.seoultech.ecgmonitor.bluetooth.gatt
 
-import android.annotation.SuppressLint
 import android.bluetooth.BluetoothGatt
 
 /**
@@ -8,7 +7,7 @@ import android.bluetooth.BluetoothGatt
  * 싱글턴으로 구현되어 앱 실행 중 유일한 객체
  * Gatt 를 갖고 있지 않으면 연결이 되어있지 않고 재시도도 하지 않는 상태
  */
-class GattContainer private constructor(): GattContainable {
+class GattContainer: GattContainable {
 
     private var _gatt: BluetoothGatt? = null
 
@@ -20,14 +19,5 @@ class GattContainer private constructor(): GattContainable {
 
     override fun hasGatt(): Boolean {
         return _gatt != null
-    }
-
-    companion object {
-        @SuppressLint("StaticFieldLeak")
-        @Volatile private var INSTANCE: GattContainer? = null
-        fun getInstance() =
-            INSTANCE ?: synchronized(GattContainer::class.java) {
-                INSTANCE ?: GattContainer().also { INSTANCE = it }
-            }
     }
 }
