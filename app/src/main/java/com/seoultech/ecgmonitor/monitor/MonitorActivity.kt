@@ -6,6 +6,7 @@ import android.view.View
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.seoultech.ecgmonitor.R
@@ -21,7 +22,7 @@ class MonitorActivity : AppCompatActivity() {
     }
 
     private lateinit var binding: ActivityMonitorBinding
-    private lateinit var monitorViewModel: MonitorViewModel
+    private val monitorViewModel: MonitorViewModel by viewModels()
     private var isConnected = false
     private var isFullScreen = false
 
@@ -29,38 +30,36 @@ class MonitorActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_monitor)
 
-        monitorViewModel = obtainViewModel().apply {
-            //Observe the state of connection withe the device
-            gattLiveData.run {
-                isConnected.observe(this@MonitorActivity, {
-                    if (it) { //connected
-                        this@MonitorActivity.isConnected = true
-                        Toast.makeText(this@MonitorActivity, "Connected", Toast.LENGTH_SHORT).show()
+        monitorViewModel.gattLiveData.run {
+            isConnected.observe(this@MonitorActivity, {
+                if (it) { //connected
+                    this@MonitorActivity.isConnected = true
+                    Toast.makeText(this@MonitorActivity, "Connected", Toast.LENGTH_SHORT).show()
 
-                    } else { //disconnected
-                        if (this@MonitorActivity.isConnected) {
-                            this@MonitorActivity.isConnected = false
-                            Toast.makeText(this@MonitorActivity, "Disconnected", Toast.LENGTH_SHORT)
-                                .show()
-                            //finish()
-                        }
+                } else { //disconnected
+                    if (this@MonitorActivity.isConnected) {
+                        this@MonitorActivity.isConnected = false
+                        Toast.makeText(this@MonitorActivity, "Disconnected", Toast.LENGTH_SHORT)
+                            .show()
+                        //finish()
                     }
-                })
+                }
+            })
 
-                //Observing heart rate value
-                receivedValue.observe(this@MonitorActivity, {
-                    binding.ecggraphMonitor.addValue(it)
-                })
+            //Observing heart rate value
+            receivedValue.observe(this@MonitorActivity, {
+                binding.ecggraphMonitor.addValue(it)
+            })
 
-                //Observing failure of connection state
-                isFailure.observe(this@MonitorActivity, {
-                    if (it) {
-                        Toast.makeText(this@MonitorActivity, "Fail", Toast.LENGTH_SHORT).show()
-                        finish()
-                    }
-                })
-            }
+            //Observing failure of connection state
+            isFailure.observe(this@MonitorActivity, {
+                if (it) {
+                    Toast.makeText(this@MonitorActivity, "Fail", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+            })
         }
+
     }
 
     override fun onPause() {
