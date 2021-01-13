@@ -16,4 +16,6 @@
 
     <string name="banner_no_device">앱과 연결된 기기가 없습니다.\n기기 찾기를 눌러 연결해주세요.</string>
     <string name="banner_find_device">기기 찾기</string>
+    <string name="banner_enable_bluetooth">블루투스 켜기</string>
+    <string name="banner_bluetooth_disabled">블루투스가 꺼져있습니다. 블루투스를 켜주세요.</string>
 </resources>

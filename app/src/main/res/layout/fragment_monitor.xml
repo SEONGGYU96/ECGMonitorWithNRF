@@ -39,7 +39,18 @@
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/appbarlayout_monitor" />
+            app:layout_constraintTop_toBottomOf="@id/appbarlayout_monitor">
+
+            <com.sergivonavi.materialbanner.Banner
+                android:id="@+id/banner_monitor_bluetooth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:buttonRightText="@string/banner_enable_bluetooth"
+                app:icon="@drawable/ic_bluetooth_disabled_background"
+                app:messageText="@string/banner_bluetooth_disabled" />
+
+        </LinearLayout>
 
         <com.seoultech.ecgmonitor.graph.ECGViewer
             android:id="@+id/ecggraph_monitor"

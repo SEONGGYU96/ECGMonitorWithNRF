@@ -15,7 +15,7 @@ import javax.inject.Singleton
 
 @InstallIn(ApplicationComponent::class)
 @Module
-class BluetoothGattModule {
+class BluetoothModule {
 
     @Provides
     @Singleton
@@ -31,4 +31,8 @@ class BluetoothGattModule {
     @Provides
     @Singleton
     fun provideGattLiveData(): GattLiveData = GattLiveData()
+
+    @Provides
+    @Singleton
+    fun provideBluetoothStateLiveData(): BluetoothStateLiveData = BluetoothStateLiveDataImpl()
 }

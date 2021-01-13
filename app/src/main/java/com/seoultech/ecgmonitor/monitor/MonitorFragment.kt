@@ -1,5 +1,8 @@
 package com.seoultech.ecgmonitor.monitor
 
+import android.bluetooth.BluetoothAdapter
+import android.content.BroadcastReceiver
+import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,9 +11,13 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.seoultech.ecgmonitor.R
+import com.seoultech.ecgmonitor.bluetooth.BluetoothStateLiveData
+import com.seoultech.ecgmonitor.bluetooth.BluetoothStateReceiver
+import com.seoultech.ecgmonitor.bluetooth.scan.ScanActivity
 import com.seoultech.ecgmonitor.databinding.FragmentMonitorBinding
 import com.sergivonavi.materialbanner.Banner
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MonitorFragment : Fragment() {
@@ -24,6 +31,12 @@ class MonitorFragment : Fragment() {
     private var isConnected = false
     private var isFullScreen = false
     private var isBounded = false
+    private var bluetoothBannerIsShowing = false
+
+    private val bluetoothStateBroadcastReceiver: BroadcastReceiver by lazy { BluetoothStateReceiver() }
+
+    @Inject
+    lateinit var bluetoothStateLiveData: BluetoothStateLiveData
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,6 +55,13 @@ class MonitorFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    private fun registerBluetoothStateBroadcastReceiver() {
+        requireActivity().registerReceiver(
+            bluetoothStateBroadcastReceiver,
+            IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+        )
     }
 
     private fun enableUi() {
@@ -91,6 +111,20 @@ class MonitorFragment : Fragment() {
                 }
             })
         }
+
+        bluetoothStateLiveData.observe(viewLifecycleOwner, {
+            if (it) {
+                if (bluetoothBannerIsShowing) {
+                    binding.bannerMonitorBluetooth.dismiss()
+                    bluetoothBannerIsShowing = false
+                }
+            } else {
+                if (!bluetoothBannerIsShowing) {
+                    binding.bannerMonitorBluetooth.show()
+                    bluetoothBannerIsShowing = true
+                }
+            }
+        })
     }
 
     override fun onPause() {
@@ -98,6 +132,11 @@ class MonitorFragment : Fragment() {
         //Stop drawing graph when this application is gone to background
         if (isBounded) {
             binding.ecggraphMonitor.stop()
+            try {
+                requireActivity().unregisterReceiver(bluetoothStateBroadcastReceiver)
+            } catch (e: IllegalArgumentException) {
+                Log.d(TAG, "onCleared() : Receiver not registered")
+            }
         }
     }
 
@@ -108,6 +147,7 @@ class MonitorFragment : Fragment() {
         //start graph
         if (isBounded) {
             binding.ecggraphMonitor.start()
+            registerBluetoothStateBroadcastReceiver()
         }
     }
 
