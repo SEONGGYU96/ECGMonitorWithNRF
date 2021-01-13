@@ -14,7 +14,7 @@
         tools:context=".monitor.MonitorFragment">
 
         <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/appbarlayout_main"
+            android:id="@+id/appbarlayout_monitor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:theme="@style/AppTheme.AppBarOverlay"
@@ -22,24 +22,24 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar_main"
-            android:layout_width="match_parent"
-            android:layout_height="?actionBarSize"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar_monitor"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                app:menu="@menu/monitor_app_bar"
+                app:popupTheme="@style/AppTheme.PopupOverlay"
+                app:title="@string/monitor_title" />
 
         </com.google.android.material.appbar.AppBarLayout>
-
-
 
         <com.seoultech.ecgmonitor.graph.ECGViewer
             android:id="@+id/ecggraph_monitor"
             android:layout_width="match_parent"
             android:layout_height="300dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

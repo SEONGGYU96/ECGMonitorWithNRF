@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.databinding.FragmentMonitorBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -28,6 +29,27 @@ class MonitorFragment : Fragment() {
     ): View? {
         binding = FragmentMonitorBinding.inflate(inflater, container, false)
 
+        val isBounded = monitorViewModel.checkBoundedDevice()
+
+        if (isBounded) {
+            subscribeUi(binding)
+        } else {
+            showNoDeviceBanner()
+            enableUi()
+        }
+
+        return binding.root
+    }
+
+    private fun enableUi() {
+        //Todo: Ui들 회색으로 변경하기, 메뉴 버튼 제거
+    }
+
+    private fun showNoDeviceBanner() {
+        //Todo: 연결된 기기가 없다는 배너 띄우기
+    }
+
+    private fun subscribeUi(binding: FragmentMonitorBinding) {
         monitorViewModel.gattLiveData.run {
             isConnected.observe(viewLifecycleOwner, {
                 if (it) { //connected
@@ -58,7 +80,6 @@ class MonitorFragment : Fragment() {
                 }
             })
         }
-        return binding.root
     }
 
     override fun onPause() {
