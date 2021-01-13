@@ -13,4 +13,7 @@
     <string name="monitor_title">ECG Monitor</string>
     <string name="monitor_menu_disconnect">연결 끊기</string>
     <string name="monitor_menu_disconnect_description">현재 연결된 기기와의 페어링을 끊습니다.</string>
+
+    <string name="banner_no_device">앱과 연결된 기기가 없습니다.\n기기 찾기를 눌러 연결해주세요.</string>
+    <string name="banner_find_device">기기 찾기</string>
 </resources>

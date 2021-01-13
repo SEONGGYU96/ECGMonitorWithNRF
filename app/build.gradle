@@ -74,6 +74,9 @@ dependencies {
     // For local unit tests
     testImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
     testAnnotationProcessor "com.google.dagger:hilt-android-compiler:$hilt_version"
+
+    //MaterialBanner
+    implementation "com.sergivonavi:materialbanner:1.2.0"
 }
 
 kapt {

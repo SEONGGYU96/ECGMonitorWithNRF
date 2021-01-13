@@ -1,6 +1,7 @@
 package com.seoultech.ecgmonitor.monitor
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.databinding.FragmentMonitorBinding
+import com.sergivonavi.materialbanner.Banner
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -21,6 +23,7 @@ class MonitorFragment : Fragment() {
     private val monitorViewModel: MonitorViewModel by viewModels()
     private var isConnected = false
     private var isFullScreen = false
+    private var isBounded = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -29,7 +32,7 @@ class MonitorFragment : Fragment() {
     ): View? {
         binding = FragmentMonitorBinding.inflate(inflater, container, false)
 
-        val isBounded = monitorViewModel.checkBoundedDevice()
+        isBounded = monitorViewModel.checkBoundedDevice()
 
         if (isBounded) {
             subscribeUi(binding)
@@ -46,7 +49,15 @@ class MonitorFragment : Fragment() {
     }
 
     private fun showNoDeviceBanner() {
-        //Todo: 연결된 기기가 없다는 배너 띄우기
+        Banner.Builder(requireContext()).setParent(binding.linearlayoutMonitorBanner)
+            .setMessage(getString(R.string.banner_no_device))
+            .setRightButton(getString(R.string.banner_find_device)) {
+                //Todo: Fragment 전환
+                Log.d(TAG, "Banner : Go to next Fragment!")
+                it.dismiss()
+            }
+            .create()
+            .show()
     }
 
     private fun subscribeUi(binding: FragmentMonitorBinding) {
@@ -85,7 +96,9 @@ class MonitorFragment : Fragment() {
     override fun onPause() {
         super.onPause()
         //Stop drawing graph when this application is gone to background
-        binding.ecggraphMonitor.stop()
+        if (isBounded) {
+            binding.ecggraphMonitor.stop()
+        }
     }
 
     override fun onResume() {
@@ -93,7 +106,9 @@ class MonitorFragment : Fragment() {
         //change screen to landscape
         //changeScreenMode()
         //start graph
-        binding.ecggraphMonitor.start()
+        if (isBounded) {
+            binding.ecggraphMonitor.start()
+        }
     }
 
     private fun changeScreenMode() {
