@@ -28,7 +28,7 @@
         <activity
             android:name=".monitor.MonitorFragment"
             android:configChanges="screenSize|orientation" />
-        <activity android:name=".bluetooth.scan.ScanActivity">
+        <activity android:name=".bluetooth.scan.ScanFragment">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
