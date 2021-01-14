@@ -1,4 +1,4 @@
-package com.seoultech.ecgmonitor.bluetooth
+package com.seoultech.ecgmonitor.bluetooth.util
 
 import android.os.ParcelUuid
 import no.nordicsemi.android.support.v18.scanner.ScanResult

@@ -12,15 +12,18 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.android.material.button.MaterialButton
 import com.seoultech.ecgmonitor.R
+import com.seoultech.ecgmonitor.bluetooth.BluetoothStateLiveData
 import com.seoultech.ecgmonitor.bluetooth.BluetoothStateReceiver
 import com.seoultech.ecgmonitor.databinding.FragmentScanBinding
 import com.seoultech.ecgmonitor.device.DeviceAdapter
 import com.seoultech.ecgmonitor.service.GattConnectionMaintenanceService
 import com.seoultech.ecgmonitor.utils.PermissionUtil
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class ScanFragment : Fragment(), View.OnClickListener {
@@ -36,6 +39,9 @@ class ScanFragment : Fragment(), View.OnClickListener {
 
     private val bluetoothStateReceiver: BroadcastReceiver by lazy { BluetoothStateReceiver() }
 
+    @Inject
+    lateinit var bluetoothStateLiveData: BluetoothStateLiveData
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -47,6 +53,8 @@ class ScanFragment : Fragment(), View.OnClickListener {
         //init view model
         scanViewModel.scanStateLiveData.observe(requireActivity(), this@ScanFragment::startScan)
 
+        bluetoothStateLiveData.observe(requireActivity(), { scanViewModel.setBluetoothEnabled(it) })
+
         binding.run {
             //init OnClickListener
             includeMainNopermission
@@ -55,20 +63,6 @@ class ScanFragment : Fragment(), View.OnClickListener {
             includeMainBluetoothoff
                 .findViewById<MaterialButton>(R.id.button_bluetoothoff_on)
                 .setOnClickListener(this@ScanFragment)
-
-            //init RecyclerView
-            recyclerviewMainDevice.run {
-                //Add divider
-                addItemDecoration(DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL))
-                //Set Adapter
-                adapter = DeviceAdapter(requireContext(), scanViewModel.deviceLiveData)
-                    .apply {
-                        listener = {
-                            startConnectionService(it)
-                            startMonitorActivity()
-                        }
-                    }
-            }
         }
         return binding.root
     }
@@ -134,6 +128,11 @@ class ScanFragment : Fragment(), View.OnClickListener {
                         includeMainNodevice.visibility = View.VISIBLE
                     } else {
                         includeMainNodevice.visibility = View.GONE
+                        val device = state.getDiscoveredDevice()
+                        if (device != null) {
+                            startConnectionService(device)
+                        }
+                        startMonitorActivity()
                     }
                 } else {
                     Log.d(TAG, "startScan() : Bluetooth is not enabled")
@@ -170,9 +169,7 @@ class ScanFragment : Fragment(), View.OnClickListener {
 
     //Start next activity for connection
     private fun startMonitorActivity() {
-        //Before start next activity, stop scanning
-        stopScan()
-
+        Log.d(TAG, "Change!!!")
         //Todo: Monitor 프래그먼트로 전환
     }
 
