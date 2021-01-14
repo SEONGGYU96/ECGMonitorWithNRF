@@ -1,20 +1,19 @@
 package com.seoultech.ecgmonitor.monitor
 
-import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
-import android.content.IntentFilter
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.bluetooth.BluetoothStateLiveData
 import com.seoultech.ecgmonitor.bluetooth.BluetoothStateReceiver
-import com.seoultech.ecgmonitor.bluetooth.scan.ScanActivity
 import com.seoultech.ecgmonitor.databinding.FragmentMonitorBinding
+import com.seoultech.ecgmonitor.heartrate.HeartRateLiveData
 import com.sergivonavi.materialbanner.Banner
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -33,10 +32,11 @@ class MonitorFragment : Fragment() {
     private var isBounded = false
     private var bluetoothBannerIsShowing = false
 
-    private val bluetoothStateBroadcastReceiver: BroadcastReceiver by lazy { BluetoothStateReceiver() }
-
     @Inject
     lateinit var bluetoothStateLiveData: BluetoothStateLiveData
+
+    @Inject
+    lateinit var heartRateLiveData: HeartRateLiveData
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,29 +45,20 @@ class MonitorFragment : Fragment() {
     ): View? {
         binding = FragmentMonitorBinding.inflate(inflater, container, false)
 
+        //연결 이력 확인
         isBounded = monitorViewModel.checkBoundedDevice()
 
-        if (isBounded) {
+        if (isBounded) { //연결 이력 있으면 연결 상태 구독
             subscribeUi(binding)
-        } else {
+        } else { //없으면 UI 비활성화
             showNoDeviceBanner()
-            enableUi()
+            disableUi()
         }
 
         return binding.root
     }
 
-    private fun registerBluetoothStateBroadcastReceiver() {
-        requireActivity().registerReceiver(
-            bluetoothStateBroadcastReceiver,
-            IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
-        )
-    }
-
-    private fun enableUi() {
-        //Todo: Ui들 회색으로 변경하기, 메뉴 버튼 제거
-    }
-
+    //연결된 기기가 없을 때 배너 띄우기
     private fun showNoDeviceBanner() {
         Banner.Builder(requireContext()).setParent(binding.linearlayoutMonitorBanner)
             .setMessage(getString(R.string.banner_no_device))
@@ -80,6 +71,7 @@ class MonitorFragment : Fragment() {
             .show()
     }
 
+    //연결 상태 및 블루투스 연결 상태 구독
     private fun subscribeUi(binding: FragmentMonitorBinding) {
         monitorViewModel.gattLiveData.run {
             isConnected.observe(viewLifecycleOwner, {
@@ -112,19 +104,46 @@ class MonitorFragment : Fragment() {
             })
         }
 
+        //블루투스 연결 상태 구독
         bluetoothStateLiveData.observe(viewLifecycleOwner, {
             if (it) {
                 if (bluetoothBannerIsShowing) {
                     binding.bannerMonitorBluetooth.dismiss()
                     bluetoothBannerIsShowing = false
+                    enableUi()
+                    binding.ecggraphMonitor.stop()
                 }
             } else {
                 if (!bluetoothBannerIsShowing) {
                     binding.bannerMonitorBluetooth.show()
                     bluetoothBannerIsShowing = true
+                    disableUi()
+                    binding.ecggraphMonitor.stop()
                 }
             }
         })
+    }
+
+    //UI 활성화
+    private fun enableUi() {
+        binding.run {
+            imageviewMonitorHeart.imageTintList =
+                ContextCompat.getColorStateList(requireContext(), R.color.red)
+            textviewMonitorHeartrate.setTextColor(
+                ContextCompat.getColor(requireContext(), R.color.red))
+            toolbarMonitor.menu.getItem(0).isVisible = true
+        }
+    }
+
+    //UI 비활성화
+    private fun disableUi() {
+        binding.run {
+            imageviewMonitorHeart.imageTintList =
+                ContextCompat.getColorStateList(requireContext(), R.color.colorDisabledUi)
+            textviewMonitorHeartrate.setTextColor(
+                ContextCompat.getColor(requireContext(), R.color.colorDisabledUi))
+            toolbarMonitor.menu.getItem(0).isVisible = false
+        }
     }
 
     override fun onPause() {
@@ -132,11 +151,6 @@ class MonitorFragment : Fragment() {
         //Stop drawing graph when this application is gone to background
         if (isBounded) {
             binding.ecggraphMonitor.stop()
-            try {
-                requireActivity().unregisterReceiver(bluetoothStateBroadcastReceiver)
-            } catch (e: IllegalArgumentException) {
-                Log.d(TAG, "onCleared() : Receiver not registered")
-            }
         }
     }
 
@@ -147,7 +161,6 @@ class MonitorFragment : Fragment() {
         //start graph
         if (isBounded) {
             binding.ecggraphMonitor.start()
-            registerBluetoothStateBroadcastReceiver()
         }
     }
 

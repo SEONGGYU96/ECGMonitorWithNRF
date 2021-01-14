@@ -52,14 +52,40 @@
 
         </LinearLayout>
 
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imageview_monitor_heart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/keyline_4"
+            android:layout_marginTop="@dimen/keyline_5"
+            android:src="@drawable/ic_heart"
+            app:layout_constraintEnd_toStartOf="@id/textview_monitor_heartrate"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/linearlayout_monitor_banner" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/textview_monitor_heartrate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/keyline_4"
+            android:layout_marginTop="@dimen/keyline_1"
+            android:includeFontPadding="false"
+            android:text="@string/monitor_no_heart_rate"
+            android:textColor="@color/red"
+            android:textSize="@dimen/size_monitor_heart_rate"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/imageview_monitor_heart"
+            app:layout_constraintTop_toBottomOf="@id/linearlayout_monitor_banner" />
+
+
         <com.seoultech.ecgmonitor.graph.ECGViewer
             android:id="@+id/ecggraph_monitor"
             android:layout_width="match_parent"
             android:layout_height="300dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginTop="@dimen/keyline_2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/textview_monitor_heartrate"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
