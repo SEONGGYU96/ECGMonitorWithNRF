@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".monitor.MonitorFragment">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appbarlayout_monitor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/AppTheme.AppBarOverlay"
+            android:translationZ="@dimen/elevation_default_top_app_bar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar_monitor"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                app:menu="@menu/monitor_app_bar"
+                app:popupTheme="@style/AppTheme.PopupOverlay"
+                app:title="@string/monitor_title" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <LinearLayout
+            android:id="@+id/linearlayout_monitor_banner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/appbarlayout_monitor">
+
+            <com.sergivonavi.materialbanner.Banner
+                android:id="@+id/banner_monitor_bluetooth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:buttonRightText="@string/banner_enable_bluetooth"
+                app:icon="@drawable/ic_bluetooth_disabled_background"
+                app:messageText="@string/banner_bluetooth_disabled" />
+
+        </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imageview_monitor_heart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/keyline_4"
+            android:layout_marginTop="@dimen/keyline_5"
+            android:src="@drawable/ic_heart"
+            app:layout_constraintEnd_toStartOf="@id/textview_monitor_heartrate"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/linearlayout_monitor_banner" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/textview_monitor_heartrate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/keyline_4"
+            android:layout_marginTop="@dimen/keyline_1"
+            android:includeFontPadding="false"
+            android:text="@string/monitor_no_heart_rate"
+            android:textColor="@color/red"
+            android:textSize="@dimen/size_monitor_heart_rate"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/imageview_monitor_heart"
+            app:layout_constraintTop_toBottomOf="@id/linearlayout_monitor_banner" />
+
+
+        <com.seoultech.ecgmonitor.graph.ECGViewer
+            android:id="@+id/ecggraph_monitor"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+            android:layout_marginTop="@dimen/keyline_2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textview_monitor_heartrate"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

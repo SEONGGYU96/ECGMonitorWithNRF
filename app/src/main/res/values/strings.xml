@@ -9,4 +9,15 @@
     <string name="notification_connected">심박수를 측정 중입니다</string>
     <string name="notification_disconnected">기기와의 연결이 끊어져 심박수를 측정할 수 없습니다.</string>
     <string name="notification_description">[주의] 심전도를 측정하기 위한 블루투스 기기와의 연결을 유지하기 위한 백그라운드 서비스입니다. 본 서비스 종료 시, 심전도 모니터링이 중단됩니다.</string>
+
+    <string name="monitor_title">ECG Monitor</string>
+    <string name="monitor_menu_disconnect">연결 끊기</string>
+    <string name="monitor_menu_disconnect_description">현재 연결된 기기와의 페어링을 끊습니다.</string>
+
+    <string name="banner_no_device">앱과 연결된 기기가 없습니다.\n기기 찾기를 눌러 연결해주세요.</string>
+    <string name="banner_find_device">기기 찾기</string>
+    <string name="banner_enable_bluetooth">블루투스 켜기</string>
+    <string name="banner_bluetooth_disabled">블루투스가 꺼져있습니다. 블루투스를 켜주세요.</string>
+
+    <string name="monitor_no_heart_rate">--</string>
 </resources>
