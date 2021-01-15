@@ -17,6 +17,8 @@ class ScanViewModel @ViewModelInject constructor(
         private const val UUID = SecretString.UUID
     }
 
+    private var discovered = false
+
     //For scan state observing
     val scanStateLiveData: ScanStateLiveData
         get() = _scanStateLiveData
@@ -63,12 +65,16 @@ class ScanViewModel @ViewModelInject constructor(
     }
 
     private fun validateResult(result: ScanResult) {
+        if (discovered) {
+            return
+        }
         if (!FilterUtils.isNoise(result) && result.scanRecord != null) {
             val uuids = result.scanRecord!!.serviceUuids
             if (uuids != null) {
                 if (uuids[0].uuid.toString() == UUID) {
                     _scanStateLiveData.setRecordFound(result.device)
                     stopScan()
+                    discovered = true
                 }
             }
         }

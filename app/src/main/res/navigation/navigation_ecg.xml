@@ -4,10 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/navigation_ecg"
     app:startDestination="@id/monitorFragment">
-
     <fragment
         android:id="@+id/monitorFragment"
         android:name="com.seoultech.ecgmonitor.monitor.MonitorFragment"
-        android:label="MonitorFragment"
-        tools:layout="@layout/fragment_monitor" />
+        android:label="MonitorFragment" >
+        <action
+            android:id="@+id/action_monitorFragment_to_scanFragment"
+            app:destination="@id/scanFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/scanFragment"
+        android:name="com.seoultech.ecgmonitor.bluetooth.scan.ScanFragment"
+        android:label="ScanFragment" />
 </navigation>
