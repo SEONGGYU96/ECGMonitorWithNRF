@@ -46,7 +46,7 @@ class ScanFragment : Fragment(), View.OnClickListener {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         //init view
         binding = FragmentScanBinding.inflate(inflater, container, false)
 
@@ -57,10 +57,10 @@ class ScanFragment : Fragment(), View.OnClickListener {
 
         binding.run {
             //init OnClickListener
-            includeMainNopermission
+            includeScanNopermission
                 .findViewById<MaterialButton>(R.id.button_nopermission_grant)
                 .setOnClickListener(this@ScanFragment)
-            includeMainBluetoothoff
+            includeScanBluetoothoff
                 .findViewById<MaterialButton>(R.id.button_bluetoothoff_on)
                 .setOnClickListener(this@ScanFragment)
         }
@@ -115,19 +115,18 @@ class ScanFragment : Fragment(), View.OnClickListener {
         binding.run {
             //check location permission
             if (PermissionUtil.isLocationPermissionsGranted(requireContext())) {
-                includeMainNopermission.visibility = View.GONE
+                includeScanNopermission.visibility = View.GONE
 
                 //check bluetooth
                 if (state.isBluetoothEnabled()) {
-                    includeMainBluetoothoff.visibility = View.GONE
+                    includeScanBluetoothoff.visibility = View.GONE
                     scanViewModel.startScan()
-                    progressbarMain.visibility = View.VISIBLE
 
                     //check has device
                     if (!state.hasRecords()) {
-                        includeMainNodevice.visibility = View.VISIBLE
+                        includeScanScanning.visibility = View.VISIBLE
                     } else {
-                        includeMainNodevice.visibility = View.GONE
+                        includeScanScanning.visibility = View.GONE
                         val device = state.getDiscoveredDevice()
                         if (device != null) {
                             startConnectionService(device)
@@ -136,16 +135,14 @@ class ScanFragment : Fragment(), View.OnClickListener {
                     }
                 } else {
                     Log.d(TAG, "startScan() : Bluetooth is not enabled")
-                    includeMainBluetoothoff.visibility = View.VISIBLE
-                    progressbarMain.visibility = View.INVISIBLE
-                    includeMainNodevice.visibility = View.GONE
+                    includeScanBluetoothoff.visibility = View.VISIBLE
+                    includeScanScanning.visibility = View.GONE
                 }
             } else {
                 Log.d(TAG, "startScan() : Location permission required")
-                includeMainNopermission.visibility = View.VISIBLE
-                includeMainBluetoothoff.visibility = View.GONE
-                includeMainNodevice.visibility = View.GONE
-                progressbarMain.visibility = View.INVISIBLE
+                includeScanNopermission.visibility = View.VISIBLE
+                includeScanBluetoothoff.visibility = View.GONE
+                includeScanScanning.visibility = View.GONE
             }
         }
     }

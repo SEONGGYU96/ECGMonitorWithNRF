@@ -17,4 +17,6 @@
     <dimen name="elevation_default_top_app_bar">4dp</dimen>
 
     <dimen name="size_monitor_heart_rate">85sp</dimen>
+
+    <dimen name="height_scanning_progress">90dp</dimen>
 </resources>
