@@ -3,8 +3,9 @@
     <string name="location_permission_required">위치 정보 권한이 필요합니다.</string>
     <string name="location_permission_grant">허용하기</string>
     <string name="location_permission_description">블루투스 기기의 검색을 위해서\n위치 정보 접근 권한을 허용해주세요.</string>
-    <string name="bluetooth_disabled">BLUETOOTH DISABLED</string>
-    <string name="bluetooth_on">ENABLE BLUETOOTH</string>
+    <string name="bluetooth_disabled">블루투스가 꺼져있습니다.</string>
+    <string name="bluetooth_disabled_description">기기를 검색하려면 블루투스를 켜주세요.</string>
+    <string name="bluetooth_on">블루투스 켜기</string>
     <string name="info_no_device">CAN NOT FIND ANY DEVICE</string>
 
     <string name="notification_connected">심박수를 측정 중입니다</string>
