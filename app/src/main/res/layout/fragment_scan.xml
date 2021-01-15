@@ -11,10 +11,10 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".bluetooth.scan.ScanActivity">
+        tools:context=".bluetooth.scan.ScanFragment">
 
         <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/appbarlayout_main"
+            android:id="@+id/appbarlayout_scan"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:theme="@style/AppTheme.AppBarOverlay"
@@ -23,43 +23,16 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/toolbar_main"
+                android:id="@+id/toolbar_scan"
                 android:layout_width="match_parent"
+                app:title="@string/banner_find_device"
                 android:layout_height="?actionBarSize"
                 app:popupTheme="@style/AppTheme.PopupOverlay" />
 
-            <ProgressBar
-                android:id="@+id/progressbar_main"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="-8dp"
-                android:layout_marginBottom="-7dp"
-                android:indeterminate="true"
-                android:indeterminateTint="@color/colorAccentOnPrimary"
-                android:indeterminateTintMode="src_in"
-                android:visibility="invisible"
-                tools:visibility="visible" />
-
         </com.google.android.material.appbar.AppBarLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerview_main_device"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:clipToPadding="false"
-            android:paddingBottom="@dimen/entire_padding_bottom"
-            android:scrollbars="none"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            android:orientation="vertical"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/appbarlayout_main"
-            tools:listitem="@layout/item_device" />
-
         <include
-            android:id="@+id/include_main_nopermission"
+            android:id="@+id/include_scan_nopermission"
             layout="@layout/info_no_permission"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -70,7 +43,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <include
-            android:id="@+id/include_main_bluetoothoff"
+            android:id="@+id/include_scan_bluetoothoff"
             layout="@layout/info_bluetooth_off"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -81,10 +54,10 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <include
-            android:id="@+id/include_main_nodevice"
-            layout="@layout/info_no_device"
+            android:id="@+id/include_scan_scanning"
+            layout="@layout/layout_scanning"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

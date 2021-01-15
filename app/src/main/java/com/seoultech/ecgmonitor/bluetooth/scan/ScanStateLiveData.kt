@@ -1,5 +1,6 @@
 package com.seoultech.ecgmonitor.bluetooth.scan
 
+import android.bluetooth.BluetoothDevice
 import androidx.lifecycle.LiveData
 
 class ScanStateLiveData(private var bluetoothEnabled: Boolean, private var locationEnabled: Boolean)
@@ -7,6 +8,7 @@ class ScanStateLiveData(private var bluetoothEnabled: Boolean, private var locat
 
     private var isScanStarted = false
     private var hasRecords = false
+    private var discoveredDevice: BluetoothDevice? = null
 
     init {
         postValue(this)
@@ -37,8 +39,9 @@ class ScanStateLiveData(private var bluetoothEnabled: Boolean, private var locat
         postValue(this)
     }
 
-    fun setRecordFound() {
+    fun setRecordFound(device: BluetoothDevice) {
         hasRecords = true
+        this.discoveredDevice = device
         postValue(this)
     }
 
@@ -54,4 +57,6 @@ class ScanStateLiveData(private var bluetoothEnabled: Boolean, private var locat
         hasRecords = false
         postValue(this)
     }
+
+    fun getDiscoveredDevice() = discoveredDevice
 }

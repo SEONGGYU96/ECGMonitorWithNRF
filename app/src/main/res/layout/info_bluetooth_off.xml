@@ -9,10 +9,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="@dimen/entire_horizontal_margin"
+        android:tint="?attr/colorControlNormal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:tint="?attr/colorControlNormal"
         app:srcCompat="@drawable/ic_bluetooth_disabled" />
 
     <com.google.android.material.textview.MaterialTextView
@@ -22,20 +22,33 @@
         android:layout_height="wrap_content"
         android:layout_marginVertical="@dimen/entire_vertical_margin"
         android:text="@string/bluetooth_disabled"
-        android:textColor="?colorAccent"
-        app:layout_constraintBottom_toTopOf="@id/button_bluetoothoff_on"
+        android:textColor="?colorPrimary"
+        app:layout_constraintBottom_toTopOf="@id/textview_bluetoothoff_description"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/imageview_bluetoothoff" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/button_bluetoothoff_on"
-        style="@style/Widget.AppCompat.Button"
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/textview_bluetoothoff_description"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/bluetooth_on"
+        android:layout_marginBottom="@dimen/entire_horizontal_margin"
+        android:text="@string/bluetooth_disabled_description"
+        app:layout_constraintBottom_toTopOf="@id/button_bluetoothoff_on"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/textview_bluetoothoff" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_bluetoothoff_on"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/bluetooth_on"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/textview_bluetoothoff_description" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
