@@ -9,10 +9,12 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.seoultech.ecgmonitor.MonitorFragmentDirections
 import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.bluetooth.BluetoothStateLiveData
 import com.seoultech.ecgmonitor.bluetooth.BluetoothStateReceiver
 import com.seoultech.ecgmonitor.databinding.FragmentMonitorBinding
+import com.seoultech.ecgmonitor.findNavController
 import com.seoultech.ecgmonitor.heartrate.HeartRateLiveData
 import com.sergivonavi.materialbanner.Banner
 import dagger.hilt.android.AndroidEntryPoint
@@ -63,7 +65,8 @@ class MonitorFragment : Fragment() {
         Banner.Builder(requireContext()).setParent(binding.linearlayoutMonitorBanner)
             .setMessage(getString(R.string.banner_no_device))
             .setRightButton(getString(R.string.banner_find_device)) {
-                //Todo: Fragment 전환
+                val direction = MonitorFragmentDirections.actionMonitorFragmentToScanFragment()
+                findNavController().navigate(direction)
                 Log.d(TAG, "Banner : Go to next Fragment!")
                 it.dismiss()
             }

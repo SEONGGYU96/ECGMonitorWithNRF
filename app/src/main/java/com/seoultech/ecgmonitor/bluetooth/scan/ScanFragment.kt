@@ -20,6 +20,7 @@ import com.seoultech.ecgmonitor.bluetooth.BluetoothStateLiveData
 import com.seoultech.ecgmonitor.bluetooth.BluetoothStateReceiver
 import com.seoultech.ecgmonitor.databinding.FragmentScanBinding
 import com.seoultech.ecgmonitor.device.DeviceAdapter
+import com.seoultech.ecgmonitor.findNavController
 import com.seoultech.ecgmonitor.service.GattConnectionMaintenanceService
 import com.seoultech.ecgmonitor.utils.PermissionUtil
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,6 +42,8 @@ class ScanFragment : Fragment(), View.OnClickListener {
 
     @Inject
     lateinit var bluetoothStateLiveData: BluetoothStateLiveData
+
+    private var discovered = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -112,6 +115,10 @@ class ScanFragment : Fragment(), View.OnClickListener {
 
     //Let's start scanning
     private fun startScan(state: ScanStateLiveData) {
+        if (discovered) {
+            return
+        }
+
         binding.run {
             //check location permission
             if (PermissionUtil.isLocationPermissionsGranted(requireContext())) {
@@ -129,9 +136,10 @@ class ScanFragment : Fragment(), View.OnClickListener {
                         includeScanScanning.visibility = View.GONE
                         val device = state.getDiscoveredDevice()
                         if (device != null) {
+                            discovered = true
                             startConnectionService(device)
+                            startMonitorActivity()
                         }
-                        startMonitorActivity()
                     }
                 } else {
                     Log.d(TAG, "startScan() : Bluetooth is not enabled")
@@ -166,8 +174,7 @@ class ScanFragment : Fragment(), View.OnClickListener {
 
     //Start next activity for connection
     private fun startMonitorActivity() {
-        Log.d(TAG, "Change!!!")
-        //Todo: Monitor 프래그먼트로 전환
+        findNavController().navigateUp()
     }
 
     //register BroadcastReceiver to know whether bluetooth is off
