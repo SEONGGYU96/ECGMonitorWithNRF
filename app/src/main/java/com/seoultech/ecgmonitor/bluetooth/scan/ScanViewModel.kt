@@ -81,21 +81,20 @@ class ScanViewModel @ViewModelInject constructor(
     }
 
 
-
-//Scan callback which is called after finding devices
-private val scanCallback = object : ScanCallback() {
-    override fun onScanResult(callbackType: Int, result: ScanResult) {
-        validateResult(result)
-    }
-
-    override fun onBatchScanResults(results: MutableList<ScanResult>) {
-        for (result in results) {
+    //Scan callback which is called after finding devices
+    private val scanCallback = object : ScanCallback() {
+        override fun onScanResult(callbackType: Int, result: ScanResult) {
             validateResult(result)
         }
-    }
 
-    override fun onScanFailed(errorCode: Int) {
-        stopScan()
+        override fun onBatchScanResults(results: MutableList<ScanResult>) {
+            for (result in results) {
+                validateResult(result)
+            }
+        }
+
+        override fun onScanFailed(errorCode: Int) {
+            stopScan()
+        }
     }
-}
 }
