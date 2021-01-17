@@ -1,6 +1,5 @@
 package com.seoultech.ecgmonitor.monitor
 
-import android.content.BroadcastReceiver
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,10 +8,8 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.seoultech.ecgmonitor.MonitorFragmentDirections
 import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.bluetooth.BluetoothStateLiveData
-import com.seoultech.ecgmonitor.bluetooth.BluetoothStateReceiver
 import com.seoultech.ecgmonitor.databinding.FragmentMonitorBinding
 import com.seoultech.ecgmonitor.findNavController
 import com.seoultech.ecgmonitor.heartrate.HeartRateLiveData
@@ -31,8 +28,8 @@ class MonitorFragment : Fragment() {
     private val monitorViewModel: MonitorViewModel by viewModels()
     private var isConnected = false
     private var isFullScreen = false
-    private var isBounded = false
     private var bluetoothBannerIsShowing = false
+    private var noDeviceBanner: Banner? = null
 
     @Inject
     lateinit var bluetoothStateLiveData: BluetoothStateLiveData
@@ -44,15 +41,12 @@ class MonitorFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentMonitorBinding.inflate(inflater, container, false)
 
-        //연결 이력 확인
-        isBounded = monitorViewModel.checkBoundedDevice()
+        subscribeUi(binding)
 
-        if (isBounded) { //연결 이력 있으면 연결 상태 구독
-            subscribeUi(binding)
-        } else { //없으면 UI 비활성화
+        if (!monitorViewModel.checkBoundedDevice()) {//없으면 UI 비활성화
             showNoDeviceBanner()
             disableUi()
         }
@@ -62,35 +56,39 @@ class MonitorFragment : Fragment() {
 
     //연결된 기기가 없을 때 배너 띄우기
     private fun showNoDeviceBanner() {
-        Banner.Builder(requireContext()).setParent(binding.linearlayoutMonitorBanner)
+        val banner = Banner.Builder(requireContext()).setParent(binding.linearlayoutMonitorBanner)
             .setMessage(getString(R.string.banner_no_device))
             .setRightButton(getString(R.string.banner_find_device)) {
+                it.dismiss()
                 val direction = MonitorFragmentDirections.actionMonitorFragmentToScanFragment()
                 findNavController().navigate(direction)
-                Log.d(TAG, "Banner : Go to next Fragment!")
-                it.dismiss()
             }
             .create()
-            .show()
+        banner.show()
+        noDeviceBanner = banner
     }
 
     //연결 상태 및 블루투스 연결 상태 구독
     private fun subscribeUi(binding: FragmentMonitorBinding) {
         monitorViewModel.gattLiveData.run {
             isConnected.observe(viewLifecycleOwner, {
-                if (it) { //connected
-                    this@MonitorFragment.isConnected = true
-                    //Toast.makeText(this@MonitorFragment, "Connected", Toast.LENGTH_SHORT).show()
+                if (monitorViewModel.checkBoundedDevice()) {
+                    if (it) { //connected
+                        this@MonitorFragment.isConnected = true
+                        enableUi()
+                        binding.ecggraphMonitor.start()
+                        dismissNoDeviceBannerIfItShowing()
+                        //Todo: 연결되었습니다 스낵바 띄우기
 
-                } else { //disconnected
-                    if (this@MonitorFragment.isConnected) {
-                        this@MonitorFragment.isConnected = false
-                        //Toast.makeText(this@MonitorFragment, "Disconnected", Toast.LENGTH_SHORT)
-                        //    .show()
-                        //finish()
+                    } else { //disconnected
+                        if (this@MonitorFragment.isConnected) {
+                            this@MonitorFragment.isConnected = false
+                            disableUi()
+                            binding.ecggraphMonitor.stop()
+                            //Todo: 연결이 끊어졌습니다 스낵바 띄우기
+                        }
                     }
                 }
-
             })
 
             //Observing heart rate value
@@ -100,9 +98,10 @@ class MonitorFragment : Fragment() {
 
             //Observing failure of connection state
             isFailure.observe(viewLifecycleOwner, {
-                if (it) {
-                    //Toast.makeText(this@MonitorFragment, "Fail", Toast.LENGTH_SHORT).show()
-                    //finish()
+                if (!monitorViewModel.checkBoundedDevice()) {
+                    if (it) {
+                        //Todo: 연결에 실패하였습니다 다이얼로그 띄우기
+                    }
                 }
             })
         }
@@ -127,13 +126,19 @@ class MonitorFragment : Fragment() {
         })
     }
 
+    private fun dismissNoDeviceBannerIfItShowing() {
+        noDeviceBanner?.dismiss()
+        noDeviceBanner = null
+    }
+
     //UI 활성화
     private fun enableUi() {
         binding.run {
             imageviewMonitorHeart.imageTintList =
                 ContextCompat.getColorStateList(requireContext(), R.color.red)
             textviewMonitorHeartrate.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.red))
+                ContextCompat.getColor(requireContext(), R.color.red)
+            )
             toolbarMonitor.menu.getItem(0).isVisible = true
         }
     }
@@ -144,7 +149,8 @@ class MonitorFragment : Fragment() {
             imageviewMonitorHeart.imageTintList =
                 ContextCompat.getColorStateList(requireContext(), R.color.colorDisabledUi)
             textviewMonitorHeartrate.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.colorDisabledUi))
+                ContextCompat.getColor(requireContext(), R.color.colorDisabledUi)
+            )
             toolbarMonitor.menu.getItem(0).isVisible = false
         }
     }
@@ -152,9 +158,8 @@ class MonitorFragment : Fragment() {
     override fun onPause() {
         super.onPause()
         //Stop drawing graph when this application is gone to background
-        if (isBounded) {
-            binding.ecggraphMonitor.stop()
-        }
+        binding.ecggraphMonitor.stop()
+
     }
 
     override fun onResume() {
@@ -162,7 +167,7 @@ class MonitorFragment : Fragment() {
         //change screen to landscape
         //changeScreenMode()
         //start graph
-        if (isBounded) {
+        if (monitorViewModel.checkBoundedDevice()) {
             binding.ecggraphMonitor.start()
         }
     }
