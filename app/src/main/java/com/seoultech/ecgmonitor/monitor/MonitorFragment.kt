@@ -44,14 +44,27 @@ class MonitorFragment : Fragment() {
     ): View {
         binding = FragmentMonitorBinding.inflate(inflater, container, false)
 
-        subscribeUi(binding)
+        subscribeUi()
 
-        if (!monitorViewModel.checkBoundedDevice()) {//없으면 UI 비활성화
+        if (!monitorViewModel.checkBoundedDevice()) {
             showNoDeviceBanner()
-            disableUi()
         }
 
         return binding.root
+    }
+
+    override fun onPause() {
+        super.onPause()
+        //Stop drawing graph when this application is gone to background
+        binding.ecggraphMonitor.stop()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refresh()
+        if (isConnected) {
+            binding.ecggraphMonitor.start()
+        }
     }
 
     //연결된 기기가 없을 때 배너 띄우기
@@ -69,61 +82,97 @@ class MonitorFragment : Fragment() {
     }
 
     //연결 상태 및 블루투스 연결 상태 구독
-    private fun subscribeUi(binding: FragmentMonitorBinding) {
-        monitorViewModel.gattLiveData.run {
-            isConnected.observe(viewLifecycleOwner, {
-                if (monitorViewModel.checkBoundedDevice()) {
-                    if (it) { //connected
-                        this@MonitorFragment.isConnected = true
-                        enableUi()
-                        binding.ecggraphMonitor.start()
-                        dismissNoDeviceBannerIfItShowing()
-                        Snackbar.make(binding.root, getString(R.string.monitor_snackbar_connected), Snackbar.LENGTH_SHORT).show()
+    private fun subscribeUi() {
+        subscribeConnectionState()
+        subscribeHeartRateValue()
+        subscribeConnectionIfFail()
+        subscribeBluetoothState()
+    }
 
-                    } else { //disconnected
-                        if (this@MonitorFragment.isConnected) {
-                            this@MonitorFragment.isConnected = false
-                            disableUi()
-                            binding.ecggraphMonitor.stop()
-                            Snackbar.make(binding.root, getString(R.string.monitor_snackbar_disconnected), Snackbar.LENGTH_INDEFINITE).show()
-                        }
-                    }
-                }
-            })
-
-            //Observing heart rate value
-            receivedValue.observe(viewLifecycleOwner, {
-                binding.ecggraphMonitor.addValue(it)
-            })
-
-            //Observing failure of connection state
-            isFailure.observe(viewLifecycleOwner, {
-                if (!monitorViewModel.checkBoundedDevice()) {
-                    if (it) {
-                        Snackbar.make(binding.root, getString(R.string.monitor_snackbar_fail), Snackbar.LENGTH_INDEFINITE).show()
-                    }
-                }
-            })
-        }
-
+    private fun subscribeBluetoothState() {
         //블루투스 연결 상태 구독
-        bluetoothStateLiveData.observe(viewLifecycleOwner, {
-            if (it) {
+        bluetoothStateLiveData.observe(viewLifecycleOwner, { isEnabled ->
+            if (isEnabled) {
                 if (bluetoothBannerIsShowing) {
-                    binding.bannerMonitorBluetooth.dismiss()
-                    bluetoothBannerIsShowing = false
+                    dismissBluetoothDisabledBanner()
                     enableUi()
-                    binding.ecggraphMonitor.stop()
                 }
             } else {
                 if (!bluetoothBannerIsShowing) {
-                    binding.bannerMonitorBluetooth.show()
-                    bluetoothBannerIsShowing = true
+                    showBluetoothDisabledBanner()
                     disableUi()
-                    binding.ecggraphMonitor.stop()
                 }
             }
         })
+    }
+
+    private fun showBluetoothDisabledBanner() {
+        binding.bannerMonitorBluetooth.show()
+        bluetoothBannerIsShowing = true
+    }
+
+    private fun dismissBluetoothDisabledBanner() {
+        binding.bannerMonitorBluetooth.dismiss()
+        bluetoothBannerIsShowing = false
+    }
+
+    private fun subscribeConnectionIfFail() {
+        //Observing failure of connection state
+        monitorViewModel.gattLiveData.isFailure.observe(viewLifecycleOwner, {
+            if (!monitorViewModel.checkBoundedDevice()) {
+                if (it) {
+                    Snackbar.make(
+                        binding.root, getString(R.string.monitor_snackbar_fail),
+                        Snackbar.LENGTH_INDEFINITE
+                    ).show()
+                }
+            }
+        })
+    }
+
+    private fun subscribeHeartRateValue() {
+        //Observing heart rate value
+        monitorViewModel.gattLiveData.receivedValue.observe(viewLifecycleOwner, {
+            binding.ecggraphMonitor.addValue(it)
+        })
+    }
+
+    private fun subscribeConnectionState() {
+        monitorViewModel.gattLiveData.isConnected.observe(viewLifecycleOwner, {
+            if (monitorViewModel.checkBoundedDevice()) {
+                if (it) { //connected
+                    if (!this@MonitorFragment.isConnected) {
+                        startPlot()
+                    }
+
+                } else { //disconnected
+                    if (this@MonitorFragment.isConnected) {
+                        stopPloat()
+                    }
+                }
+            }
+        })
+    }
+
+    private fun stopPloat() {
+        this@MonitorFragment.isConnected = false
+        disableUi()
+        Snackbar.make(
+            binding.root,
+            getString(R.string.monitor_snackbar_disconnected),
+            Snackbar.LENGTH_INDEFINITE
+        ).show()
+    }
+
+    private fun startPlot() {
+        this@MonitorFragment.isConnected = true
+        enableUi()
+        dismissNoDeviceBannerIfItShowing()
+        Snackbar.make(
+            binding.root,
+            getString(R.string.monitor_snackbar_connected),
+            Snackbar.LENGTH_SHORT
+        ).show()
     }
 
     private fun dismissNoDeviceBannerIfItShowing() {
@@ -140,6 +189,7 @@ class MonitorFragment : Fragment() {
                 ContextCompat.getColor(requireContext(), R.color.red)
             )
             toolbarMonitor.menu.getItem(0).isVisible = true
+            ecggraphMonitor.start()
         }
     }
 
@@ -152,23 +202,20 @@ class MonitorFragment : Fragment() {
                 ContextCompat.getColor(requireContext(), R.color.colorDisabledUi)
             )
             toolbarMonitor.menu.getItem(0).isVisible = false
+            ecggraphMonitor.stop()
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        //Stop drawing graph when this application is gone to background
-        binding.ecggraphMonitor.stop()
-
-    }
-
-    override fun onResume() {
-        super.onResume()
-        //change screen to landscape
-        //changeScreenMode()
-        //start graph
-        if (monitorViewModel.checkBoundedDevice()) {
-            binding.ecggraphMonitor.start()
+    private fun refresh() {
+        monitorViewModel.gattLiveData.isConnected.value?.let {
+            if (it) {
+                startPlot()
+            } else {
+                stopPloat()
+            }
+        } ?: run {
+            isConnected = false
+            disableUi()
         }
     }
 
