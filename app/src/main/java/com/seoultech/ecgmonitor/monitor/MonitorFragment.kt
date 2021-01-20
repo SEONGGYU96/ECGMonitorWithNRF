@@ -1,13 +1,13 @@
 package com.seoultech.ecgmonitor.monitor
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.google.android.material.snackbar.Snackbar
 import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.bluetooth.BluetoothStateLiveData
 import com.seoultech.ecgmonitor.databinding.FragmentMonitorBinding
@@ -78,14 +78,14 @@ class MonitorFragment : Fragment() {
                         enableUi()
                         binding.ecggraphMonitor.start()
                         dismissNoDeviceBannerIfItShowing()
-                        //Todo: 연결되었습니다 스낵바 띄우기
+                        Snackbar.make(binding.root, getString(R.string.monitor_snackbar_connected), Snackbar.LENGTH_SHORT).show()
 
                     } else { //disconnected
                         if (this@MonitorFragment.isConnected) {
                             this@MonitorFragment.isConnected = false
                             disableUi()
                             binding.ecggraphMonitor.stop()
-                            //Todo: 연결이 끊어졌습니다 스낵바 띄우기
+                            Snackbar.make(binding.root, getString(R.string.monitor_snackbar_disconnected), Snackbar.LENGTH_INDEFINITE).show()
                         }
                     }
                 }
@@ -100,7 +100,7 @@ class MonitorFragment : Fragment() {
             isFailure.observe(viewLifecycleOwner, {
                 if (!monitorViewModel.checkBoundedDevice()) {
                     if (it) {
-                        //Todo: 연결에 실패하였습니다 다이얼로그 띄우기
+                        Snackbar.make(binding.root, getString(R.string.monitor_snackbar_fail), Snackbar.LENGTH_INDEFINITE).show()
                     }
                 }
             })
