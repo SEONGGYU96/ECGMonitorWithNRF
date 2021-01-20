@@ -1,16 +1,19 @@
 package com.seoultech.ecgmonitor.service
 
 import android.app.PendingIntent
+import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
+import android.content.BroadcastReceiver
 import android.content.Intent
+import android.content.IntentFilter
 import android.util.Log
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.Observer
 import com.seoultech.ecgmonitor.MainActivity
+import com.seoultech.ecgmonitor.bluetooth.BluetoothStateReceiver
 import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothGattConnectible
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainable
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattLiveData
-import com.seoultech.ecgmonitor.monitor.MonitorFragment
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -44,6 +47,8 @@ class GattConnectionMaintenanceService : LifecycleService() {
     //Notification 생성 모듈
     @Inject
     lateinit var notification: NotificationGenerator
+
+    private val bluetoothStateReceiver: BroadcastReceiver by lazy { BluetoothStateReceiver() }
 
     //Notification 터치 시 동작할 PendingIntent
     private val pendingIntent: PendingIntent by lazy {
@@ -80,8 +85,6 @@ class GattConnectionMaintenanceService : LifecycleService() {
 
         //최초 생성 시 GATT 연결 상태에 따른 동작 Observing
         gattLiveData.isConnected.observeForever(connectionStateObserver)
-
-        //gattLiveData.receivedValue.observeForever {}
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -102,6 +105,7 @@ class GattConnectionMaintenanceService : LifecycleService() {
                 NOTIFICATION_ID,
                 notification.getConnectingNotification(pendingIntent)
             )
+            registerBluetoothStateBroadcastReceiver()
         }
 
         return START_STICKY
@@ -114,5 +118,21 @@ class GattConnectionMaintenanceService : LifecycleService() {
         gattLiveData.run {
             isConnected.removeObserver(connectionStateObserver)
         }
+        unRegisterBluetoothStateBroadcasstReceiver()
+    }
+
+    private fun unRegisterBluetoothStateBroadcasstReceiver() {
+        try {
+            unregisterReceiver(bluetoothStateReceiver)
+        } catch (e: IllegalArgumentException) {
+            Log.d(TAG, "Receiver not registered")
+        }
+    }
+
+    private fun registerBluetoothStateBroadcastReceiver() {
+        registerReceiver(
+            bluetoothStateReceiver,
+            IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED)
+        )
     }
 }
