@@ -10,15 +10,19 @@ import androidx.fragment.app.viewModels
 import com.google.android.material.snackbar.Snackbar
 import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.bluetooth.BluetoothStateLiveData
+import com.seoultech.ecgmonitor.ecgstate.ECGStateCallback
+import com.seoultech.ecgmonitor.ecgstate.ECGStateLiveData
+import com.seoultech.ecgmonitor.ecgstate.ECGStateObserver
 import com.seoultech.ecgmonitor.databinding.FragmentMonitorBinding
 import com.seoultech.ecgmonitor.findNavController
 import com.seoultech.ecgmonitor.heartrate.HeartRateLiveData
+import com.seoultech.ecgmonitor.heartrate.HeartRateSnapshotLiveData
 import com.sergivonavi.materialbanner.Banner
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MonitorFragment : Fragment() {
+class MonitorFragment : Fragment(), ECGStateCallback {
 
     companion object {
         private const val TAG = "MonitorActivity"
@@ -32,10 +36,15 @@ class MonitorFragment : Fragment() {
     private var noDeviceBanner: Banner? = null
 
     @Inject
-    lateinit var bluetoothStateLiveData: BluetoothStateLiveData
+    lateinit var heartRateLiveData: HeartRateLiveData
 
     @Inject
-    lateinit var heartRateLiveData: HeartRateLiveData
+    lateinit var heartRateSnapshotLiveData: HeartRateSnapshotLiveData
+
+    @Inject
+    lateinit var ecgStateLiveData: ECGStateLiveData
+
+    private val ecgStateObserver = ECGStateObserver(this)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,10 +54,6 @@ class MonitorFragment : Fragment() {
         binding = FragmentMonitorBinding.inflate(inflater, container, false)
 
         subscribeUi()
-
-        if (!monitorViewModel.checkBoundedDevice()) {
-            showNoDeviceBanner()
-        }
 
         return binding.root
     }
@@ -67,6 +72,45 @@ class MonitorFragment : Fragment() {
         }
     }
 
+    override fun beforeBounded() {
+        isConnected = false
+        disableUi()
+        showNoDeviceBanner()
+    }
+
+    override fun onBluetoothDisabled() {
+        if (!bluetoothBannerIsShowing) {
+            showBluetoothDisabledBanner()
+            disableUi()
+        }
+    }
+
+    override fun onBluetoothEnabled() {
+        if (bluetoothBannerIsShowing) {
+            dismissBluetoothDisabledBanner()
+            enableUi()
+        }
+    }
+
+    override fun onConnected() {
+        if (!isConnected) {
+            startPlot()
+        }
+    }
+
+    override fun onDisconnected() {
+        if (isConnected) {
+            stopPlot()
+        }
+    }
+
+    override fun onFailure() {
+        Snackbar.make(
+            binding.root, getString(R.string.monitor_snackbar_fail),
+            Snackbar.LENGTH_INDEFINITE
+        ).show()
+    }
+
     //연결된 기기가 없을 때 배너 띄우기
     private fun showNoDeviceBanner() {
         val banner = Banner.Builder(requireContext()).setParent(binding.linearlayoutMonitorBanner)
@@ -83,27 +127,8 @@ class MonitorFragment : Fragment() {
 
     //연결 상태 및 블루투스 연결 상태 구독
     private fun subscribeUi() {
-        subscribeConnectionState()
         subscribeHeartRateValue()
-        subscribeConnectionIfFail()
-        subscribeBluetoothState()
-    }
-
-    private fun subscribeBluetoothState() {
-        //블루투스 연결 상태 구독
-        bluetoothStateLiveData.observe(viewLifecycleOwner, { isEnabled ->
-            if (isEnabled) {
-                if (bluetoothBannerIsShowing) {
-                    dismissBluetoothDisabledBanner()
-                    enableUi()
-                }
-            } else {
-                if (!bluetoothBannerIsShowing) {
-                    showBluetoothDisabledBanner()
-                    disableUi()
-                }
-            }
-        })
+        ecgStateLiveData.observe(viewLifecycleOwner, ecgStateObserver)
     }
 
     private fun showBluetoothDisabledBanner() {
@@ -116,45 +141,14 @@ class MonitorFragment : Fragment() {
         bluetoothBannerIsShowing = false
     }
 
-    private fun subscribeConnectionIfFail() {
-        //Observing failure of connection state
-        monitorViewModel.gattLiveData.isFailure.observe(viewLifecycleOwner, {
-            if (!monitorViewModel.checkBoundedDevice()) {
-                if (it) {
-                    Snackbar.make(
-                        binding.root, getString(R.string.monitor_snackbar_fail),
-                        Snackbar.LENGTH_INDEFINITE
-                    ).show()
-                }
-            }
-        })
-    }
-
     private fun subscribeHeartRateValue() {
         //Observing heart rate value
-        monitorViewModel.gattLiveData.receivedValue.observe(viewLifecycleOwner, {
+        heartRateSnapshotLiveData.observe(viewLifecycleOwner, {
             binding.ecggraphMonitor.addValue(it)
         })
     }
 
-    private fun subscribeConnectionState() {
-        monitorViewModel.gattLiveData.isConnected.observe(viewLifecycleOwner, {
-            if (monitorViewModel.checkBoundedDevice()) {
-                if (it) { //connected
-                    if (!this@MonitorFragment.isConnected) {
-                        startPlot()
-                    }
-
-                } else { //disconnected
-                    if (this@MonitorFragment.isConnected) {
-                        stopPloat()
-                    }
-                }
-            }
-        })
-    }
-
-    private fun stopPloat() {
+    private fun stopPlot() {
         this@MonitorFragment.isConnected = false
         disableUi()
         Snackbar.make(
@@ -207,19 +201,20 @@ class MonitorFragment : Fragment() {
     }
 
     private fun refresh() {
-        monitorViewModel.gattLiveData.isConnected.value?.let {
-            if (it) {
+        if (ecgStateLiveData.isBounded()) {
+            if (ecgStateLiveData.isConnected()) {
                 startPlot()
             } else {
-                stopPloat()
+                stopPlot()
+                isConnected = false
             }
-        } ?: run {
-            isConnected = false
-            disableUi()
+        } else {
+            beforeBounded()
         }
     }
-
-    private fun changeScreenMode() {
+}
+//
+//private fun changeScreenMode() {
 //        if (isFullScreen) {
 //            return
 //        }
@@ -239,5 +234,4 @@ class MonitorFragment : Fragment() {
 //                    or View.SYSTEM_UI_FLAG_FULLSCREEN)
 //        }
 //        isFullScreen = true
-    }
-}
+//}
