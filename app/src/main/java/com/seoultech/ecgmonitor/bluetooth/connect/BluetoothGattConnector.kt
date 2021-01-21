@@ -27,11 +27,6 @@ class BluetoothGattConnector(
         callback: BluetoothConnectStateCallback
     ) {
         Log.d(TAG, "connect() : Try connection")
-        
-        if (gattContainer.hasGatt()) {
-            Log.d(TAG, "connect() : Already connected.")
-            return
-        }
 
         //Connect
         gattContainer.gatt = bluetoothDevice.connectGatt(context, true, object : BluetoothGattCallback() {
@@ -94,7 +89,7 @@ class BluetoothGattConnector(
      * Disconnect with the device.
      */
     override fun disconnect() {
-        if (gattContainer.hasGatt()) {
+        if (!gattContainer.hasGatt()) {
             Log.d(TAG, "disconnect() : Bluetooth GATT not connected")
         } else {
             gattContainer.gatt!!.disconnect()

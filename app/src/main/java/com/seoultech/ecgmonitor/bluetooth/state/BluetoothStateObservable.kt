@@ -1,4 +1,4 @@
-package com.seoultech.ecgmonitor.bluetooth
+package com.seoultech.ecgmonitor.bluetooth.state
 
 interface BluetoothStateObservable {
 

@@ -5,12 +5,15 @@ import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothGattConnectible
 import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothGattConnector
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainable
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainer
-import com.seoultech.ecgmonitor.bluetooth.gatt.GattLiveData
+import com.seoultech.ecgmonitor.bluetooth.state.BluetoothStateLiveData
+import com.seoultech.ecgmonitor.bluetooth.state.BluetoothStateReceiver
+import com.seoultech.ecgmonitor.ecgstate.ECGStateLiveData
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ApplicationComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Named
 import javax.inject.Singleton
 
 @InstallIn(ApplicationComponent::class)
@@ -29,10 +32,15 @@ class BluetoothModule {
     ) : BluetoothGattConnectible = BluetoothGattConnector(context, gattContainable)
 
     @Provides
-    @Singleton
-    fun provideGattLiveData(): GattLiveData = GattLiveData()
+    fun provideBluetoothStateReceiver(ecgStateLiveData: ECGStateLiveData): BluetoothStateReceiver =
+        BluetoothStateReceiver(ecgStateLiveData)
 
     @Provides
     @Singleton
-    fun provideBluetoothStateLiveData(): BluetoothStateLiveData = BluetoothStateLiveDataImpl()
+    fun provideBluetoothStateLiveData(): BluetoothStateLiveData = BluetoothStateLiveData()
+
+    @Provides
+    @Named("bluetoothStateReceiver")
+    fun provideBluetoothStateReceiverToScanComponent(bluetoothStateLiveData: BluetoothStateLiveData): BluetoothStateReceiver =
+        BluetoothStateReceiver(bluetoothStateLiveData)
 }
