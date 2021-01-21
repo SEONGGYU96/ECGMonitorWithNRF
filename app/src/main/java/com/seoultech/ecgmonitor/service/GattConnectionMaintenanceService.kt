@@ -1,5 +1,6 @@
 package com.seoultech.ecgmonitor.service
 
+import android.app.Notification
 import android.app.PendingIntent
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
@@ -136,26 +137,26 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
 
     private fun setNotification(state: State) {
         when(state) {
-            State.CONNECTED -> startForeground(
-                NOTIFICATION_ID,
+            State.CONNECTED -> refreshNotification(
                 notification.getConnectingNotification(pendingIntent)
             )
 
-            State.DISCONNECTED -> startForeground(
-                NOTIFICATION_ID,
+            State.DISCONNECTED -> refreshNotification(
                 notification.getDisconnectedNotification(pendingIntent)
             )
 
-            State.BLUETOOTH_DISABLED -> {
-                //Todo: 블루투스가 꺼져있다는 Notification 갱신
-                Log.d(TAG, "Bluetooth is disabled")
-            }
+            State.BLUETOOTH_DISABLED -> refreshNotification(
+                notification.getBluetoothDisabledNotification(pendingIntent)
+            )
 
-            else -> {
-                //Todo: 연결에 실패했다는 Notification 갱신
-                Log.d(TAG, "Connection is fail")
-            }
+            else -> refreshNotification(
+                notification.getFailureNotification(pendingIntent)
+            )
         }
+    }
+
+    private fun refreshNotification(notification: Notification) {
+        startForeground(NOTIFICATION_ID, notification)
     }
 
     private fun unRegisterBluetoothStateBroadcastReceiver() {

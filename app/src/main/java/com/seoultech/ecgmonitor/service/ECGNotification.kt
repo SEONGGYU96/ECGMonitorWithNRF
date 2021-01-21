@@ -26,13 +26,20 @@ class ECGNotification(private val context: Context) : NotificationGenerator {
     //연결 끊김 상태
     private var disconnectedNotification: Notification? = null
 
+    private var bluetoothDisconnectedNotification: Notification? = null
+
+    private var connectionFailureNotification: Notification? = null
+
     private val notificationManager: NotificationManager by lazy {
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
 
     //정상 연결 상태 Notification 생성/반환
     override fun getConnectingNotification(pendingIntent: PendingIntent): Notification {
         if (connectedNotification == null) {
-            connectedNotification = generateNotification(true, pendingIntent)
+            connectedNotification = generateNotification(
+                context.getString(R.string.notification_connected),
+                true, pendingIntent
+            )
         }
         return connectedNotification!!
     }
@@ -40,21 +47,37 @@ class ECGNotification(private val context: Context) : NotificationGenerator {
     //연결 끊김 상태 Notification 생성/반환
     override fun getDisconnectedNotification(pendingIntent: PendingIntent): Notification {
         if (disconnectedNotification == null) {
-            disconnectedNotification = generateNotification(false, pendingIntent)
+            disconnectedNotification = generateNotification(context.getString(R.string.notification_disconnected),
+                false, pendingIntent
+            )
         }
         return disconnectedNotification!!
     }
 
-    //Notification 생성
-    private fun generateNotification(isConnected: Boolean, pendingIntent: PendingIntent) : Notification {
-        initNotificationChannel()
-
-        //연결 상태에 따른 문구 설정
-        val text = if (isConnected) {
-            context.getString(R.string.notification_connected)
-        } else {
-            context.getString(R.string.notification_disconnected)
+    override fun getBluetoothDisabledNotification(pendingIntent: PendingIntent): Notification {
+        if (bluetoothDisconnectedNotification == null) {
+            bluetoothDisconnectedNotification = generateNotification(
+                context.getString(R.string.notification_bluetooth_disabled),
+                false, pendingIntent
+            )
         }
+        return bluetoothDisconnectedNotification!!
+    }
+
+    override fun getFailureNotification(pendingIntent: PendingIntent): Notification {
+        if (connectionFailureNotification == null) {
+            connectionFailureNotification = generateNotification(
+                context.getString(R.string.notification_failure),
+                false,
+                pendingIntent
+            )
+        }
+        return connectionFailureNotification!!
+    }
+
+    //Notification 생성
+    private fun generateNotification(text: String, isColorful: Boolean, pendingIntent: PendingIntent) : Notification {
+        initNotificationChannel()
 
         val notificationBuilder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_icon_transparent)
@@ -64,7 +87,7 @@ class ECGNotification(private val context: Context) : NotificationGenerator {
             .setContentIntent(pendingIntent)
 
         //문구 스타일과 색 변경
-        if (!isConnected) {
+        if (!isColorful) {
             notificationBuilder.setStyle(NotificationCompat.BigTextStyle().bigText(text))
         } else {
             notificationBuilder.color = ContextCompat.getColor(context, R.color.red)
