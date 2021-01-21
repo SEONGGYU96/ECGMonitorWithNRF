@@ -1,5 +1,7 @@
 package com.seoultech.ecgmonitor.monitor
 
+import android.bluetooth.BluetoothAdapter
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -50,7 +52,11 @@ class MonitorFragment : Fragment(), ECGStateCallback {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentMonitorBinding.inflate(inflater, container, false)
+        binding = FragmentMonitorBinding.inflate(inflater, container, false).apply {
+            bannerMonitorBluetooth.setRightButtonListener {
+                startActivity(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+            }
+        }
 
         subscribeUi()
 
