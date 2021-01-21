@@ -72,9 +72,6 @@ class MonitorFragment : Fragment(), ECGStateCallback {
     override fun onResume() {
         super.onResume()
         refresh()
-        if (isConnected) {
-            binding.ecggraphMonitor.start()
-        }
     }
 
     override fun beforeBounded() {
@@ -207,11 +204,13 @@ class MonitorFragment : Fragment(), ECGStateCallback {
 
     private fun refresh() {
         if (ecgStateLiveData.isBounded()) {
-            if (ecgStateLiveData.isConnected()) {
-                startPlot()
-            } else {
-                stopPlot()
-                isConnected = false
+            if (ecgStateLiveData.isBluetoothEnabled()) {
+                if (ecgStateLiveData.isConnected()) {
+                    startPlot()
+                } else {
+                    stopPlot()
+                    isConnected = false
+                }
             }
         } else {
             beforeBounded()
