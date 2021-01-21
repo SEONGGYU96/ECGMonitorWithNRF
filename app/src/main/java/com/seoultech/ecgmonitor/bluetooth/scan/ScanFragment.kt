@@ -13,8 +13,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.button.MaterialButton
 import com.seoultech.ecgmonitor.R
-import com.seoultech.ecgmonitor.bluetooth.BluetoothStateLiveData
-import com.seoultech.ecgmonitor.bluetooth.BluetoothStateReceiver
+import com.seoultech.ecgmonitor.bluetooth.state.BluetoothStateLiveData
+import com.seoultech.ecgmonitor.bluetooth.state.BluetoothStateReceiver
 import com.seoultech.ecgmonitor.databinding.FragmentScanBinding
 import com.seoultech.ecgmonitor.findNavController
 import com.seoultech.ecgmonitor.service.GattConnectionMaintenanceService

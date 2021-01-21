@@ -3,13 +3,12 @@ package com.seoultech.ecgmonitor.service
 import android.app.PendingIntent
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.content.BroadcastReceiver
 import android.content.Intent
 import android.content.IntentFilter
 import android.util.Log
 import androidx.lifecycle.LifecycleService
 import com.seoultech.ecgmonitor.MainActivity
-import com.seoultech.ecgmonitor.bluetooth.BluetoothStateReceiver
+import com.seoultech.ecgmonitor.bluetooth.state.BluetoothStateReceiver
 import com.seoultech.ecgmonitor.ecgstate.ECGStateCallback
 import com.seoultech.ecgmonitor.ecgstate.ECGStateLiveData
 import com.seoultech.ecgmonitor.ecgstate.ECGStateObserver
@@ -17,7 +16,6 @@ import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothGattConnectible
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainable
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-import javax.inject.Qualifier
 
 /**
  * GATT 연결 및 유지 담당 서비스
@@ -133,6 +131,7 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
 
     private fun connect(device: BluetoothDevice) {
         gattConnector.connect(device, ecgStateLiveData)
+        Log.d(TAG, "connect(): Try connect with ${device.address}")
     }
 
     private fun setNotification(state: State) {

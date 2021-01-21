@@ -1,12 +1,10 @@
-package com.seoultech.ecgmonitor.bluetooth
+package com.seoultech.ecgmonitor.bluetooth.state
 
 import android.bluetooth.BluetoothAdapter
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import com.seoultech.ecgmonitor.ecgstate.ECGStateLiveData
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class BluetoothStateReceiver(private val bluetoothStateObservable: BluetoothStateObservable)

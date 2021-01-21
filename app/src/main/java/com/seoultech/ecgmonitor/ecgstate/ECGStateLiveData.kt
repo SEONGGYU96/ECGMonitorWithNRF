@@ -1,7 +1,7 @@
 package com.seoultech.ecgmonitor.ecgstate
 
 import androidx.lifecycle.LiveData
-import com.seoultech.ecgmonitor.bluetooth.BluetoothStateObservable
+import com.seoultech.ecgmonitor.bluetooth.state.BluetoothStateObservable
 import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothConnectStateCallback
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainable
 import com.seoultech.ecgmonitor.heartrate.HeartRateSnapshotLiveData

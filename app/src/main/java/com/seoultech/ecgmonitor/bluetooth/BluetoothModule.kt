@@ -5,9 +5,9 @@ import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothGattConnectible
 import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothGattConnector
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainable
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainer
-import com.seoultech.ecgmonitor.bluetooth.scan.ScanFragment
+import com.seoultech.ecgmonitor.bluetooth.state.BluetoothStateLiveData
+import com.seoultech.ecgmonitor.bluetooth.state.BluetoothStateReceiver
 import com.seoultech.ecgmonitor.ecgstate.ECGStateLiveData
-import dagger.Component
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

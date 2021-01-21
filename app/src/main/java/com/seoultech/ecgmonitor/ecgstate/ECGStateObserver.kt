@@ -15,7 +15,7 @@ class ECGStateObserver(private val ecgStateCallback: ECGStateCallback): Observer
             } else {
                 if (isBluetoothDisabled) {
                     ecgStateCallback.onBluetoothEnabled()
-                    isBluetoothDisabled = true
+                    isBluetoothDisabled = false
                 } else {
                     if (ecgStateLiveData.isFailed()) {
                         ecgStateCallback.onFailure()

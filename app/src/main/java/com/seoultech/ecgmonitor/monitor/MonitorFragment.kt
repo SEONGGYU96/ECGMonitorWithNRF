@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.snackbar.Snackbar
 import com.seoultech.ecgmonitor.R
-import com.seoultech.ecgmonitor.bluetooth.BluetoothStateLiveData
 import com.seoultech.ecgmonitor.ecgstate.ECGStateCallback
 import com.seoultech.ecgmonitor.ecgstate.ECGStateLiveData
 import com.seoultech.ecgmonitor.ecgstate.ECGStateObserver
