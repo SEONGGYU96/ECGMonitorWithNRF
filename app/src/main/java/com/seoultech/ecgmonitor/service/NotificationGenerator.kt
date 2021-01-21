@@ -7,4 +7,8 @@ interface NotificationGenerator {
     fun getConnectingNotification(pendingIntent: PendingIntent): Notification
 
     fun getDisconnectedNotification(pendingIntent: PendingIntent): Notification
+
+    fun getBluetoothDisabledNotification(pendingIntent: PendingIntent): Notification
+
+    fun getFailureNotification(pendingIntent: PendingIntent): Notification
 }
