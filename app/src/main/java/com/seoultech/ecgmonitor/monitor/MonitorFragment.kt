@@ -3,18 +3,18 @@ package com.seoultech.ecgmonitor.monitor
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.seoultech.ecgmonitor.R
+import com.seoultech.ecgmonitor.databinding.FragmentMonitorBinding
 import com.seoultech.ecgmonitor.ecgstate.ECGStateCallback
 import com.seoultech.ecgmonitor.ecgstate.ECGStateLiveData
 import com.seoultech.ecgmonitor.ecgstate.ECGStateObserver
-import com.seoultech.ecgmonitor.databinding.FragmentMonitorBinding
 import com.seoultech.ecgmonitor.findNavController
 import com.seoultech.ecgmonitor.heartrate.HeartRateLiveData
 import com.seoultech.ecgmonitor.heartrate.HeartRateSnapshotLiveData
@@ -58,9 +58,26 @@ class MonitorFragment : Fragment(), ECGStateCallback {
             }
         }
 
+        (activity as AppCompatActivity).setSupportActionBar(binding.toolbarMonitor)
+        setHasOptionsMenu(true)
+
         subscribeUi()
 
         return binding.root
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.monitor_app_bar, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menu_monitor_disconnect -> {
+                showDisconnectDialog()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun onPause() {
@@ -115,10 +132,14 @@ class MonitorFragment : Fragment(), ECGStateCallback {
 
     //연결된 기기가 없을 때 배너 띄우기
     private fun showNoDeviceBanner() {
+        if (noDeviceBanner != null) {
+            return
+        }
         val banner = Banner.Builder(requireContext()).setParent(binding.linearlayoutMonitorBanner)
             .setMessage(getString(R.string.banner_no_device))
             .setRightButton(getString(R.string.banner_find_device)) {
                 it.dismiss()
+                noDeviceBanner = null
                 val direction = MonitorFragmentDirections.actionMonitorFragmentToScanFragment()
                 findNavController().navigate(direction)
             }
@@ -215,6 +236,20 @@ class MonitorFragment : Fragment(), ECGStateCallback {
         } else {
             beforeBounded()
         }
+    }
+
+    private fun showDisconnectDialog() {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(getString(R.string.monitor_disconnect_dialog_title))
+            .setMessage(getString(R.string.monitor_disconnect_dialog_message))
+            .setPositiveButton(getString(R.string.monitor_disconnect_dialog_possitive_button)) { dialog, _ ->
+                dialog.dismiss()
+                monitorViewModel.disconnect()
+            }
+            .setNegativeButton(getString(R.string.monitor_disconnect_dialog_negative_button)) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 }
 //

@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/favorite"
+        android:id="@+id/menu_monitor_disconnect"
         android:title="@string/monitor_menu_disconnect"
         android:contentDescription="@string/monitor_menu_disconnect_description"
         app:showAsAction="never" />
