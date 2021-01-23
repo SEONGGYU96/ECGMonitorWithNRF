@@ -152,6 +152,10 @@ class MonitorFragment : Fragment(), ECGStateCallback {
     private fun subscribeUi() {
         subscribeHeartRateValue()
         ecgStateLiveData.observe(viewLifecycleOwner, ecgStateObserver)
+
+        heartRateLiveData.observe(viewLifecycleOwner) {
+            binding.textviewMonitorHeartrate.text = it.toString()
+        }
     }
 
     private fun showBluetoothDisabledBanner() {
@@ -167,7 +171,7 @@ class MonitorFragment : Fragment(), ECGStateCallback {
     private fun subscribeHeartRateValue() {
         //Observing heart rate value
         heartRateSnapshotLiveData.observe(viewLifecycleOwner, {
-            binding.ecggraphMonitor.addValue(it)
+            binding.ecggraphMonitor.addValue(it.value, it.time)
         })
     }
 

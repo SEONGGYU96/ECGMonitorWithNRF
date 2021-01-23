@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.util.Log
 import androidx.lifecycle.LifecycleService
+import androidx.lifecycle.Observer
 import com.seoultech.ecgmonitor.MainActivity
 import com.seoultech.ecgmonitor.bluetooth.state.BluetoothStateReceiver
 import com.seoultech.ecgmonitor.ecgstate.ECGStateCallback
@@ -15,6 +16,10 @@ import com.seoultech.ecgmonitor.ecgstate.ECGStateLiveData
 import com.seoultech.ecgmonitor.ecgstate.ECGStateObserver
 import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothGattConnectible
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainable
+import com.seoultech.ecgmonitor.graph.HeartRate
+import com.seoultech.ecgmonitor.heartrate.HeartRateCalculable
+import com.seoultech.ecgmonitor.heartrate.HeartRateCalculator
+import com.seoultech.ecgmonitor.heartrate.HeartRateSnapshotLiveData
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -31,6 +36,9 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
         private const val NOTIFICATION_ID = 1
         const val EXTRA_DISCOVERED_DEVICE = "discoveredDevice"
     }
+
+    @Inject
+    lateinit var heartRateCalculator: HeartRateCalculable
 
     //GATT 객체 컨테이너 (싱글턴)
     @Inject
@@ -51,9 +59,21 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
     @Inject
     lateinit var bluetoothStateReceiver: BluetoothStateReceiver
 
+    @Inject
+    lateinit var heartRateSnapshotLiveData: HeartRateSnapshotLiveData
+
     private var boundedDevice: BluetoothDevice? = null
 
     private val ecgStateObserver = ECGStateObserver(this)
+
+    private val heartRateSnapshotObserver = Observer<HeartRateSnapshotLiveData> {
+        heartRateCalculator.addValue(
+            HeartRate.obtain().apply {
+                data = it.value
+                time = it.time
+            }
+        )
+    }
 
     //Notification 터치 시 동작할 PendingIntent
     private val pendingIntent: PendingIntent by lazy {
@@ -75,7 +95,8 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
         if (!gattContainer.hasGatt()) {//GattContainer 에 gatt 이 없으면 연결 전이거나 잘못된 접근
             Log.d(TAG, "onStartCommand : GattContainer doesn't have GATT")
             val discoveredDevice = intent?.getParcelableExtra<BluetoothDevice>(
-                EXTRA_DISCOVERED_DEVICE)
+                EXTRA_DISCOVERED_DEVICE
+            )
 
             if (discoveredDevice == null) { //intent로 전달된 BluetoothDevice도 없으면 잘못된 접근
                 Log.e(TAG, "Discovered device is null. Connection is not invalid.")
@@ -113,17 +134,21 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
     override fun onBluetoothEnabled() {
         boundedDevice?.let {
             connect(it)
-        }?: run {
+        } ?: run {
             throw IllegalStateException()
         }
     }
 
     override fun onConnected() {
         setNotification(State.CONNECTED)
+        heartRateCalculator.startCalculating()
+        heartRateSnapshotLiveData.observeForever(heartRateSnapshotObserver)
     }
 
     override fun onDisconnected() {
         setNotification(State.DISCONNECTED)
+        heartRateCalculator.stopCalculating()
+        heartRateSnapshotLiveData.removeObserver(heartRateSnapshotObserver)
     }
 
     override fun onFailure() {
@@ -136,7 +161,7 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
     }
 
     private fun setNotification(state: State) {
-        when(state) {
+        when (state) {
             State.CONNECTED -> refreshNotification(
                 notification.getConnectingNotification(pendingIntent)
             )
