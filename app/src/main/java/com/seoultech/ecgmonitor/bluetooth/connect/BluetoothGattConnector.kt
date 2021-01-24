@@ -28,6 +28,10 @@ class BluetoothGattConnector(
     ) {
         Log.d(TAG, "connect() : Try connection")
 
+        gattContainer.gatt?.close()
+
+
+
         //Connect
         gattContainer.gatt = bluetoothDevice.connectGatt(context, true, object : BluetoothGattCallback() {
             private val TAG = "BluetoothGattCallback"
