@@ -222,6 +222,7 @@ class MonitorFragment : Fragment(), ECGStateCallback {
             textviewMonitorHeartrate.setTextColor(
                 ContextCompat.getColor(requireContext(), R.color.colorDisabledUi)
             )
+            textviewMonitorHeartrate.text = getString(R.string.monitor_no_heart_rate)
             toolbarMonitor.menu.getItem(0).isVisible = false
             ecggraphMonitor.stop()
         }

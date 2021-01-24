@@ -84,13 +84,6 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
         }
     }
 
-    override fun onCreate() {
-        super.onCreate()
-
-        //최초 생성 시 GATT 연결 상태에 따른 동작 Observing
-        ecgStateLiveData.observeForever(ecgStateObserver)
-    }
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (!gattContainer.hasGatt()) {//GattContainer 에 gatt 이 없으면 연결 전이거나 잘못된 접근
             Log.d(TAG, "onStartCommand : GattContainer doesn't have GATT")
@@ -107,6 +100,7 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
             //intent로 전달된 BluetoothDevice가 있으면 해당 기기와 연결 실행 및 ForegroundService 시작
             connect(discoveredDevice) //BluetoothDevice 가 있으면 연결
             boundedDevice = discoveredDevice
+            ecgStateLiveData.observeForever(ecgStateObserver)
 
             setNotification(State.CONNECTED)
             registerBluetoothStateBroadcastReceiver()
@@ -120,6 +114,7 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
 
         //서비스 종료 시 Observer들을 수동으로 해제해주어야함
         ecgStateLiveData.removeObserver(ecgStateObserver)
+        stopHeartRateCalculate()
         unRegisterBluetoothStateBroadcastReceiver()
     }
 
@@ -129,11 +124,14 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
 
     override fun onBluetoothDisabled() {
         setNotification(State.BLUETOOTH_DISABLED)
+        stopHeartRateCalculate()
     }
 
     override fun onBluetoothEnabled() {
         boundedDevice?.let {
+            gattContainer.gatt?.disconnect()
             connect(it)
+            startHeartRateCalculate()
         } ?: run {
             throw IllegalStateException()
         }
@@ -141,18 +139,17 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
 
     override fun onConnected() {
         setNotification(State.CONNECTED)
-        heartRateCalculator.startCalculating()
-        heartRateSnapshotLiveData.observeForever(heartRateSnapshotObserver)
+        startHeartRateCalculate()
     }
 
     override fun onDisconnected() {
         setNotification(State.DISCONNECTED)
-        heartRateCalculator.stopCalculating()
-        heartRateSnapshotLiveData.removeObserver(heartRateSnapshotObserver)
+        stopHeartRateCalculate()
     }
 
     override fun onFailure() {
         setNotification(State.FAILURE)
+        stopHeartRateCalculate()
     }
 
     private fun connect(device: BluetoothDevice) {
@@ -182,6 +179,16 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
 
     private fun refreshNotification(notification: Notification) {
         startForeground(NOTIFICATION_ID, notification)
+    }
+
+    private fun startHeartRateCalculate() {
+        heartRateCalculator.startCalculating()
+        heartRateSnapshotLiveData.observeForever(heartRateSnapshotObserver)
+    }
+
+    private fun stopHeartRateCalculate() {
+        heartRateCalculator.stopCalculating()
+        heartRateSnapshotLiveData.removeObserver(heartRateSnapshotObserver)
     }
 
     private fun unRegisterBluetoothStateBroadcastReceiver() {

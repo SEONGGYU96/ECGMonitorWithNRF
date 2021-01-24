@@ -51,6 +51,9 @@ class BluetoothGattConnector(
                     BluetoothProfile.STATE_DISCONNECTED -> {
                         Log.d(TAG, "onConnectionStateChange(): Disconnected from GATT server")
                         callback.onDisconnected()
+                        if (!gattContainer.hasGatt()) {
+                            gatt?.close()
+                        }
                     }
                 }
             }

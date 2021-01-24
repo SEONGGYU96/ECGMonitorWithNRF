@@ -1,9 +1,14 @@
 package com.seoultech.ecgmonitor.heartrate
 
+import android.os.Handler
+import android.os.HandlerThread
+import android.util.Log
 import com.seoultech.ecgmonitor.graph.HeartRate
 import java.util.*
 
-class HeartRateCalculator(private val heartRateLiveData: HeartRateLiveData) : HeartRateCalculable, Thread() {
+class HeartRateCalculator(
+    private val heartRateLiveData: HeartRateLiveData
+) : HeartRateCalculable, Runnable {
 
     companion object {
         private const val TAG = "HeartRateCalculator"
@@ -18,6 +23,8 @@ class HeartRateCalculator(private val heartRateLiveData: HeartRateLiveData) : He
     private var averageOfValue = 0f
     private var threshold = 0f
 
+    private var handlerThread : HandlerThread? = null
+
     private fun addValueToAverage(value: Float) {
         averageOfValue = (averageOfValue + value) / 2
     }
@@ -27,16 +34,18 @@ class HeartRateCalculator(private val heartRateLiveData: HeartRateLiveData) : He
     }
 
     override fun startCalculating() {
-        start()
-    }
-
-    override fun start() {
-        isRunning = true
-        super.start()
+        if (!isRunning) {
+            isRunning = true
+            handlerThread = HandlerThread("heartRateCalculating")
+            handlerThread!!.start()
+            Handler(handlerThread!!.looper).post(this)
+        }
     }
 
     override fun stopCalculating() {
         isRunning = false
+        handlerThread?.quit()
+        handlerThread = null
         queue.clear()
         averageOfValue = 0f
         threshold = 0f
@@ -54,12 +63,14 @@ class HeartRateCalculator(private val heartRateLiveData: HeartRateLiveData) : He
 
     override fun run() {
         while (isRunning) {
+            var count = 0;
             heartRateLiveData.setHeartRateValue(queue.size)
             val currentTime = System.currentTimeMillis()
             while (queue.peekFirst() != null && queue.peekFirst()!!.time < currentTime) {
                 queue.pollFirst()!!.recycle()
+                count++
             }
-            sleep(REFRESH_PERIOD_MILLI_SECOND)
+            Thread.sleep(REFRESH_PERIOD_MILLI_SECOND)
         }
     }
 }
