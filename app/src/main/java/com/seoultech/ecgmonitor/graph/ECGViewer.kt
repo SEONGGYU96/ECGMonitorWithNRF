@@ -6,7 +6,6 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Paint.ANTI_ALIAS_FLAG
 import android.os.Handler
-import android.os.HandlerThread
 import android.os.Looper
 import android.util.AttributeSet
 import android.util.Log
@@ -37,10 +36,16 @@ class ECGViewer @JvmOverloads constructor(context: Context,
 
         private const val SECOND_PER_SCREEN = 10
         private const val INTERVAL_REFRESH_SECOND = 0.1f
+
+        private const val INITIAL_AVERAGE_FOR_OFFSET = 82f
     }
 
     // Vertical center of this view. It plays the role of baseline of graph.
     private var verticalCenterOfView = 0
+
+    private var sumOfValue = INITIAL_AVERAGE_FOR_OFFSET
+
+    private var previousAverage = 0f
 
     // For graph line.
     private val graphPaint = Paint(ANTI_ALIAS_FLAG).apply {
@@ -235,6 +240,9 @@ class ECGViewer @JvmOverloads constructor(context: Context,
     // The list was previous list will be current graph with clearing all data.
     // Because those data is not shown (used) at graph for being hidden by new data.
     private fun swapList() {
+        previousAverage = sumOfValue / currentHeartRateList.size
+        sumOfValue = 0f
+        Log.d(TAG, "swap(): sumOfValue(average) = $sumOfValue")
         val temp = currentHeartRateList
         currentHeartRateList = previousHeartRateList
         previousHeartRateList = temp
@@ -259,12 +267,21 @@ class ECGViewer @JvmOverloads constructor(context: Context,
             Log.e(TAG, "addValue() : Drawing is not started. Did you call start()?")
             return
         }
+
         // Add this data to current heart rate list with current time (second)
         val currentSecond = (time - startTime) / 1000f
         currentHeartRateList.add(HeartBeat.obtain().apply {
-            this.data = data
+            val convertedData = if (currentHeartRateList.isNotEmpty()) {
+                Log.d(TAG, "addValue() : average = $sumOfValue / ${currentHeartRateList.size}")
+                data - (sumOfValue / currentHeartRateList.size)
+            } else {
+                Log.d(TAG, "addValue() : list is null. $data - $sumOfValue")
+                data - previousAverage
+            }
+            this.data = convertedData
             this.second = currentSecond
         })
+        sumOfValue += data
         if (previousHeartRateList.isNotEmpty() && currentSecond - previousHeartRateList.first().second > SECOND_PER_SCREEN) {
             previousHeartRateList.removeFirst().recycle()
         }
@@ -350,7 +367,6 @@ class ECGViewer @JvmOverloads constructor(context: Context,
 
             @JvmStatic
             fun obtain(): HeartBeat {
-                Log.d(TAG, "poolSize : $poolSize")
                 if (heartBeatPool != null) {
                     val heartRate = heartBeatPool
                     heartBeatPool = heartRate!!.next
