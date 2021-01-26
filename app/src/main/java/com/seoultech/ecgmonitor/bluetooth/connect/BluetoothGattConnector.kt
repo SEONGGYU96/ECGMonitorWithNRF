@@ -28,6 +28,10 @@ class BluetoothGattConnector(
     ) {
         Log.d(TAG, "connect() : Try connection")
 
+        gattContainer.gatt?.close()
+
+
+
         //Connect
         gattContainer.gatt = bluetoothDevice.connectGatt(context, true, object : BluetoothGattCallback() {
             private val TAG = "BluetoothGattCallback"
@@ -51,6 +55,9 @@ class BluetoothGattConnector(
                     BluetoothProfile.STATE_DISCONNECTED -> {
                         Log.d(TAG, "onConnectionStateChange(): Disconnected from GATT server")
                         callback.onDisconnected()
+                        if (!gattContainer.hasGatt()) {
+                            gatt?.close()
+                        }
                     }
                 }
             }

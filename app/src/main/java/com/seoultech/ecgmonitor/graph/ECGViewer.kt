@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Paint.ANTI_ALIAS_FLAG
 import android.os.Handler
+import android.os.HandlerThread
 import android.os.Looper
 import android.util.AttributeSet
 import android.util.Log
@@ -79,8 +80,8 @@ class ECGViewer @JvmOverloads constructor(context: Context,
     }
 
     // Lists for heart rate data. It will be used alternately.
-    private val heartRateDataList1 = mutableListOf<HeartRate>()
-    private val heartRateDataList2 = mutableListOf<HeartRate>()
+    private val heartRateDataList1 = mutableListOf<HeartBeat>()
+    private val heartRateDataList2 = mutableListOf<HeartBeat>()
 
     // Heart rate data of previous cycle. It will be placed to below of current heart rate data.
     // It will be either full or empty.
@@ -173,21 +174,21 @@ class ECGViewer @JvmOverloads constructor(context: Context,
         val startX = if (currentHeartRateList.isEmpty()) {
             0f
         } else {
-            currentHeartRateList.last().time
+            currentHeartRateList.last().second
         }
         drawGraph(canvas, startX = convertToX(startX), previousHeartRateList)
     }
 
 
     // Draw graph using dataList from startX to end of data.
-    private fun drawGraph(canvas: Canvas, startX: Float, dataList: MutableList<HeartRate>) {
+    private fun drawGraph(canvas: Canvas, startX: Float, dataList: MutableList<HeartBeat>) {
         // Init last x (time) and y (value of data) to start of view, center.
         var lastX = 0f
         var lastY = verticalCenterOfView.toFloat()
 
         for (heartRate in dataList) {
             // Convert time and data to graph unit.
-            val currentX = convertToX(heartRate.time)
+            val currentX = convertToX(heartRate.second)
             val currentY = convertToY(heartRate.data)
 
             // If converted value of time is bigger than "startX", draw this value as a line.
@@ -252,15 +253,21 @@ class ECGViewer @JvmOverloads constructor(context: Context,
      * You must call start() before call this.
      * @param data Only one data received right now.
      */
-    fun addValue(data: Float) {
+    fun addValue(data: Float, time: Long) {
         // If a
         if (!isRunning) {
             Log.e(TAG, "addValue() : Drawing is not started. Did you call start()?")
             return
         }
         // Add this data to current heart rate list with current time (second)
-        val currentSecond = (System.currentTimeMillis() - startTime) / 1000f
-        currentHeartRateList.add(HeartRate(data, currentSecond))
+        val currentSecond = (time - startTime) / 1000f
+        currentHeartRateList.add(HeartBeat.obtain().apply {
+            this.data = data
+            this.second = currentSecond
+        })
+        if (previousHeartRateList.isNotEmpty() && currentSecond - previousHeartRateList.first().second > SECOND_PER_SCREEN) {
+            previousHeartRateList.removeFirst().recycle()
+        }
 
         // Mark that data is added in this interval.
         isAdded = true
@@ -286,7 +293,10 @@ class ECGViewer @JvmOverloads constructor(context: Context,
         val handler = Handler(Looper.getMainLooper()) {
             // If there is no data in this interval, add a data with value 0 and current second.
             if (!isAdded) {
-                currentHeartRateList.add(HeartRate(0f, it.obj as Float))
+                currentHeartRateList.add(HeartBeat.obtain().apply {
+                    this.data = 0f
+                    this.second =  it.obj as Float
+                })
             }
             // refresh graph
             refresh()
@@ -325,5 +335,43 @@ class ECGViewer @JvmOverloads constructor(context: Context,
      */
     fun stop() {
         isRunning = false
+    }
+
+    private data class HeartBeat(
+        var data: Float = 0f,
+        var second: Float = 0f,
+        var next: HeartBeat? = null,
+        var isUsing: Boolean = false
+    ) {
+        companion object {
+            private const val MAX_POOL_SIZE = 10
+            private var heartBeatPool: HeartBeat? = null
+            private var poolSize = 0
+
+            @JvmStatic
+            fun obtain(): HeartBeat {
+                Log.d(TAG, "poolSize : $poolSize")
+                if (heartBeatPool != null) {
+                    val heartRate = heartBeatPool
+                    heartBeatPool = heartRate!!.next
+                    heartRate.next = null
+                    heartRate.isUsing = true
+                    poolSize--
+                    return heartRate
+                }
+                return HeartBeat()
+            }
+        }
+
+        fun recycle() {
+            data = 0f
+            second = 0f
+            isUsing = false
+            if (poolSize < MAX_POOL_SIZE) {
+                next = heartBeatPool
+                heartBeatPool = this
+                poolSize++
+            }
+        }
     }
 }

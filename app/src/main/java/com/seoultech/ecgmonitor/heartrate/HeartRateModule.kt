@@ -17,4 +17,8 @@ class HeartRateModule {
     @Provides
     @Singleton
     fun provideHeartRateSnapshotLiveData() : HeartRateSnapshotLiveData = HeartRateSnapshotLiveData()
+
+    @Provides
+    fun provideHeartRateCalculator(heartRateLiveData: HeartRateLiveData) : HeartRateCalculable =
+        HeartRateCalculator(heartRateLiveData)
 }
