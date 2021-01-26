@@ -13,7 +13,8 @@ class HeartRateCalculator(
     companion object {
         private const val TAG = "HeartRateCalculator"
         private const val THRESHOLD_COEFFICIENT = 0.5f
-        private const val REFRESH_PERIOD_MILLI_SECOND = 1000L
+        private const val REFRESH_PERIOD_MILLI_SECOND = 3000L
+        private const val VALID_DATA_TIME_RANGE_MILLI_SECOND = 1000L
     }
 
     private var isRunning = false
@@ -63,13 +64,14 @@ class HeartRateCalculator(
 
     override fun run() {
         while (isRunning) {
-            var count = 0;
-            heartRateLiveData.setHeartRateValue(queue.size)
+            var count = 0
             val currentTime = System.currentTimeMillis()
-            while (queue.peekFirst() != null && queue.peekFirst()!!.time < currentTime) {
+            while (queue.peekFirst() != null &&
+                currentTime - queue.peekFirst()!!.time > VALID_DATA_TIME_RANGE_MILLI_SECOND) {
                 queue.pollFirst()!!.recycle()
                 count++
             }
+            heartRateLiveData.setHeartRateValue(queue.size)
             Thread.sleep(REFRESH_PERIOD_MILLI_SECOND)
         }
     }
