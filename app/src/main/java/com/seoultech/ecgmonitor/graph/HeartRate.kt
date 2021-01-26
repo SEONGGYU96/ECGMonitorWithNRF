@@ -1,5 +1,7 @@
 package com.seoultech.ecgmonitor.graph
 
+import android.util.Log
+
 data class HeartRate(
     var data: Float = 0f,
     var time: Long = 0L,
@@ -7,7 +9,7 @@ data class HeartRate(
     var isUsing: Boolean = false
 ) {
     companion object {
-        private const val MAX_POOL_SIZE = 30
+        private const val MAX_POOL_SIZE = 220
         private var heartRatePool: HeartRate? = null
         private var poolSize = 0
 

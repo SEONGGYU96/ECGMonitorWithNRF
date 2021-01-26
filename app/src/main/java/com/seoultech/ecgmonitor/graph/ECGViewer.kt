@@ -265,6 +265,9 @@ class ECGViewer @JvmOverloads constructor(context: Context,
             this.data = data
             this.second = currentSecond
         })
+        if (previousHeartRateList.isNotEmpty() && currentSecond - previousHeartRateList.first().second > SECOND_PER_SCREEN) {
+            previousHeartRateList.removeFirst().recycle()
+        }
 
         // Mark that data is added in this interval.
         isAdded = true
@@ -294,10 +297,6 @@ class ECGViewer @JvmOverloads constructor(context: Context,
                     this.data = 0f
                     this.second =  it.obj as Float
                 })
-            }
-            //안보이는 데이터가 2개 이상일 때는 하나를 지움. 1개일 때 지우면 보이는 점에 영향을 줌
-            if (previousHeartRateList.size > 2) {
-                previousHeartRateList.removeFirst().recycle()
             }
             // refresh graph
             refresh()
@@ -345,12 +344,13 @@ class ECGViewer @JvmOverloads constructor(context: Context,
         var isUsing: Boolean = false
     ) {
         companion object {
-            private const val MAX_POOL_SIZE = 50
+            private const val MAX_POOL_SIZE = 10
             private var heartBeatPool: HeartBeat? = null
             private var poolSize = 0
 
             @JvmStatic
             fun obtain(): HeartBeat {
+                Log.d(TAG, "poolSize : $poolSize")
                 if (heartBeatPool != null) {
                     val heartRate = heartBeatPool
                     heartBeatPool = heartRate!!.next
