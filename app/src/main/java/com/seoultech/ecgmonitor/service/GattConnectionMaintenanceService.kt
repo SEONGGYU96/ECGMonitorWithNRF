@@ -16,9 +16,7 @@ import com.seoultech.ecgmonitor.ecgstate.ECGStateLiveData
 import com.seoultech.ecgmonitor.ecgstate.ECGStateObserver
 import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothGattConnectible
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainable
-import com.seoultech.ecgmonitor.graph.HeartRate
 import com.seoultech.ecgmonitor.heartrate.HeartRateCalculable
-import com.seoultech.ecgmonitor.heartrate.HeartRateCalculator
 import com.seoultech.ecgmonitor.heartrate.HeartRateSnapshotLiveData
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -67,12 +65,7 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
     private val ecgStateObserver = ECGStateObserver(this)
 
     private val heartRateSnapshotObserver = Observer<HeartRateSnapshotLiveData> {
-        heartRateCalculator.addValue(
-            HeartRate.obtain().apply {
-                data = it.value
-                time = it.time
-            }
-        )
+        heartRateCalculator.addValue(it.value)
     }
 
     //Notification 터치 시 동작할 PendingIntent

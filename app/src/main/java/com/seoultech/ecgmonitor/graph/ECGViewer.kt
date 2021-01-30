@@ -242,7 +242,6 @@ class ECGViewer @JvmOverloads constructor(context: Context,
     private fun swapList() {
         previousAverage = sumOfValue / currentHeartRateList.size
         sumOfValue = 0f
-        Log.d(TAG, "swap(): sumOfValue(average) = $sumOfValue")
         val temp = currentHeartRateList
         currentHeartRateList = previousHeartRateList
         previousHeartRateList = temp
@@ -272,10 +271,8 @@ class ECGViewer @JvmOverloads constructor(context: Context,
         val currentSecond = (time - startTime) / 1000f
         currentHeartRateList.add(HeartBeat.obtain().apply {
             val convertedData = if (currentHeartRateList.isNotEmpty()) {
-                Log.d(TAG, "addValue() : average = $sumOfValue / ${currentHeartRateList.size}")
                 data - (sumOfValue / currentHeartRateList.size)
             } else {
-                Log.d(TAG, "addValue() : list is null. $data - $sumOfValue")
                 data - previousAverage
             }
             this.data = convertedData
