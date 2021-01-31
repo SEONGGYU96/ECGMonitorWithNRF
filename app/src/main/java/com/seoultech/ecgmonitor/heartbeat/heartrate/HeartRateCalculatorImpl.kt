@@ -20,26 +20,31 @@ class HeartRateCalculatorImpl(private val heartRateLiveData: HeartRateLiveData) 
 
     companion object {
         private const val R_PEAK_DETECTION_CORE_THREAD_POOL = 10
-        private const val PERIOD_REFRESH_HEART_RATE_MILLI_SECOND = 3000L
+        private const val PERIOD_REFRESH_EXPECTED_BPM_MILLI_SECOND = 3000L
+        private const val PERIOD_REFRESH_BPM_MILLI_SECOND = 60000L
     }
 
     private val TAG = javaClass.simpleName
 
     private var sampleList = mutableListOf<Float>()
 
-    private val rPeakDetectionThread : ScheduledThreadPoolExecutor by lazy {
+    private val calculateBPMThread : ScheduledThreadPoolExecutor by lazy {
         ScheduledThreadPoolExecutor(R_PEAK_DETECTION_CORE_THREAD_POOL).apply {
             removeOnCancelPolicy = true
         }
     }
 
-    private var rPeakScheduledFuture : ScheduledFuture<*>? = null
+    private var expectedBPMScheduledFuture : ScheduledFuture<*>? = null
+
+    private var bpmScheduledFuture : ScheduledFuture<*>? = null
+
+    private val calculateExpectedBPMRunnable : Runnable by lazy { Runnable { calculateExpectedBPM() } }
+
+    private val calculateBPMRunnable: Runnable by lazy { Runnable { calculateBPM() } }
 
     private var addEcgDataThread : HandlerThread? = null
 
     private var addEcgDataHandler : Handler? = null
-
-    private val rPeakDetectionRunnable : Runnable by lazy { Runnable { detectRPeak() } }
 
     private var isRunning = false
 
@@ -47,13 +52,17 @@ class HeartRateCalculatorImpl(private val heartRateLiveData: HeartRateLiveData) 
 
     private var minDataOfCycle = Float.MAX_VALUE
 
+    private var onBPMCalculatedListener: ((Int) -> Unit)? = null
+
+    private var bpm = 0
+
     private fun addEcgDataToQueue(sample: Float) {
         maxDataOfCycle = maxDataOfCycle.coerceAtLeast(sample)
         minDataOfCycle = minDataOfCycle.coerceAtMost(sample)
         sampleList.add(sample)
     }
 
-    private fun detectRPeak() {
+    private fun calculateExpectedBPM() {
         val tempMaxDataOfCycle = maxDataOfCycle
         val tempMinDataOfCycle = minDataOfCycle
         maxDataOfCycle = Float.MIN_VALUE
@@ -67,7 +76,7 @@ class HeartRateCalculatorImpl(private val heartRateLiveData: HeartRateLiveData) 
         }
 
         val thresholds = (tempMaxDataOfCycle + (tempMaxDataOfCycle + tempMinDataOfCycle) / 2) / 2
-        Log.d(TAG, "detectRPeakRunnable : thresholds = $thresholds")
+        //Log.d(TAG, "detectRPeakRunnable : thresholds = $thresholds")
 
         var countOfRPeakOfThisCycle = 0
 
@@ -84,12 +93,18 @@ class HeartRateCalculatorImpl(private val heartRateLiveData: HeartRateLiveData) 
                 continue
             }
             countOfRPeakOfThisCycle++
+            bpm++
             //Log.d(TAG, "detectRPeakRunnable : R-Peak = ${tempList[i]}")
         }
         //Log.d(TAG, "detectRPeakRunnable : Number of R-Peak = $countOfRPeakOfThisCycle")
 
         heartRateLiveData.setHeartRateValue((countOfRPeakOfThisCycle *
-                (60000 / PERIOD_REFRESH_HEART_RATE_MILLI_SECOND)).toInt())
+                (60000 / PERIOD_REFRESH_EXPECTED_BPM_MILLI_SECOND)).toInt())
+    }
+
+    private fun calculateBPM() {
+        onBPMCalculatedListener?.let { it(bpm) }
+        bpm = 0
     }
 
     override fun startCalculating() {
@@ -97,6 +112,7 @@ class HeartRateCalculatorImpl(private val heartRateLiveData: HeartRateLiveData) 
             Log.d(TAG, "startCalculating() : Calculating is already started")
             return
         }
+        bpm = 0
         isRunning = true
         addEcgDataThread = HandlerThread("addEcgData")
         addEcgDataThread!!.start()
@@ -105,10 +121,17 @@ class HeartRateCalculatorImpl(private val heartRateLiveData: HeartRateLiveData) 
             return@Handler true
         }
 
-        rPeakScheduledFuture = rPeakDetectionThread.scheduleWithFixedDelay(
-            rPeakDetectionRunnable,
+        expectedBPMScheduledFuture = calculateBPMThread.scheduleWithFixedDelay(
+            calculateExpectedBPMRunnable,
             0,
-            PERIOD_REFRESH_HEART_RATE_MILLI_SECOND,
+            PERIOD_REFRESH_EXPECTED_BPM_MILLI_SECOND,
+            TimeUnit.MILLISECONDS
+        )
+
+        bpmScheduledFuture = calculateBPMThread.scheduleWithFixedDelay(
+            calculateBPMRunnable,
+            0,
+            PERIOD_REFRESH_BPM_MILLI_SECOND,
             TimeUnit.MILLISECONDS
         )
     }
@@ -120,10 +143,15 @@ class HeartRateCalculatorImpl(private val heartRateLiveData: HeartRateLiveData) 
         isRunning = false
         addEcgDataThread?.quit()
         addEcgDataThread = null
-        rPeakScheduledFuture?.cancel(false)
+        expectedBPMScheduledFuture?.cancel(false)
+        bpmScheduledFuture?.cancel(false)
     }
 
     override fun addValue(value: Float) {
         addEcgDataHandler?.sendMessage(Message.obtain().apply { obj = value })
+    }
+
+    override fun setOnBPMCalculatedListener(listener: (Int) -> Unit) {
+        this.onBPMCalculatedListener = listener
     }
 }

@@ -7,4 +7,6 @@ interface HeartRateCalculator {
     fun stopCalculating()
 
     fun addValue(value: Float)
+
+    fun setOnBPMCalculatedListener(listener: (Int) -> Unit)
 }

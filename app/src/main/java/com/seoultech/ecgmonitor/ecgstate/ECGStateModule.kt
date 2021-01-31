@@ -1,7 +1,7 @@
 package com.seoultech.ecgmonitor.ecgstate
 
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainable
-import com.seoultech.ecgmonitor.heartrate.HeartRateSnapshotLiveData
+import com.seoultech.ecgmonitor.heartbeat.HeartBeatSampleLiveData
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,7 +15,7 @@ class ECGStateModule {
     @Provides
     @Singleton
     fun providesECGStateLiveData(
-        heartRateSnapshotLiveData: HeartRateSnapshotLiveData,
+        heartBeatSampleLiveData: HeartBeatSampleLiveData,
         gattContainable: GattContainable
-    ): ECGStateLiveData = ECGStateLiveData(heartRateSnapshotLiveData, gattContainable)
+    ): ECGStateLiveData = ECGStateLiveData(heartBeatSampleLiveData, gattContainable)
 }
