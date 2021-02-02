@@ -4,6 +4,8 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.Message
 import android.util.Log
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.ScheduledThreadPoolExecutor
@@ -19,7 +21,7 @@ class HeartRateCalculatorImpl(private val heartRateLiveData: HeartRateLiveData) 
     HeartRateCalculator {
 
     companion object {
-        private const val R_PEAK_DETECTION_CORE_THREAD_POOL = 10
+        private const val R_PEAK_DETECTION_CORE_THREAD_POOL = 30
         private const val PERIOD_REFRESH_EXPECTED_BPM_MILLI_SECOND = 3000L
         private const val PERIOD_REFRESH_BPM_MILLI_SECOND = 60000L
     }
@@ -96,13 +98,13 @@ class HeartRateCalculatorImpl(private val heartRateLiveData: HeartRateLiveData) 
             bpm++
             //Log.d(TAG, "detectRPeakRunnable : R-Peak = ${tempList[i]}")
         }
-        //Log.d(TAG, "detectRPeakRunnable : Number of R-Peak = $countOfRPeakOfThisCycle")
 
         heartRateLiveData.setHeartRateValue((countOfRPeakOfThisCycle *
                 (60000 / PERIOD_REFRESH_EXPECTED_BPM_MILLI_SECOND)).toInt())
     }
 
     private fun calculateBPM() {
+        Log.d(TAG, "calculateBPM : $bpm")
         onBPMCalculatedListener?.let { it(bpm) }
         bpm = 0
     }
@@ -123,14 +125,14 @@ class HeartRateCalculatorImpl(private val heartRateLiveData: HeartRateLiveData) 
 
         expectedBPMScheduledFuture = calculateBPMThread.scheduleWithFixedDelay(
             calculateExpectedBPMRunnable,
-            0,
+            PERIOD_REFRESH_EXPECTED_BPM_MILLI_SECOND,
             PERIOD_REFRESH_EXPECTED_BPM_MILLI_SECOND,
             TimeUnit.MILLISECONDS
         )
 
         bpmScheduledFuture = calculateBPMThread.scheduleWithFixedDelay(
             calculateBPMRunnable,
-            0,
+            PERIOD_REFRESH_BPM_MILLI_SECOND,
             PERIOD_REFRESH_BPM_MILLI_SECOND,
             TimeUnit.MILLISECONDS
         )

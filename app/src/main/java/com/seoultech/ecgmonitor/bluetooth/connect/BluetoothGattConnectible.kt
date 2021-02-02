@@ -7,4 +7,6 @@ interface BluetoothGattConnectible {
     fun connect(bluetoothDevice: BluetoothDevice, callback: BluetoothConnectStateCallback)
 
     fun disconnect()
+
+    fun sendAliveMessage()
 }

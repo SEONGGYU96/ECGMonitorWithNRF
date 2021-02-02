@@ -18,6 +18,7 @@ import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothGattConnectible
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainable
 import com.seoultech.ecgmonitor.heartbeat.heartrate.HeartRateCalculator
 import com.seoultech.ecgmonitor.heartbeat.HeartBeatSampleLiveData
+import com.seoultech.ecgmonitor.heartbeat.heartrate.BPMManager
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -67,6 +68,9 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
     private val heartRateSnapshotObserver = Observer<HeartBeatSampleLiveData> {
         heartRateCalculator.addValue(it.value)
     }
+
+    //Todo: Injection
+    private val bpmManager = BPMManager()
 
     //Notification 터치 시 동작할 PendingIntent
     private val pendingIntent: PendingIntent by lazy {
@@ -176,7 +180,8 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
 
     private fun startHeartRateCalculate() {
         heartRateCalculator.setOnBPMCalculatedListener {
-            Log.d(TAG, "REAL_BPM : $it")
+            gattConnector.sendAliveMessage()
+            bpmManager.addBpm(it)
         }
         heartRateCalculator.startCalculating()
         heartBeatSampleLiveData.observeForever(heartRateSnapshotObserver)
