@@ -4,10 +4,10 @@ import androidx.lifecycle.LiveData
 import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothConnectStateCallback
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainable
 import com.seoultech.ecgmonitor.bluetooth.state.BluetoothStateObservable
-import com.seoultech.ecgmonitor.heartrate.HeartRateSnapshotLiveData
+import com.seoultech.ecgmonitor.heartbeat.HeartBeatSampleLiveData
 
 class ECGStateLiveData(
-    private val heartRateSnapshotLiveData: HeartRateSnapshotLiveData,
+    private val heartBeatSampleLiveData: HeartBeatSampleLiveData,
     private val gattContainable: GattContainable
     ) : LiveData<ECGStateLiveData>(), BluetoothStateObservable, BluetoothConnectStateCallback {
 
@@ -32,7 +32,7 @@ class ECGStateLiveData(
     }
 
     override fun onValueChanged(value: Float) {
-        heartRateSnapshotLiveData.setHeartRateSnapshot(value, System.currentTimeMillis())
+        heartBeatSampleLiveData.setHeartRateSnapshot(value, System.currentTimeMillis())
     }
 
     override fun onFailure() {

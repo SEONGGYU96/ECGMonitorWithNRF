@@ -16,8 +16,8 @@ import com.seoultech.ecgmonitor.ecgstate.ECGStateCallback
 import com.seoultech.ecgmonitor.ecgstate.ECGStateLiveData
 import com.seoultech.ecgmonitor.ecgstate.ECGStateObserver
 import com.seoultech.ecgmonitor.findNavController
-import com.seoultech.ecgmonitor.heartrate.HeartRateLiveData
-import com.seoultech.ecgmonitor.heartrate.HeartRateSnapshotLiveData
+import com.seoultech.ecgmonitor.heartbeat.heartrate.HeartRateLiveData
+import com.seoultech.ecgmonitor.heartbeat.HeartBeatSampleLiveData
 import com.sergivonavi.materialbanner.Banner
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -40,7 +40,7 @@ class MonitorFragment : Fragment(), ECGStateCallback {
     lateinit var heartRateLiveData: HeartRateLiveData
 
     @Inject
-    lateinit var heartRateSnapshotLiveData: HeartRateSnapshotLiveData
+    lateinit var heartBeatSampleLiveData: HeartBeatSampleLiveData
 
     @Inject
     lateinit var ecgStateLiveData: ECGStateLiveData
@@ -170,7 +170,7 @@ class MonitorFragment : Fragment(), ECGStateCallback {
 
     private fun subscribeHeartRateValue() {
         //Observing heart rate value
-        heartRateSnapshotLiveData.observe(viewLifecycleOwner, {
+        heartBeatSampleLiveData.observe(viewLifecycleOwner, {
             binding.ecggraphMonitor.addValue(it.value, it.time)
         })
     }

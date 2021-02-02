@@ -16,8 +16,9 @@ import com.seoultech.ecgmonitor.ecgstate.ECGStateLiveData
 import com.seoultech.ecgmonitor.ecgstate.ECGStateObserver
 import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothGattConnectible
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainable
-import com.seoultech.ecgmonitor.heartrate.HeartRateCalculable
-import com.seoultech.ecgmonitor.heartrate.HeartRateSnapshotLiveData
+import com.seoultech.ecgmonitor.heartbeat.heartrate.HeartRateCalculator
+import com.seoultech.ecgmonitor.heartbeat.HeartBeatSampleLiveData
+import com.seoultech.ecgmonitor.heartbeat.heartrate.BPMManager
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -36,7 +37,7 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
     }
 
     @Inject
-    lateinit var heartRateCalculator: HeartRateCalculable
+    lateinit var heartRateCalculator: HeartRateCalculator
 
     //GATT 객체 컨테이너 (싱글턴)
     @Inject
@@ -58,15 +59,18 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
     lateinit var bluetoothStateReceiver: BluetoothStateReceiver
 
     @Inject
-    lateinit var heartRateSnapshotLiveData: HeartRateSnapshotLiveData
+    lateinit var heartBeatSampleLiveData: HeartBeatSampleLiveData
 
     private var boundedDevice: BluetoothDevice? = null
 
     private val ecgStateObserver = ECGStateObserver(this)
 
-    private val heartRateSnapshotObserver = Observer<HeartRateSnapshotLiveData> {
+    private val heartRateSnapshotObserver = Observer<HeartBeatSampleLiveData> {
         heartRateCalculator.addValue(it.value)
     }
+
+    //Todo: Injection
+    private val bpmManager = BPMManager()
 
     //Notification 터치 시 동작할 PendingIntent
     private val pendingIntent: PendingIntent by lazy {
@@ -175,13 +179,17 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
     }
 
     private fun startHeartRateCalculate() {
+        heartRateCalculator.setOnBPMCalculatedListener {
+            gattConnector.sendAliveMessage()
+            bpmManager.addBpm(it)
+        }
         heartRateCalculator.startCalculating()
-        heartRateSnapshotLiveData.observeForever(heartRateSnapshotObserver)
+        heartBeatSampleLiveData.observeForever(heartRateSnapshotObserver)
     }
 
     private fun stopHeartRateCalculate() {
         heartRateCalculator.stopCalculating()
-        heartRateSnapshotLiveData.removeObserver(heartRateSnapshotObserver)
+        heartBeatSampleLiveData.removeObserver(heartRateSnapshotObserver)
     }
 
     private fun unRegisterBluetoothStateBroadcastReceiver() {

@@ -1,8 +1,8 @@
-package com.seoultech.ecgmonitor.heartrate
+package com.seoultech.ecgmonitor.heartbeat
 
 import androidx.lifecycle.LiveData
 
-class HeartRateSnapshotLiveData: LiveData<HeartRateSnapshotLiveData>() {
+class HeartBeatSampleLiveData: LiveData<HeartBeatSampleLiveData>() {
 
     private var _value = 0f
     val value : Float

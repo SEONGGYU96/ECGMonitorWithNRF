@@ -1,4 +1,4 @@
-package com.seoultech.ecgmonitor.heartrate
+package com.seoultech.ecgmonitor.heartbeat.heartrate
 
 import androidx.lifecycle.LiveData
 
