@@ -4,6 +4,7 @@ import android.content.Context
 import android.telephony.SmsManager
 import android.util.Log
 import com.seoultech.ecgmonitor.R
+import com.seoultech.ecgmonitor.utils.PermissionUtil
 
 class SMSSender(private val context: Context) {
 
@@ -12,6 +13,10 @@ class SMSSender(private val context: Context) {
     }
 
     fun send(bpm: Int) {
+        if (!PermissionUtil.isSMSPermissionsGranted(context)) {
+            Log.d(TAG, "send(): SMS permission is not granted")
+            return
+        }
         val smsManager = SmsManager.getDefault()
         val userName = getUserName()
         val message = String.format(context.getString(R.string.abnormal_sms), userName, bpm)
