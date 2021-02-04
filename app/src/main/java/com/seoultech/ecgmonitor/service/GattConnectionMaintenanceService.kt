@@ -19,6 +19,7 @@ import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainable
 import com.seoultech.ecgmonitor.heartbeat.heartrate.HeartRateCalculator
 import com.seoultech.ecgmonitor.heartbeat.HeartBeatSampleLiveData
 import com.seoultech.ecgmonitor.heartbeat.heartrate.BPMManager
+import com.seoultech.ecgmonitor.protocol.AbnormalProtocol
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -70,7 +71,9 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
     }
 
     //Todo: Injection
-    private val bpmManager = BPMManager()
+    private val bpmManager = BPMManager {
+        AbnormalProtocol(applicationContext).startAbnormalProtocol(it)
+    }
 
     //Notification 터치 시 동작할 PendingIntent
     private val pendingIntent: PendingIntent by lazy {

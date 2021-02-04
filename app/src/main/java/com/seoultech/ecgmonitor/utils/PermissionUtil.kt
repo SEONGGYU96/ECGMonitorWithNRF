@@ -10,12 +10,28 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 
 object PermissionUtil {
     fun isLocationPermissionsGranted(context: Context): Boolean {
-        return (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED)
+        return checkPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
     }
 
     fun requestLocationPermission(activity: Activity, requestCode: Int) {
+        requestPermission(activity, requestCode, Manifest.permission.ACCESS_FINE_LOCATION)
+    }
+
+    fun isSMSPermissionsGranted(context: Context): Boolean {
+        return checkPermission(context, Manifest.permission.SEND_SMS)
+    }
+
+    fun requestSMSPermission(activity: Activity, requestCode: Int) {
+        requestPermission(activity, requestCode, Manifest.permission.SEND_SMS)
+    }
+
+    private fun checkPermission(context: Context, permission: String) : Boolean {
+        return (ContextCompat.checkSelfPermission(context, permission)
+                == PackageManager.PERMISSION_GRANTED)
+    }
+
+    private fun requestPermission(activity: Activity, requestCode: Int, permission: String) {
         ActivityCompat.requestPermissions(
-            activity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), requestCode)
+            activity, arrayOf(permission), requestCode)
     }
 }

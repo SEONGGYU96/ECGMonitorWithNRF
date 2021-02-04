@@ -2,7 +2,7 @@ package com.seoultech.ecgmonitor.heartbeat.heartrate
 
 import android.util.Log
 
-class BPMManager {
+class BPMManager(private val abnormalCallback: (Int) -> Unit) {
 
     companion object {
         private const val TAG = "BPMManager"
@@ -25,6 +25,7 @@ class BPMManager {
 
     private fun startAbnormalProtocol() {
         Log.d(TAG, "startAbnormalProtocol() : Abnormal!!!")
+        abnormalCallback(getAverage())
     }
 
     private fun checkIsAbnormal(bpm: Int): Boolean {
@@ -49,8 +50,12 @@ class BPMManager {
         return true
     }
 
+    private fun getAverage(): Int {
+        return sumOfBpms / bpms.size
+    }
+
     fun getAverageAndFlush(): Int {
-        val average = sumOfBpms / bpms.size
+        val average = getAverage()
         sumOfBpms = 0
         bpms.clear()
         return average
