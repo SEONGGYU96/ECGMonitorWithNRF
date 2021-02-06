@@ -16,8 +16,8 @@ import com.seoultech.ecgmonitor.ecgstate.ECGStateCallback
 import com.seoultech.ecgmonitor.ecgstate.ECGStateLiveData
 import com.seoultech.ecgmonitor.ecgstate.ECGStateObserver
 import com.seoultech.ecgmonitor.findNavController
-import com.seoultech.ecgmonitor.heartbeat.heartrate.HeartRateLiveData
-import com.seoultech.ecgmonitor.heartbeat.HeartBeatSampleLiveData
+import com.seoultech.ecgmonitor.bpm.data.BPMLiveData
+import com.seoultech.ecgmonitor.bpm.data.HeartBeatSampleLiveData
 import com.sergivonavi.materialbanner.Banner
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -37,7 +37,7 @@ class MonitorFragment : Fragment(), ECGStateCallback {
     private var noDeviceBanner: Banner? = null
 
     @Inject
-    lateinit var heartRateLiveData: HeartRateLiveData
+    lateinit var bpmLiveData: BPMLiveData
 
     @Inject
     lateinit var heartBeatSampleLiveData: HeartBeatSampleLiveData
@@ -153,7 +153,7 @@ class MonitorFragment : Fragment(), ECGStateCallback {
         subscribeHeartRateValue()
         ecgStateLiveData.observe(viewLifecycleOwner, ecgStateObserver)
 
-        heartRateLiveData.observe(viewLifecycleOwner) {
+        bpmLiveData.observe(viewLifecycleOwner) {
             binding.textviewMonitorHeartrate.text = it.toString()
         }
     }

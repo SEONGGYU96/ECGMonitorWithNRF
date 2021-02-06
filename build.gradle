@@ -4,6 +4,7 @@ buildscript {
     ext.hilt_version = "2.29.1-alpha"
     ext.hiltViewModelVersion = '1.0.0-alpha02'
     ext.nav_version = "2.3.2"
+    ext.room_version = "2.2.6"
 
 
     repositories {

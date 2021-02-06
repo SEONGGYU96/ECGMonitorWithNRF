@@ -2,12 +2,13 @@ package com.seoultech.ecgmonitor.service
 
 import android.app.Notification
 import android.app.PendingIntent
+import android.app.Service
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.IBinder
 import android.util.Log
-import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.Observer
 import com.seoultech.ecgmonitor.MainActivity
 import com.seoultech.ecgmonitor.bluetooth.state.BluetoothStateReceiver
@@ -16,10 +17,9 @@ import com.seoultech.ecgmonitor.ecgstate.ECGStateLiveData
 import com.seoultech.ecgmonitor.ecgstate.ECGStateObserver
 import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothGattConnectible
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainable
-import com.seoultech.ecgmonitor.heartbeat.heartrate.HeartRateCalculator
-import com.seoultech.ecgmonitor.heartbeat.HeartBeatSampleLiveData
-import com.seoultech.ecgmonitor.heartbeat.heartrate.BPMManager
-import com.seoultech.ecgmonitor.protocol.AbnormalProtocol
+import com.seoultech.ecgmonitor.bpm.BPMManager
+import com.seoultech.ecgmonitor.bpm.data.HeartBeatSampleLiveData
+import com.seoultech.ecgmonitor.bpm.data.BPMLiveData
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -28,7 +28,7 @@ import javax.inject.Inject
  * 최초 연결 후 의도적인 연결 해제 외에는 종료되지 않아야 함
  */
 @AndroidEntryPoint
-class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
+class GattConnectionMaintenanceService : Service(), ECGStateCallback {
 
     companion object {
         private const val TAG = "ConnectionService"
@@ -36,9 +36,6 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
         private const val NOTIFICATION_ID = 1
         const val EXTRA_DISCOVERED_DEVICE = "discoveredDevice"
     }
-
-    @Inject
-    lateinit var heartRateCalculator: HeartRateCalculator
 
     //GATT 객체 컨테이너 (싱글턴)
     @Inject
@@ -62,17 +59,19 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
     @Inject
     lateinit var heartBeatSampleLiveData: HeartBeatSampleLiveData
 
+    @Inject
+    lateinit var bpmManager: BPMManager
+
+    @Inject
+    lateinit var bpmLiveData: BPMLiveData
+
+
     private var boundedDevice: BluetoothDevice? = null
 
     private val ecgStateObserver = ECGStateObserver(this)
 
     private val heartRateSnapshotObserver = Observer<HeartBeatSampleLiveData> {
-        heartRateCalculator.addValue(it.value)
-    }
-
-    //Todo: Injection
-    private val bpmManager = BPMManager {
-        AbnormalProtocol(applicationContext).startAbnormalProtocol(it)
+        bpmManager.addHeartBeatSample(it.value)
     }
 
     //Notification 터치 시 동작할 PendingIntent
@@ -118,6 +117,10 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
         unRegisterBluetoothStateBroadcastReceiver()
     }
 
+    override fun onBind(intent: Intent?): IBinder? {
+        return null
+    }
+
     override fun beforeBounded() {
         stopSelf()
     }
@@ -131,7 +134,7 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
         boundedDevice?.let {
             gattContainer.gatt?.disconnect()
             connect(it)
-            startHeartRateCalculate()
+            startOperatingBPM()
         } ?: run {
             throw IllegalStateException()
         }
@@ -139,7 +142,7 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
 
     override fun onConnected() {
         setNotification(State.CONNECTED)
-        startHeartRateCalculate()
+        startOperatingBPM()
     }
 
     override fun onDisconnected() {
@@ -181,17 +184,15 @@ class GattConnectionMaintenanceService : LifecycleService(), ECGStateCallback {
         startForeground(NOTIFICATION_ID, notification)
     }
 
-    private fun startHeartRateCalculate() {
-        heartRateCalculator.setOnBPMCalculatedListener {
-            gattConnector.sendAliveMessage()
-            bpmManager.addBpm(it)
+    private fun startOperatingBPM() {
+        bpmManager.startOperatingBPM { expectedBpm ->
+            bpmLiveData.postBPM(expectedBpm)
         }
-        heartRateCalculator.startCalculating()
         heartBeatSampleLiveData.observeForever(heartRateSnapshotObserver)
     }
 
     private fun stopHeartRateCalculate() {
-        heartRateCalculator.stopCalculating()
+        bpmManager.stopOperatingBPM()
         heartBeatSampleLiveData.removeObserver(heartRateSnapshotObserver)
     }
 
