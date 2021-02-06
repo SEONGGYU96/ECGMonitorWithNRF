@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothConnectStateCallback
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainable
 import com.seoultech.ecgmonitor.bluetooth.state.BluetoothStateObservable
-import com.seoultech.ecgmonitor.heartbeat.HeartBeatSampleLiveData
+import com.seoultech.ecgmonitor.bpm.data.HeartBeatSampleLiveData
 
 class ECGStateLiveData(
     private val heartBeatSampleLiveData: HeartBeatSampleLiveData,

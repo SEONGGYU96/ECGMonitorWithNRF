@@ -1,11 +1,9 @@
-package com.seoultech.ecgmonitor.heartbeat.heartrate
+package com.seoultech.ecgmonitor.bpm.calculate
 
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Message
 import android.util.Log
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import java.util.*
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.ScheduledThreadPoolExecutor
@@ -17,8 +15,7 @@ import java.util.concurrent.TimeUnit
  * 위 논문을 토대로 알고리즘을 작성함
  * Todo: 갱신을 3초마다 하고 있어서 사실상 정확한 BPM 이 아님. "이대로 1분을 유지한다면" 에 해당하는 값이기 때문에 추가적인 개선책이 필요함
  */
-class HeartRateCalculatorImpl(private val heartRateLiveData: HeartRateLiveData) :
-    HeartRateCalculator {
+class BPMCalculatorImpl : BPMCalculator {
 
     companion object {
         private const val R_PEAK_DETECTION_CORE_THREAD_POOL = 30
@@ -54,7 +51,7 @@ class HeartRateCalculatorImpl(private val heartRateLiveData: HeartRateLiveData) 
 
     private var minDataOfCycle = Float.MAX_VALUE
 
-    private var onBPMCalculatedListener: ((Int) -> Unit)? = null
+    private var bpmCalculateCallback: BPMCalculator.BPMCalculateCallback? = null
 
     private var bpm = 0
 
@@ -99,21 +96,22 @@ class HeartRateCalculatorImpl(private val heartRateLiveData: HeartRateLiveData) 
             //Log.d(TAG, "detectRPeakRunnable : R-Peak = ${tempList[i]}")
         }
 
-        heartRateLiveData.setHeartRateValue((countOfRPeakOfThisCycle *
+        bpmCalculateCallback?.onExpectedBPMCalculated((countOfRPeakOfThisCycle *
                 (60000 / PERIOD_REFRESH_EXPECTED_BPM_MILLI_SECOND)).toInt())
     }
 
     private fun calculateBPM() {
         Log.d(TAG, "calculateBPM : $bpm")
-        onBPMCalculatedListener?.let { it(bpm) }
+        bpmCalculateCallback?.onBPMCalculated(bpm)
         bpm = 0
     }
 
-    override fun startCalculating() {
+    override fun startCalculating(callback: BPMCalculator.BPMCalculateCallback) {
         if (isRunning) {
             Log.d(TAG, "startCalculating() : Calculating is already started")
             return
         }
+        this.bpmCalculateCallback = callback
         bpm = 0
         isRunning = true
         addEcgDataThread = HandlerThread("addEcgData")
@@ -151,9 +149,5 @@ class HeartRateCalculatorImpl(private val heartRateLiveData: HeartRateLiveData) 
 
     override fun addValue(value: Float) {
         addEcgDataHandler?.sendMessage(Message.obtain().apply { obj = value })
-    }
-
-    override fun setOnBPMCalculatedListener(listener: (Int) -> Unit) {
-        this.onBPMCalculatedListener = listener
     }
 }
