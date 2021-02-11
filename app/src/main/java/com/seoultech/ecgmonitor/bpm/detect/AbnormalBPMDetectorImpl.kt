@@ -3,6 +3,7 @@ package com.seoultech.ecgmonitor.bpm.detect
 import android.util.Log
 import com.seoultech.ecgmonitor.bpm.data.BPM
 import com.seoultech.ecgmonitor.bpm.data.source.BPMDataSource
+import com.seoultech.ecgmonitor.protocol.AbnormalProtocol
 
 class AbnormalBPMDetectorImpl(
     private val bpmDataSource: BPMDataSource
@@ -12,10 +13,10 @@ class AbnormalBPMDetectorImpl(
         private const val TAG = "abnormalBPMDetector"
         private const val MAXIMUM_BPM_NORMAL = 100
         private const val MINIMUM_BPM_NORMAL = 40
-        private const val CRITERIA_ABNORMAL_MINUTE = 5
+        private const val CRITERIA_ABNORMAL_MINUTE = 10
     }
 
-    private var abnormalListener: ((Int) -> Unit)? = null
+    private var abnormalListener: ((Int, AbnormalProtocol.AbnormalType) -> Unit)? = null
 
     override fun addBpm(bpm: Int) {
         Log.d(TAG, "addBPM : $bpm")
@@ -29,15 +30,24 @@ class AbnormalBPMDetectorImpl(
         bpmDataSource.insertBPM(bpm)
     }
 
-    override fun setOnStartAbnormalProtocolListener(listener: (Int) -> Unit) {
+    override fun setOnStartAbnormalProtocolListener(listener: (Int, AbnormalProtocol.AbnormalType) -> Unit) {
         abnormalListener = listener
     }
 
     private fun startAbnormalProtocol() {
         Log.d(TAG, "startAbnormalProtocol() : Abnormal!!!")
         getAverageFrom { average ->
-            abnormalListener?.let { listener -> listener(average) }
+            abnormalListener?.let { listener -> listener(average, getAbnormalType(average)) }
         }
+    }
+
+    private fun getAbnormalType(averageBPM: Int): AbnormalProtocol.AbnormalType {
+        return if (averageBPM > MAXIMUM_BPM_NORMAL) {
+            AbnormalProtocol.AbnormalType.Tachycardia
+        } else {
+            AbnormalProtocol.AbnormalType.Bradycardia
+        }
+        //Todo: 부정맥도 감지하여야 함
     }
 
     private fun checkIsAbnormal(bpm: Int): Boolean {

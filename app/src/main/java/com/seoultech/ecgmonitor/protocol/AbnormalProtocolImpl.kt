@@ -9,8 +9,10 @@ class AbnormalProtocolImpl(private val context: Context) : AbnormalProtocol {
         private const val TAG = "AbnormalProtocol"
     }
 
-    override fun startAbnormalProtocol(averageBpm: Int) {
+    override fun startAbnormalProtocol(averageBpm: Int, type: AbnormalProtocol.AbnormalType) {
+
         Log.d(TAG, "startAbnormalProtocol() : bpm $averageBpm")
-        SMSSender(context).send(averageBpm)
+        SMSSender(context).send(type, averageBpm)
+        AbnormalNotification(context).showNotification(type, averageBpm)
     }
 }
