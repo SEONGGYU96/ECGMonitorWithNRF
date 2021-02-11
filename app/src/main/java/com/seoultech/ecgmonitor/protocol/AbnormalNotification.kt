@@ -1,0 +1,57 @@
+package com.seoultech.ecgmonitor.protocol
+
+import android.app.Notification
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import com.seoultech.ecgmonitor.MainActivity
+import com.seoultech.ecgmonitor.R
+
+class AbnormalNotification(val context: Context) {
+
+    companion object {
+        private const val CHANNEL_ID = "AbnormalNotification"
+        private const val NOTIFICATION_ID = 2
+    }
+
+    fun showNotification(type: AbnormalProtocol.AbnormalType, averageBPM: Int) {
+        with(NotificationManagerCompat.from(context)) {
+            notify(NOTIFICATION_ID, getNotification(type, averageBPM))
+        }
+    }
+
+    private fun getPendingIntent(): PendingIntent {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        return PendingIntent.getActivity(context, 0, intent, 0)
+    }
+
+    private fun getNotification(type: AbnormalProtocol.AbnormalType, averageBPM: Int): Notification {
+        val contentText = getContentText(type)
+        return NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_heart)
+            .setContentTitle("이상 심박수 감지")
+            .setContentText(String.format(contentText, averageBPM))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(getPendingIntent())
+            .setAutoCancel(true)
+            .build()
+    }
+
+    private fun getContentText(type: AbnormalProtocol.AbnormalType): String {
+        return when (type) {
+            AbnormalProtocol.AbnormalType.Tachycardia -> {
+                context.getString(R.string.abnormal_notification_tachycardia)
+            }
+            AbnormalProtocol.AbnormalType.Bradycardia -> {
+                context.getString(R.string.abnormal_notification_bradycardia)
+            }
+            else -> {
+                context.getString(R.string.abnormal_notification_arrhythmia)
+            }
+        }
+    }
+}

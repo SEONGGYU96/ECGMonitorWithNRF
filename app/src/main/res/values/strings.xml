@@ -32,6 +32,12 @@
     <string name="banner_find_device">ECG 센서 찾기</string>
     <string name="banner_enable_bluetooth">블루투스 켜기</string>
     <string name="banner_bluetooth_disabled">블루투스가 꺼져있습니다. 블루투스를 켜주세요.</string>
-    <string name="abnormal_sms">%s님의 심박수가 낮습니다. (%d)</string>
+    
+    <string name="abnormal_sms_tachycardia">%s님의 심박수가 높습니다. (%d)</string>
+    <string name="abnormal_sms_bradycardia">%s님의 심박수가 낮습니다. (%d)</string>
+    <string name="abnormal_sms_arrhythmia">%s님의 심장 박동 간격이 불규칙합니다.</string>
+    <string name="abnormal_notification_tachycardia">심박수가 정상 범위보다 높습니다. (%d)</string>
+    <string name="abnormal_notification_bradycardia">심박수가 정상 범위보다 낮습니다. (%d)</string>
+    <string name="abnormal_notification_arrhythmia">심장 박동 간격이 불규칙합니다.</string>
 
 </resources>
