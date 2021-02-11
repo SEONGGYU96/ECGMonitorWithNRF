@@ -15,8 +15,8 @@ class BPMManager(
     fun startOperatingBPM(callback: (Int) -> Unit) {
         expectedBPMCalculatedCallback = callback
         bpmCalculator.startCalculating(this)
-        abnormalBPMDetector.setOnStartAbnormalProtocolListener { averageBPM ->
-            abnormalProtocol.startAbnormalProtocol(averageBPM)
+        abnormalBPMDetector.setOnStartAbnormalProtocolListener { averageBPM, abnormalType ->
+            abnormalProtocol.startAbnormalProtocol(averageBPM, abnormalType)
         }
     }
 

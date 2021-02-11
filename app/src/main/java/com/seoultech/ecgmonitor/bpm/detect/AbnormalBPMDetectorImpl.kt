@@ -13,7 +13,7 @@ class AbnormalBPMDetectorImpl(
         private const val TAG = "abnormalBPMDetector"
         private const val MAXIMUM_BPM_NORMAL = 100
         private const val MINIMUM_BPM_NORMAL = 40
-        private const val CRITERIA_ABNORMAL_MINUTE = 5
+        private const val CRITERIA_ABNORMAL_MINUTE = 10
     }
 
     private var abnormalListener: ((Int, AbnormalProtocol.AbnormalType) -> Unit)? = null
