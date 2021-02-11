@@ -18,6 +18,7 @@ import com.seoultech.ecgmonitor.ecgstate.ECGStateObserver
 import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothGattConnectible
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainable
 import com.seoultech.ecgmonitor.bpm.BPMManager
+import com.seoultech.ecgmonitor.bpm.SampleStorageManager
 import com.seoultech.ecgmonitor.bpm.data.HeartBeatSampleLiveData
 import com.seoultech.ecgmonitor.bpm.data.BPMLiveData
 import dagger.hilt.android.AndroidEntryPoint
@@ -65,14 +66,14 @@ class GattConnectionMaintenanceService : Service(), ECGStateCallback {
     @Inject
     lateinit var bpmLiveData: BPMLiveData
 
+    @Inject
+    lateinit var sampleStorageManager: SampleStorageManager
 
     private var boundedDevice: BluetoothDevice? = null
 
     private val ecgStateObserver = ECGStateObserver(this)
 
-    private val heartRateSnapshotObserver = Observer<HeartBeatSampleLiveData> {
-        bpmManager.addHeartBeatSample(it.value)
-    }
+    private val heartRateSnapshotObserver = Observer(this::onDataChanged)
 
     //Notification 터치 시 동작할 PendingIntent
     private val pendingIntent: PendingIntent by lazy {
@@ -113,7 +114,7 @@ class GattConnectionMaintenanceService : Service(), ECGStateCallback {
 
         //서비스 종료 시 Observer들을 수동으로 해제해주어야함
         ecgStateLiveData.removeObserver(ecgStateObserver)
-        stopHeartRateCalculate()
+        stopOperatingBPM()
         unRegisterBluetoothStateBroadcastReceiver()
     }
 
@@ -127,7 +128,7 @@ class GattConnectionMaintenanceService : Service(), ECGStateCallback {
 
     override fun onBluetoothDisabled() {
         setNotification(State.BLUETOOTH_DISABLED)
-        stopHeartRateCalculate()
+        stopOperatingBPM()
     }
 
     override fun onBluetoothEnabled() {
@@ -143,16 +144,24 @@ class GattConnectionMaintenanceService : Service(), ECGStateCallback {
     override fun onConnected() {
         setNotification(State.CONNECTED)
         startOperatingBPM()
+        startSavingSample()
     }
 
     override fun onDisconnected() {
         setNotification(State.DISCONNECTED)
-        stopHeartRateCalculate()
+        stopOperatingBPM()
+        stopSavingSample()
     }
 
     override fun onFailure() {
         setNotification(State.FAILURE)
-        stopHeartRateCalculate()
+        stopOperatingBPM()
+        stopSavingSample()
+    }
+
+    private fun onDataChanged(sampleLiveData: HeartBeatSampleLiveData) {
+        bpmManager.addHeartBeatSample(sampleLiveData.value)
+        sampleStorageManager.saveSample(sampleLiveData.value, sampleLiveData.time)
     }
 
     private fun connect(device: BluetoothDevice) {
@@ -191,9 +200,18 @@ class GattConnectionMaintenanceService : Service(), ECGStateCallback {
         heartBeatSampleLiveData.observeForever(heartRateSnapshotObserver)
     }
 
-    private fun stopHeartRateCalculate() {
+    private fun stopOperatingBPM() {
         bpmManager.stopOperatingBPM()
         heartBeatSampleLiveData.removeObserver(heartRateSnapshotObserver)
+        sampleStorageManager.stopSave()
+    }
+
+    private fun startSavingSample() {
+        sampleStorageManager.startSave()
+    }
+
+    private fun stopSavingSample() {
+        sampleStorageManager.stopSave()
     }
 
     private fun unRegisterBluetoothStateBroadcastReceiver() {

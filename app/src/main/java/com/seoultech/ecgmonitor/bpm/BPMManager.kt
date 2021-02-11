@@ -1,14 +1,12 @@
 package com.seoultech.ecgmonitor.bpm
 
 import com.seoultech.ecgmonitor.bpm.calculate.BPMCalculator
-import com.seoultech.ecgmonitor.bpm.data.source.BPMDataSource
 import com.seoultech.ecgmonitor.bpm.detect.AbnormalBPMDetector
 import com.seoultech.ecgmonitor.protocol.AbnormalProtocol
 
 class BPMManager(
     private val bpmCalculator: BPMCalculator,
     private val abnormalBPMDetector: AbnormalBPMDetector,
-    private val bpmDataSource: BPMDataSource,
     private val abnormalProtocol: AbnormalProtocol
 ): BPMCalculator.BPMCalculateCallback {
 
