@@ -11,9 +11,16 @@
         <action
             android:id="@+id/action_monitorFragment_to_scanFragment"
             app:destination="@id/scanFragment" />
+        <action
+            android:id="@+id/action_monitorFragment_to_settingFragment"
+            app:destination="@id/settingFragment" />
     </fragment>
     <fragment
         android:id="@+id/scanFragment"
         android:name="com.seoultech.ecgmonitor.bluetooth.scan.ScanFragment"
         android:label="ScanFragment" />
+    <fragment
+        android:id="@+id/settingFragment"
+        android:name="com.seoultech.ecgmonitor.setting.SettingFragment"
+        android:label="SettingFragment" />
 </navigation>

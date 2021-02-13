@@ -76,6 +76,10 @@ class MonitorFragment : Fragment(), ECGStateCallback {
                 showDisconnectDialog()
                 true
             }
+            R.id.menu_monitor_setting -> {
+                navigateSettingFragment()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -146,6 +150,11 @@ class MonitorFragment : Fragment(), ECGStateCallback {
             .create()
         banner.show()
         noDeviceBanner = banner
+    }
+
+    private fun navigateSettingFragment() {
+        findNavController()
+            .navigate(MonitorFragmentDirections.actionMonitorFragmentToSettingFragment())
     }
 
     //연결 상태 및 블루투스 연결 상태 구독

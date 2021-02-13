@@ -42,4 +42,16 @@
     <string name="abnormal_channel_name">이상 심박수 감지 알림</string>
     <string name="abnormal_channel_description">일정 시간 이상 심박수가 정상 범위를 벗어나거나 심방 박동이 불규칙한 경우, 알림을 발생합니다.</string>
 
+    <string name="setting_title">설정</string>
+    <string name="setting_generic_title">기본 정보</string>
+    <string name="setting_name_title">이름</string>
+    <string name="setting_abnormal_title">이상 심박수 알림</string>
+    <string name="setting_notification_title">푸시 알림</string>
+    <string name="setting_notification_description">이상 심박수 감지 시 푸시 알림을 발생합니다.</string>
+    <string name="setting_sms_title">문자 알림</string>
+    <string name="setting_sms_description">이상 심박수 감지 시 등록된 연락처로 문자를 보냅니다.</string>
+    <string name="setting_title_add_contact">문자 알림 연락처 등록</string>
+    <string name="menu_monitor_setting">설정</string>
+    <string name="setting_name_default">아무개</string>
+
 </resources>

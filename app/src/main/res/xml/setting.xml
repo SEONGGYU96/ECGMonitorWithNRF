@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tool="http://schemas.android.com/tools">
+
+    <PreferenceCategory
+        app:key="generic"
+        app:title="@string/setting_generic_title">
+
+        <EditTextPreference
+            app:key="user_name"
+            app:title="@string/setting_name_title"
+            app:useSimpleSummaryProvider="true"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="abnormal"
+        app:title="@string/setting_abnormal_title">
+
+        <SwitchPreferenceCompat
+            app:key="push_alert"
+            app:summary="@string/setting_notification_description"
+            app:title="@string/setting_notification_title" />
+
+        <SwitchPreferenceCompat
+            app:key="sms"
+            app:summary="@string/setting_sms_description"
+            app:title="@string/setting_sms_title"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
