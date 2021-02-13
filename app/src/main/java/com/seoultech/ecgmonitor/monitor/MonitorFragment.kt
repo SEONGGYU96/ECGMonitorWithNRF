@@ -18,6 +18,7 @@ import com.seoultech.ecgmonitor.ecgstate.ECGStateObserver
 import com.seoultech.ecgmonitor.findNavController
 import com.seoultech.ecgmonitor.bpm.data.BPMLiveData
 import com.seoultech.ecgmonitor.bpm.data.HeartBeatSampleLiveData
+import com.seoultech.ecgmonitor.setting.SettingActivity
 import com.sergivonavi.materialbanner.Banner
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -153,8 +154,9 @@ class MonitorFragment : Fragment(), ECGStateCallback {
     }
 
     private fun navigateSettingFragment() {
-        findNavController()
-            .navigate(MonitorFragmentDirections.actionMonitorFragmentToSettingFragment())
+        requireActivity().run {
+            startActivity(Intent(this, SettingActivity::class.java))
+        }
     }
 
     //연결 상태 및 블루투스 연결 상태 구독
