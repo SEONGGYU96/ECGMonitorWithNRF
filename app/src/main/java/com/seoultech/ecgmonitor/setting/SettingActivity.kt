@@ -7,7 +7,9 @@ import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.databinding.ActivitySettingBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SettingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
