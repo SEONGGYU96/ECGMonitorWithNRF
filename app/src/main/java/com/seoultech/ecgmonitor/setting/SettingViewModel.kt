@@ -12,8 +12,8 @@ class SettingViewModel @ViewModelInject constructor(
         contactDataSource.insertContact(contact)
     }
 
-    fun deleteContact(contact: Contact) {
-        contactDataSource.deleteContact(contact.number)
+    fun deleteContact(number: String) {
+        contactDataSource.deleteContact(number)
     }
 
     fun getContacts(callback: (List<Contact>) -> Unit) {

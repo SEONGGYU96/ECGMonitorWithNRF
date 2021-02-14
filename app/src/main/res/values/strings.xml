@@ -62,5 +62,8 @@
     <string name="dialog_add_contact_number">전화번호</string>
     <string name="dialog_cancel">취소</string>
     <string name="dialog_add">추가</string>
+    <string name="setting_dialog_remove_title">연락처 삭제하기</string>
+    <string name="setting_dialog_remove_message">연락처를 삭제하시겠습니까?</string>
+    <string name="dialog_remove">삭제</string>
 
 </resources>

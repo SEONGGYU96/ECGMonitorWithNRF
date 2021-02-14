@@ -118,7 +118,27 @@ class SettingPreferenceFragment : PreferenceFragmentCompat() {
             key = contact.number
             title = contact.name
             summary = contact.number
+            setOnPreferenceClickListener(this@SettingPreferenceFragment::showRemoveDialog)
         }
         contactsCategory.addPreference(contactElement)
+    }
+
+    private fun showRemoveDialog(preference: Preference): Boolean {
+        context?.let {
+            MaterialAlertDialogBuilder(it)
+                .setTitle(getString(R.string.setting_dialog_remove_title))
+                .setMessage(getString(R.string.setting_dialog_remove_message))
+                .setNegativeButton(getString(R.string.dialog_cancel)) { _, _ -> }
+                .setPositiveButton(getString(R.string.dialog_remove)) { _, _, ->
+                    removeContact(preference)
+                }
+                .show()
+        }
+        return true
+    }
+
+    private fun removeContact(preference: Preference) {
+        settingViewModel.deleteContact(preference.summary.toString())
+        contactsCategory.removePreference(preference)
     }
 }
