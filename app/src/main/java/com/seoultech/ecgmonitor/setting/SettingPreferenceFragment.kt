@@ -2,6 +2,7 @@ package com.seoultech.ecgmonitor.setting
 
 import android.os.Bundle
 import android.text.TextUtils
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
@@ -61,6 +62,7 @@ class SettingPreferenceFragment : PreferenceFragmentCompat() {
         return Preference(context).apply {
             key = "insert_button"
             title = getString(R.string.setting_add_contact_button)
+            icon = ContextCompat.getDrawable(context, R.drawable.ic_add_24)
             setOnPreferenceClickListener {
                 showAddContactDialog()
                 true
@@ -118,6 +120,7 @@ class SettingPreferenceFragment : PreferenceFragmentCompat() {
             key = contact.number
             title = contact.name
             summary = contact.number
+            icon = ContextCompat.getDrawable(context, R.drawable.ic_people_24)
             setOnPreferenceClickListener(this@SettingPreferenceFragment::showRemoveDialog)
         }
         contactsCategory.addPreference(contactElement)
@@ -129,7 +132,7 @@ class SettingPreferenceFragment : PreferenceFragmentCompat() {
                 .setTitle(getString(R.string.setting_dialog_remove_title))
                 .setMessage(getString(R.string.setting_dialog_remove_message))
                 .setNegativeButton(getString(R.string.dialog_cancel)) { _, _ -> }
-                .setPositiveButton(getString(R.string.dialog_remove)) { _, _, ->
+                .setPositiveButton(getString(R.string.dialog_remove)) { _, _ ->
                     removeContact(preference)
                 }
                 .show()
