@@ -1,8 +1,9 @@
-package com.seoultech.ecgmonitor.contact
+package com.seoultech.ecgmonitor.contact.data.source.local
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import com.seoultech.ecgmonitor.contact.data.Contact
 
 @Dao
 interface ContactDao {

@@ -229,9 +229,9 @@ class MonitorFragment : Fragment(), ECGStateCallback {
     private fun disableUi() {
         binding.run {
             imageviewMonitorHeart.imageTintList =
-                ContextCompat.getColorStateList(requireContext(), R.color.colorDisabledUi)
+                ContextCompat.getColorStateList(requireContext(), R.color.colorGray)
             textviewMonitorHeartrate.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.colorDisabledUi)
+                ContextCompat.getColor(requireContext(), R.color.colorGray)
             )
             textviewMonitorHeartrate.text = getString(R.string.monitor_no_heart_rate)
             toolbarMonitor.menu.getItem(0).isVisible = false

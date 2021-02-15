@@ -1,4 +1,4 @@
-package com.seoultech.ecgmonitor.contact
+package com.seoultech.ecgmonitor.contact.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

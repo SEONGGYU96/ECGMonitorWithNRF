@@ -1,5 +1,6 @@
 package com.seoultech.ecgmonitor.setting
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
 import androidx.core.content.ContextCompat
@@ -11,7 +12,8 @@ import androidx.preference.PreferenceFragmentCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import com.seoultech.ecgmonitor.R
-import com.seoultech.ecgmonitor.contact.Contact
+import com.seoultech.ecgmonitor.contact.data.Contact
+import com.seoultech.ecgmonitor.contact.ContactActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -27,6 +29,17 @@ class SettingPreferenceFragment : PreferenceFragmentCompat() {
         setPreferencesFromResource(R.xml.setting, rootKey)
         initNameSetting()
         initContactCategory()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        preferenceScreen.addPreference(contactsCategory)
+        settingViewModel.getContacts(this::initContacts)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        contactsCategory.removeAll()
     }
 
     private fun initNameSetting() {
@@ -47,8 +60,6 @@ class SettingPreferenceFragment : PreferenceFragmentCompat() {
             key = "contacts"
             title = getString(R.string.setting_title_add_contact)
         }
-        preferenceScreen.addPreference(contactsCategory)
-        settingViewModel.getContacts(this::initContacts)
     }
 
     private fun initContacts(contacts: List<Contact>) {
@@ -81,12 +92,18 @@ class SettingPreferenceFragment : PreferenceFragmentCompat() {
                 .setTitle(getString(R.string.setting_dialog_title))
                 .setItems(items) { _, which ->
                     if (which == 0) {
-                        //Todo: 주소록에서 추가
+                        showAddContactFromDeviceDialog()
                     } else {
                         showAddDirectContactDialog()
                     }
                 }
                 .show()
+        }
+    }
+
+    private fun showAddContactFromDeviceDialog() {
+        requireActivity().run {
+            startActivity(Intent(this, ContactActivity::class.java))
         }
     }
 

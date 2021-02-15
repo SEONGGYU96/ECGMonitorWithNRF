@@ -11,12 +11,20 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class SettingActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivitySettingBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView<ActivitySettingBinding>(this, R.layout.activity_setting)
+        binding = setContentView(this, R.layout.activity_setting)
 
+        setSupportActionBar(binding.toolbarSetting)
+
+        replaceSettingFragment()
+    }
+
+    private fun replaceSettingFragment() {
         supportFragmentManager.commit {
-            setReorderingAllowed(true)
             replace<SettingPreferenceFragment>(R.id.fragmentcontainer_setting_preference)
         }
     }

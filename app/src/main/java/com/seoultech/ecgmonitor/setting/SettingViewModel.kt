@@ -2,11 +2,12 @@ package com.seoultech.ecgmonitor.setting
 
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.ViewModel
-import com.seoultech.ecgmonitor.contact.Contact
-import com.seoultech.ecgmonitor.contact.ContactDataSource
+import com.seoultech.ecgmonitor.contact.data.Contact
+import com.seoultech.ecgmonitor.contact.data.source.ContactDataSource
 
 class SettingViewModel @ViewModelInject constructor(
-    private val contactDataSource: ContactDataSource): ViewModel() {
+    private val contactDataSource: ContactDataSource
+): ViewModel() {
 
     fun insertContact(contact: Contact) {
         contactDataSource.insertContact(contact)

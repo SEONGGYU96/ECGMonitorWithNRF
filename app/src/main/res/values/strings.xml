@@ -66,4 +66,9 @@
     <string name="setting_dialog_remove_message">연락처를 삭제하시겠습니까?</string>
     <string name="dialog_remove">삭제</string>
 
+    <string name="contact_title">연락처</string>
+    <string name="contactsearch_hint">검색</string>
+    <string name="contactsearch_result_count">%d개 검색됨</string>
+    <string name="contactsearch_no_result">검색 결과가 없습니다.</string>
+
 </resources>

@@ -19,4 +19,9 @@
     <dimen name="size_monitor_heart_rate">85sp</dimen>
 
     <dimen name="height_scanning_progress">90dp</dimen>
+
+    <dimen name="margin_contact_title_verticlal">10dp</dimen>
+    <dimen name="margin_contact_result_text_start">20dp</dimen>
+    <dimen name="margin_contact_result_text_top">20dp</dimen>
+    <dimen name="margin_contact_result_recyclerview_top">10dp</dimen>
 </resources>
