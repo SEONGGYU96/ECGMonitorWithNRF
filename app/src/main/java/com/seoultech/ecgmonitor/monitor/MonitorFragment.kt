@@ -69,6 +69,7 @@ class MonitorFragment : Fragment(), ECGStateCallback {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.monitor_app_bar, menu)
+        binding.toolbarMonitor.menu.getItem(0).isVisible = isConnected
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
