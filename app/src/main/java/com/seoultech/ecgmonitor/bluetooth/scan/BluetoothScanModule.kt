@@ -2,7 +2,6 @@ package com.seoultech.ecgmonitor.bluetooth.scan
 
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
-import com.seoultech.ecgmonitor.device.DeviceLiveData
 import com.seoultech.ecgmonitor.utils.PermissionUtil
 import dagger.Module
 import dagger.Provides
@@ -29,7 +28,4 @@ class BluetoothScanModule {
         bluetoothScanner.isBluetoothEnabled(),
         PermissionUtil.isLocationPermissionsGranted(context)
     )
-
-    @Provides
-    fun provideDeviceLiveData(): DeviceLiveData = DeviceLiveData()
 }
