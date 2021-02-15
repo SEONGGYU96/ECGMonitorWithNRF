@@ -18,6 +18,7 @@ import com.seoultech.ecgmonitor.ecgstate.ECGStateObserver
 import com.seoultech.ecgmonitor.findNavController
 import com.seoultech.ecgmonitor.bpm.data.BPMLiveData
 import com.seoultech.ecgmonitor.bpm.data.HeartBeatSampleLiveData
+import com.seoultech.ecgmonitor.setting.SettingActivity
 import com.sergivonavi.materialbanner.Banner
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -74,6 +75,10 @@ class MonitorFragment : Fragment(), ECGStateCallback {
         return when (item.itemId) {
             R.id.menu_monitor_disconnect -> {
                 showDisconnectDialog()
+                true
+            }
+            R.id.menu_monitor_setting -> {
+                navigateSettingFragment()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -148,6 +153,12 @@ class MonitorFragment : Fragment(), ECGStateCallback {
         noDeviceBanner = banner
     }
 
+    private fun navigateSettingFragment() {
+        requireActivity().run {
+            startActivity(Intent(this, SettingActivity::class.java))
+        }
+    }
+
     //연결 상태 및 블루투스 연결 상태 구독
     private fun subscribeUi() {
         subscribeHeartRateValue()
@@ -218,9 +229,9 @@ class MonitorFragment : Fragment(), ECGStateCallback {
     private fun disableUi() {
         binding.run {
             imageviewMonitorHeart.imageTintList =
-                ContextCompat.getColorStateList(requireContext(), R.color.colorDisabledUi)
+                ContextCompat.getColorStateList(requireContext(), R.color.colorGray)
             textviewMonitorHeartrate.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.colorDisabledUi)
+                ContextCompat.getColor(requireContext(), R.color.colorGray)
             )
             textviewMonitorHeartrate.text = getString(R.string.monitor_no_heart_rate)
             toolbarMonitor.menu.getItem(0).isVisible = false

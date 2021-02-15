@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.seoultech.ecgmonitor.contact.data.Contact" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout_contactitem_root"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?android:selectableItemBackground"
+        android:padding="20dp">
+
+        <TextView
+            android:id="@+id/textview_contactitem_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.name}"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@id/textview_contactitem_phone"
+            app:layout_constraintHorizontal_chainStyle="spread_inside"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textview_contactitem_phone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.number}"
+            app:layout_constraintBottom_toBottomOf="@+id/textview_contactitem_name"
+            app:layout_constraintStart_toStartOf="@+id/textview_contactitem_name"
+            app:layout_constraintTop_toBottomOf="@+id/textview_contactitem_name" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

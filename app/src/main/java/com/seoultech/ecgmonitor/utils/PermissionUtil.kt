@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.checkSelfPermission
 import dagger.hilt.android.qualifiers.ApplicationContext
 
 object PermissionUtil {
@@ -25,13 +26,22 @@ object PermissionUtil {
         requestPermission(activity, requestCode, Manifest.permission.SEND_SMS)
     }
 
-    private fun checkPermission(context: Context, permission: String) : Boolean {
-        return (ContextCompat.checkSelfPermission(context, permission)
+    fun isContactPermissionGranted(context: Context): Boolean {
+        return checkPermission(context, Manifest.permission.READ_CONTACTS)
+    }
+
+    fun requestContactPermission(activity: Activity, requestCode: Int) {
+        requestPermission(activity, requestCode, Manifest.permission.READ_CONTACTS)
+    }
+
+    private fun checkPermission(context: Context, permission: String): Boolean {
+        return (checkSelfPermission(context, permission)
                 == PackageManager.PERMISSION_GRANTED)
     }
 
     private fun requestPermission(activity: Activity, requestCode: Int, permission: String) {
         ActivityCompat.requestPermissions(
-            activity, arrayOf(permission), requestCode)
+            activity, arrayOf(permission), requestCode
+        )
     }
 }

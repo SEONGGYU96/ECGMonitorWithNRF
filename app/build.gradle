@@ -58,6 +58,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation 'androidx.fragment:fragment-ktx:1.2.5'
+    implementation 'androidx.preference:preference-ktx:1.1.1'
 
     //New BluetoothLeScanner by nordic
     implementation 'no.nordicsemi.android.support.v18:scanner:1.4.3'
