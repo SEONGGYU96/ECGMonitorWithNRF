@@ -1,10 +1,8 @@
 package com.seoultech.ecgmonitor.setting
 
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.TextUtils
-import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.preference.*
@@ -25,7 +23,8 @@ class SettingPreferenceFragment : PreferenceFragmentCompat() {
         private const val CONTACT_PREFERENCE_KEY = "contacts"
         private const val INSERT_BUTTON_PREFERENCE_KEY = "insert_button"
 
-        private const val REQUEST_SMS_PERMISSION_CODE = 1
+        const val REQUEST_SMS_PERMISSION_CODE = 1
+        const val REQUEST_READ_CONTACT_PERMISSION_CODE = 2
     }
 
     private val settingViewModel: SettingViewModel by viewModels()
@@ -130,7 +129,12 @@ class SettingPreferenceFragment : PreferenceFragmentCompat() {
                 .setTitle(getString(R.string.setting_dialog_title))
                 .setItems(items) { _, which ->
                     if (which == 0) {
-                        showAddContactFromDeviceDialog()
+                        if (PermissionUtil.isContactPermissionGranted(it)) {
+                            startContactActivity()
+                        } else {
+                            PermissionUtil.requestContactPermission(
+                                requireActivity(), REQUEST_READ_CONTACT_PERMISSION_CODE)
+                        }
                     } else {
                         showAddDirectContactDialog()
                     }
@@ -139,7 +143,7 @@ class SettingPreferenceFragment : PreferenceFragmentCompat() {
         }
     }
 
-    private fun showAddContactFromDeviceDialog() {
+    fun startContactActivity() {
         requireActivity().run {
             startActivity(Intent(this, ContactActivity::class.java))
         }
