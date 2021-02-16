@@ -3,10 +3,16 @@ package com.seoultech.ecgmonitor.protocol
 import android.content.Context
 import android.telephony.SmsManager
 import android.util.Log
+import androidx.preference.PreferenceManager
 import com.seoultech.ecgmonitor.R
+import com.seoultech.ecgmonitor.contact.data.source.ContactDataSource
+import com.seoultech.ecgmonitor.setting.SettingPreferenceFragment
 import com.seoultech.ecgmonitor.utils.PermissionUtil
 
-class SMSSender(private val context: Context) {
+class SMSSender(
+    private val context: Context,
+    private val contactDataSource: ContactDataSource
+) {
 
     companion object {
         private const val TAG = "SMSSender"
@@ -20,11 +26,13 @@ class SMSSender(private val context: Context) {
         val smsManager = SmsManager.getDefault()
         val userName = getUserName()
         val message = String.format(getContentText(type), userName, bpm)
-        val numbers = getRegisteredNumbers()
-        for (number in numbers) {
-            smsManager.sendTextMessage(
-                number, null, message, null, null)
-            Log.d(TAG, "send(): $number")
+        contactDataSource.getContacts { numbers ->
+            for (number in numbers) {
+                smsManager.sendTextMessage(
+                    number.number, null, message, null, null
+                )
+                Log.d(TAG, "send(): $number")
+            }
         }
     }
 
@@ -43,12 +51,10 @@ class SMSSender(private val context: Context) {
     }
 
     private fun getUserName(): String {
-        //Todo: Preference에서 사용자 이름 가져오기
-        return "아무개"
-    }
-
-    private fun getRegisteredNumbers(): List<String> {
-        //Todo: DB에서 등록된 전화번호 가져오기
-        return mutableListOf("01098855658")
+        return PreferenceManager.getDefaultSharedPreferences(context)
+            .getString(
+                SettingPreferenceFragment.USER_NAME_PREFERENCE_KEY,
+                context.getString(R.string.setting_name_default)
+            )!!
     }
 }

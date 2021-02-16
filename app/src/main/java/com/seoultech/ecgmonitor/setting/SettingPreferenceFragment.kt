@@ -18,10 +18,10 @@ import dagger.hilt.android.AndroidEntryPoint
 class SettingPreferenceFragment : PreferenceFragmentCompat() {
 
     companion object {
-        private const val USER_NAME_PREFERENCE_KEY = "user_name"
-        private const val SMS_PREFERENCE_KEY = "sms"
         private const val CONTACT_PREFERENCE_KEY = "contacts"
         private const val INSERT_BUTTON_PREFERENCE_KEY = "insert_button"
+        const val USER_NAME_PREFERENCE_KEY = "user_name"
+        const val SMS_PREFERENCE_KEY = "sms"
 
         const val REQUEST_SMS_PERMISSION_CODE = 1
         const val REQUEST_READ_CONTACT_PERMISSION_CODE = 2
