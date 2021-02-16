@@ -22,6 +22,7 @@ class SettingPreferenceFragment : PreferenceFragmentCompat() {
         private const val INSERT_BUTTON_PREFERENCE_KEY = "insert_button"
         const val USER_NAME_PREFERENCE_KEY = "user_name"
         const val SMS_PREFERENCE_KEY = "sms"
+        const val PUSH_ALERT_PREFERENCE_KEY = "push_alert"
 
         const val REQUEST_SMS_PERMISSION_CODE = 1
         const val REQUEST_READ_CONTACT_PERMISSION_CODE = 2
