@@ -1,6 +1,7 @@
 package com.seoultech.ecgmonitor.protocol
 
 import android.content.Context
+import com.seoultech.ecgmonitor.contact.data.source.ContactDataSource
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -12,6 +13,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 class AbnormalProtocolModule {
 
     @Provides
-    fun provideAbnormalProtocol(@ApplicationContext context: Context) : AbnormalProtocol =
-        AbnormalProtocolImpl(context)
+    fun provideAbnormalProtocol(
+        @ApplicationContext context: Context,
+        contactDataSource: ContactDataSource
+    ) : AbnormalProtocol = AbnormalProtocolImpl(context, contactDataSource)
 }
