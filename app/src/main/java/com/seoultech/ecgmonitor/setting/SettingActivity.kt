@@ -1,6 +1,8 @@
 package com.seoultech.ecgmonitor.setting
 
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil.setContentView
 import androidx.fragment.app.commit
@@ -21,6 +23,16 @@ class SettingActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbarSetting)
 
         replaceSettingFragment()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        Log.d("SettingActivity", "requestCode: $requestCode, permissions: $permissions, grantResult: $grantResults")
+        (supportFragmentManager.fragments[0] as SettingPreferenceFragment)
+            .setSMSSwitch(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)
     }
 
     private fun replaceSettingFragment() {

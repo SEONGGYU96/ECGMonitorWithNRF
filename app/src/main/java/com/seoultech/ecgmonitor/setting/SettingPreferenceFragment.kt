@@ -1,32 +1,43 @@
 package com.seoultech.ecgmonitor.setting
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
-import androidx.preference.EditTextPreference
-import androidx.preference.Preference
-import androidx.preference.PreferenceCategory
-import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
 import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.contact.data.Contact
 import com.seoultech.ecgmonitor.contact.ContactActivity
+import com.seoultech.ecgmonitor.utils.PermissionUtil
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class SettingPreferenceFragment : PreferenceFragmentCompat() {
+
+    companion object {
+        private const val USER_NAME_PREFERENCE_KEY = "user_name"
+        private const val SMS_PREFERENCE_KEY = "sms"
+        private const val CONTACT_PREFERENCE_KEY = "contacts"
+        private const val INSERT_BUTTON_PREFERENCE_KEY = "insert_button"
+
+        private const val REQUEST_SMS_PERMISSION_CODE = 1
+    }
 
     private val settingViewModel: SettingViewModel by viewModels()
 
     private lateinit var contactsCategory: PreferenceCategory
 
     private val contactInsertPreferenceButton: Preference by lazy(this::getContactInsertButton)
+    private lateinit var smsSwitchPreference: SwitchPreferenceCompat
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.setting, rootKey)
+        initSwitchPreferenceCallback()
         initNameSetting()
         initContactCategory()
     }
@@ -42,8 +53,35 @@ class SettingPreferenceFragment : PreferenceFragmentCompat() {
         contactsCategory.removeAll()
     }
 
+    private fun initSwitchPreferenceCallback() {
+        smsSwitchPreference = findPreference<SwitchPreferenceCompat>(SMS_PREFERENCE_KEY)!!.apply {
+            setOnPreferenceChangeListener(this@SettingPreferenceFragment::requestSMSPermissionIfNeed)
+        }
+    }
+
+    private fun requestSMSPermissionIfNeed(preference: Preference, newValue: Any): Boolean {
+        if (preference.key != SMS_PREFERENCE_KEY) {
+            return false
+        }
+        if (newValue as Boolean) {
+            context?.let {
+                return if (!PermissionUtil.isSMSPermissionsGranted(it)) {
+                    PermissionUtil.requestSMSPermission(requireActivity(), REQUEST_SMS_PERMISSION_CODE)
+                    false
+                } else {
+                    true
+                }
+            }
+        }
+        return true
+    }
+
+    fun setSMSSwitch(isChecked: Boolean) {
+        smsSwitchPreference.isChecked = isChecked
+    }
+
     private fun initNameSetting() {
-        val namePreference = findPreference<EditTextPreference>("user_name")
+        val namePreference = findPreference<EditTextPreference>(USER_NAME_PREFERENCE_KEY)
         namePreference?.summaryProvider =
             Preference.SummaryProvider<EditTextPreference> { preference ->
                 val text = preference.text
@@ -57,7 +95,7 @@ class SettingPreferenceFragment : PreferenceFragmentCompat() {
 
     private fun initContactCategory() {
         contactsCategory = PreferenceCategory(context).apply {
-            key = "contacts"
+            key = CONTACT_PREFERENCE_KEY
             title = getString(R.string.setting_title_add_contact)
         }
     }
@@ -71,7 +109,7 @@ class SettingPreferenceFragment : PreferenceFragmentCompat() {
 
     private fun getContactInsertButton(): Preference {
         return Preference(context).apply {
-            key = "insert_button"
+            key = INSERT_BUTTON_PREFERENCE_KEY
             title = getString(R.string.setting_add_contact_button)
             icon = ContextCompat.getDrawable(context, R.drawable.ic_add_24)
             setOnPreferenceClickListener {
