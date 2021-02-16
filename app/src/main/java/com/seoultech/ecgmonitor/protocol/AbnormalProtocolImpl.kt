@@ -18,12 +18,17 @@ class AbnormalProtocolImpl(
 
     override fun startAbnormalProtocol(averageBpm: Int, type: AbnormalProtocol.AbnormalType) {
         Log.d(TAG, "startAbnormalProtocol() : bpm $averageBpm")
-        val smsAllowed = PreferenceManager.getDefaultSharedPreferences(context)
-            .getBoolean(
+        val preference = PreferenceManager.getDefaultSharedPreferences(context)
+        val smsAllowed = preference.getBoolean(
                 SettingPreferenceFragment.SMS_PREFERENCE_KEY, false)
+        val notificationAllowed = preference.getBoolean(
+            SettingPreferenceFragment.PUSH_ALERT_PREFERENCE_KEY, false
+        )
         if (smsAllowed) {
             SMSSender(context, contactDataSource).send(type, averageBpm)
         }
-        AbnormalNotification(context).showNotification(type, averageBpm)
+        if (notificationAllowed) {
+            AbnormalNotification(context).showNotification(type, averageBpm)
+        }
     }
 }
