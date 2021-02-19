@@ -2,6 +2,7 @@ package com.seoultech.ecgmonitor.monitor
 
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
@@ -33,7 +34,8 @@ class MonitorFragment : Fragment(), ECGStateCallback {
     private lateinit var binding: FragmentMonitorBinding
     private val monitorViewModel: MonitorViewModel by viewModels()
     private var isConnected = false
-    private var isFullScreen = false
+    private var isLandscapeMode = true
+    private var userChangeRotate = false
     private var bluetoothBannerIsShowing = false
     private var noDeviceBanner: Banner? = null
 
@@ -64,7 +66,21 @@ class MonitorFragment : Fragment(), ECGStateCallback {
 
         subscribeUi()
 
+        setOnClickListener()
+
         return binding.root
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        //화면 방향을 변경하면 모두 초기화되므로 onConnect에서 화면을 다시 눕혀버림
+        //따라서 사용자가 화면 방향을 변경하고 있는지는 기억하고 있어야함
+        outState.putBoolean("userChangeRotate", userChangeRotate)
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        userChangeRotate = savedInstanceState?.getBoolean("userChangeRotate", false)?: false
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -99,6 +115,8 @@ class MonitorFragment : Fragment(), ECGStateCallback {
 
     override fun beforeBounded() {
         isConnected = false
+        userChangeRotate = false
+        changePortrait()
         disableUi()
         showNoDeviceBanner()
     }
@@ -119,12 +137,20 @@ class MonitorFragment : Fragment(), ECGStateCallback {
 
     override fun onConnected() {
         if (!isConnected) {
+            isConnected = true
+            if (!userChangeRotate) {
+                changeLandscape()
+            }
             startPlot()
         }
     }
 
     override fun onDisconnected() {
         if (isConnected) {
+            isConnected = false
+            if (!userChangeRotate) {
+                changePortrait()
+            }
             stopPlot()
         }
     }
@@ -134,6 +160,13 @@ class MonitorFragment : Fragment(), ECGStateCallback {
             binding.root, getString(R.string.monitor_snackbar_fail),
             Snackbar.LENGTH_INDEFINITE
         ).show()
+    }
+
+    private fun setOnClickListener() {
+        binding.imagebuttonMonitorRotate.setOnClickListener {
+            userChangeRotate = true
+            changeScreenMode()
+        }
     }
 
     //연결된 기기가 없을 때 배너 띄우기
@@ -188,7 +221,6 @@ class MonitorFragment : Fragment(), ECGStateCallback {
     }
 
     private fun stopPlot() {
-        this@MonitorFragment.isConnected = false
         disableUi()
         Snackbar.make(
             binding.root,
@@ -198,7 +230,6 @@ class MonitorFragment : Fragment(), ECGStateCallback {
     }
 
     private fun startPlot() {
-        this@MonitorFragment.isConnected = true
         enableUi()
         dismissNoDeviceBannerIfItShowing()
         Snackbar.make(
@@ -223,6 +254,7 @@ class MonitorFragment : Fragment(), ECGStateCallback {
             )
             toolbarMonitor.menu.getItem(0).isVisible = true
             ecggraphMonitor.start()
+            imagebuttonMonitorRotate.visibility = View.VISIBLE
         }
     }
 
@@ -237,6 +269,7 @@ class MonitorFragment : Fragment(), ECGStateCallback {
             textviewMonitorHeartrate.text = getString(R.string.monitor_no_heart_rate)
             toolbarMonitor.menu.getItem(0).isVisible = false
             ecggraphMonitor.stop()
+            imagebuttonMonitorRotate.visibility = View.GONE
         }
     }
 
@@ -268,26 +301,23 @@ class MonitorFragment : Fragment(), ECGStateCallback {
             }
             .show()
     }
+
+    private fun changeScreenMode() {
+        isLandscapeMode = if (isLandscapeMode) {
+            changePortrait()
+            false
+        } else {
+            changeLandscape()
+            true
+        }
+    }
+
+    private fun changePortrait() {
+        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+    }
+
+    private fun changeLandscape() {
+        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+    }
 }
-//
-//private fun changeScreenMode() {
-//        if (isFullScreen) {
-//            return
-//        }
-//        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-//            window.decorView.windowInsetsController?.run {
-//                hide(WindowInsets.Type.statusBars())
-//                //hide(WindowInsets.Type.navigationBars())
-//                systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_BARS_BY_SWIPE
-//            }
-//        } else {
-//            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
-//                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-//                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-//                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-//                    or View.SYSTEM_UI_FLAG_FULLSCREEN)
-//        }
-//        isFullScreen = true
-//}
+
