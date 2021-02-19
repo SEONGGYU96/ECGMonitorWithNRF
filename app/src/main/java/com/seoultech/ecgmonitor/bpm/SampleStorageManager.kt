@@ -5,5 +5,5 @@ interface SampleStorageManager {
 
     fun saveSample(sample: Float, time: Long)
 
-    fun stopSave()
+    fun safeStopSave()
 }

@@ -19,6 +19,7 @@ class SampleStorageManagerImpl(private val context: Context) : SampleStorageMana
         private const val DISCONNECT_STAMP = -1
         private const val EOP = "e"
         private const val FILE_NAME_DATE_FORMAT = "yy-MM-dd"
+        private const val STOP_SIGNAL = -1
     }
     private val dateFormat = SimpleDateFormat(FILE_NAME_DATE_FORMAT, Locale.KOREA)
 
@@ -34,7 +35,12 @@ class SampleStorageManagerImpl(private val context: Context) : SampleStorageMana
         backUpFileStream = getFileStream()
         saveSampleHandlerThread = HandlerThread("saveSample").apply { start() }
         saveSampleHandler = Handler(saveSampleHandlerThread!!.looper) {
-            dispatchSampleData(it.obj as HeartBeatSample)
+            if (it.arg1 == STOP_SIGNAL) {
+                saveSampleHandlerThread?.quit()
+                stopSave()
+            } else {
+                dispatchSampleData(it.obj as HeartBeatSample)
+            }
             return@Handler true
         }
     }
@@ -50,7 +56,13 @@ class SampleStorageManagerImpl(private val context: Context) : SampleStorageMana
         }
     }
 
-    override fun stopSave() {
+    override fun safeStopSave() {
+        saveSampleHandler?.sendMessage(Message.obtain().apply { arg1 = STOP_SIGNAL }) ?: kotlin.run {
+            errorLog()
+        }
+    }
+
+    private fun stopSave() {
         backUpFileStream?.use {
             it.write("$DISCONNECT_STAMP ".toByteArray())
             it.close()
