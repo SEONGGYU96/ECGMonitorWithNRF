@@ -203,7 +203,7 @@ class GattConnectionMaintenanceService : Service(), ECGStateCallback {
     private fun stopOperatingBPM() {
         bpmManager.stopOperatingBPM()
         heartBeatSampleLiveData.removeObserver(heartRateSnapshotObserver)
-        sampleStorageManager.stopSave()
+        sampleStorageManager.safeStopSave()
     }
 
     private fun startSavingSample() {
@@ -211,7 +211,7 @@ class GattConnectionMaintenanceService : Service(), ECGStateCallback {
     }
 
     private fun stopSavingSample() {
-        sampleStorageManager.stopSave()
+        sampleStorageManager.safeStopSave()
     }
 
     private fun unRegisterBluetoothStateBroadcastReceiver() {
