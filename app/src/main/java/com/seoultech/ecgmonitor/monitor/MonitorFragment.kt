@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.*
+import androidx.annotation.ColorRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -55,17 +56,10 @@ class MonitorFragment : Fragment(), ECGStateCallback {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentMonitorBinding.inflate(inflater, container, false).apply {
-            bannerMonitorBluetooth.setRightButtonListener {
-                startActivity(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
-            }
-        }
+        binding = FragmentMonitorBinding.inflate(inflater, container, false)
 
-        (activity as AppCompatActivity).setSupportActionBar(binding.toolbarMonitor)
-        setHasOptionsMenu(true)
-
+        initToolbar()
         subscribeUi()
-
         setOnClickListener()
 
         return binding.root
@@ -85,7 +79,7 @@ class MonitorFragment : Fragment(), ECGStateCallback {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.monitor_app_bar, menu)
-        binding.toolbarMonitor.menu.getItem(0).isVisible = isConnected
+        setDisconnectMenuVisibility(isConnected)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -104,13 +98,12 @@ class MonitorFragment : Fragment(), ECGStateCallback {
 
     override fun onPause() {
         super.onPause()
-        //Stop drawing graph when this application is gone to background
-        binding.ecggraphMonitor.stop()
+        startMonitoring(false)
     }
 
     override fun onResume() {
         super.onResume()
-        ecgStateLiveData.refresh()
+        refresh()
     }
 
     override fun beforeBounded() {
@@ -162,14 +155,31 @@ class MonitorFragment : Fragment(), ECGStateCallback {
         ).show()
     }
 
+    private fun refresh() {
+        ecgStateLiveData.refresh()
+    }
+
+    private fun setDisconnectMenuVisibility(isVisible: Boolean) {
+        binding.toolbarMonitor.menu.getItem(0).isVisible = isVisible
+    }
+
+    private fun initToolbar() {
+        (activity as AppCompatActivity).setSupportActionBar(binding.toolbarMonitor)
+        setHasOptionsMenu(true)
+    }
+
     private fun setOnClickListener() {
-        binding.imagebuttonMonitorRotate.setOnClickListener {
-            userChangeRotate = true
-            changeScreenMode()
+        binding.run {
+            imagebuttonMonitorRotate.setOnClickListener {
+                userChangeRotate = true
+                changeScreenMode()
+            }
+            bannerMonitorBluetooth.setRightButtonListener {
+                startActivity(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+            }
         }
     }
 
-    //연결된 기기가 없을 때 배너 띄우기
     private fun showNoDeviceBanner() {
         if (noDeviceBanner != null) {
             return
@@ -193,9 +203,11 @@ class MonitorFragment : Fragment(), ECGStateCallback {
         }
     }
 
-    //연결 상태 및 블루투스 연결 상태 구독
     private fun subscribeUi() {
-        subscribeHeartRateValue()
+        heartBeatSampleLiveData.observe(viewLifecycleOwner, {
+            binding.ecggraphMonitor.addValue(it.value, it.time)
+        })
+
         ecgStateLiveData.observe(viewLifecycleOwner, ecgStateObserver)
 
         bpmLiveData.observe(viewLifecycleOwner) {
@@ -211,13 +223,6 @@ class MonitorFragment : Fragment(), ECGStateCallback {
     private fun dismissBluetoothDisabledBanner() {
         binding.bannerMonitorBluetooth.dismiss()
         bluetoothBannerIsShowing = false
-    }
-
-    private fun subscribeHeartRateValue() {
-        //Observing heart rate value
-        heartBeatSampleLiveData.observe(viewLifecycleOwner, {
-            binding.ecggraphMonitor.addValue(it.value, it.time)
-        })
     }
 
     private fun stopPlot() {
@@ -246,45 +251,48 @@ class MonitorFragment : Fragment(), ECGStateCallback {
 
     //UI 활성화
     private fun enableUi() {
-        binding.run {
-            imageviewMonitorHeart.imageTintList =
-                ContextCompat.getColorStateList(requireContext(), R.color.red)
-            textviewMonitorHeartrate.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.red)
-            )
-            toolbarMonitor.menu.getItem(0).isVisible = true
-            ecggraphMonitor.start()
-            imagebuttonMonitorRotate.visibility = View.VISIBLE
+        startMonitoring(true)
+        setRotateButtonVisibility(true)
+        changeBPMViewColor(R.color.red)
+        setDisconnectMenuVisibility(true)
+    }
+
+    private fun startMonitoring(isStart: Boolean) {
+        if (isStart) {
+            binding.ecggraphMonitor.start()
+        } else {
+            binding.ecggraphMonitor.stop()
         }
     }
 
     //UI 비활성화
     private fun disableUi() {
-        binding.run {
-            imageviewMonitorHeart.imageTintList =
-                ContextCompat.getColorStateList(requireContext(), R.color.colorGray)
-            textviewMonitorHeartrate.setTextColor(
-                ContextCompat.getColor(requireContext(), R.color.colorGray)
-            )
-            textviewMonitorHeartrate.text = getString(R.string.monitor_no_heart_rate)
-            toolbarMonitor.menu.getItem(0).isVisible = false
-            ecggraphMonitor.stop()
-            imagebuttonMonitorRotate.visibility = View.GONE
+        initBPMTextView()
+        startMonitoring(false)
+        setRotateButtonVisibility(false)
+        changeBPMViewColor(R.color.colorGray)
+        setMenuVisibility(false)
+    }
+
+    private fun initBPMTextView() {
+        binding.textviewMonitorHeartrate.text = getString(R.string.monitor_no_heart_rate)
+    }
+
+    private fun setRotateButtonVisibility(isVisible: Boolean) {
+        binding.imagebuttonMonitorRotate.visibility = if (isVisible) {
+            View.VISIBLE
+        } else {
+            View.GONE
         }
     }
 
-    private fun refresh() {
-        if (ecgStateLiveData.isBounded()) {
-            if (ecgStateLiveData.isBluetoothEnabled()) {
-                if (ecgStateLiveData.isConnected()) {
-                    startPlot()
-                } else {
-                    stopPlot()
-                    isConnected = false
-                }
-            }
-        } else {
-            beforeBounded()
+    private fun changeBPMViewColor(@ColorRes colorRes: Int) {
+        binding.run {
+            imageviewMonitorHeart.imageTintList =
+                ContextCompat.getColorStateList(requireContext(), colorRes)
+            textviewMonitorHeartrate.setTextColor(
+                ContextCompat.getColor(requireContext(), colorRes)
+            )
         }
     }
 
