@@ -110,7 +110,7 @@ class MonitorFragment : Fragment(), ECGStateCallback {
 
     override fun onResume() {
         super.onResume()
-        refresh()
+        ecgStateLiveData.refresh()
     }
 
     override fun beforeBounded() {

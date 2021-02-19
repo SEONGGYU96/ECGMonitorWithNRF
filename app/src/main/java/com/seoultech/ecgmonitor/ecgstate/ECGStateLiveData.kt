@@ -52,4 +52,6 @@ class ECGStateLiveData(
     fun isFailed() = isFailure
 
     fun isBounded() = gattContainable.hasGatt()
+
+    fun refresh() = postValue(this)
 }
