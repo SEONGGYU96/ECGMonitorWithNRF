@@ -12,15 +12,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.seoultech.ecgmonitor.MainActivity
+import com.seoultech.ecgmonitor.MainFragmentDirections
 import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.databinding.FragmentMonitorBinding
 import com.seoultech.ecgmonitor.ecgstate.ECGStateCallback
 import com.seoultech.ecgmonitor.ecgstate.ECGStateLiveData
 import com.seoultech.ecgmonitor.ecgstate.ECGStateObserver
-import com.seoultech.ecgmonitor.findNavController
 import com.seoultech.ecgmonitor.bpm.data.BPMLiveData
 import com.seoultech.ecgmonitor.bpm.data.HeartBeatSampleLiveData
-import com.seoultech.ecgmonitor.setting.SettingActivity
+import com.seoultech.ecgmonitor.findNavController
 import com.sergivonavi.materialbanner.Banner
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -39,6 +40,7 @@ class MonitorFragment : Fragment(), ECGStateCallback {
     private var userChangeRotate = false
     private var bluetoothBannerIsShowing = false
     private var noDeviceBanner: Banner? = null
+    private var disconnectMenuVisibility = false
 
     @Inject
     lateinit var bpmLiveData: BPMLiveData
@@ -51,6 +53,11 @@ class MonitorFragment : Fragment(), ECGStateCallback {
 
     private val ecgStateObserver = ECGStateObserver(this)
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        initToolbar()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -58,7 +65,6 @@ class MonitorFragment : Fragment(), ECGStateCallback {
     ): View {
         binding = FragmentMonitorBinding.inflate(inflater, container, false)
 
-        initToolbar()
         subscribeUi()
         setOnClickListener()
 
@@ -79,17 +85,17 @@ class MonitorFragment : Fragment(), ECGStateCallback {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.monitor_app_bar, menu)
-        setDisconnectMenuVisibility(isConnected)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        menu.findItem(R.id.menu_monitor_disconnect).isVisible = disconnectMenuVisibility
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.menu_monitor_disconnect -> {
                 showDisconnectDialog()
-                true
-            }
-            R.id.menu_monitor_setting -> {
-                navigateSettingFragment()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -160,11 +166,11 @@ class MonitorFragment : Fragment(), ECGStateCallback {
     }
 
     private fun setDisconnectMenuVisibility(isVisible: Boolean) {
-        binding.toolbarMonitor.menu.getItem(0).isVisible = isVisible
+        disconnectMenuVisibility = isVisible
+        (requireActivity() as AppCompatActivity).invalidateOptionsMenu()
     }
 
     private fun initToolbar() {
-        (activity as AppCompatActivity).setSupportActionBar(binding.toolbarMonitor)
         setHasOptionsMenu(true)
     }
 
@@ -186,21 +192,16 @@ class MonitorFragment : Fragment(), ECGStateCallback {
         }
         val banner = Banner.Builder(requireContext()).setParent(binding.linearlayoutMonitorBanner)
             .setMessage(getString(R.string.banner_no_device))
-            .setRightButton(getString(R.string.banner_find_device)) {
+            .setRightButton(getString(R.string.scan_title)) {
                 it.dismiss()
                 noDeviceBanner = null
-                val direction = MonitorFragmentDirections.actionMonitorFragmentToScanFragment()
-                findNavController().navigate(direction)
+                requireParentFragment()
+                    .findNavController()
+                    .navigate(MainFragmentDirections.actionMainFragmentToScanFragment())
             }
             .create()
         banner.show()
         noDeviceBanner = banner
-    }
-
-    private fun navigateSettingFragment() {
-        requireActivity().run {
-            startActivity(Intent(this, SettingActivity::class.java))
-        }
     }
 
     private fun subscribeUi() {
@@ -271,7 +272,6 @@ class MonitorFragment : Fragment(), ECGStateCallback {
         startMonitoring(false)
         setRotateButtonVisibility(false)
         changeBPMViewColor(R.color.colorGray)
-        setMenuVisibility(false)
     }
 
     private fun initBPMTextView() {

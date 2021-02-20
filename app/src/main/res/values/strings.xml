@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">SeoulTech\nECG Monitor</string>
+    <string name="main_title">ECG Monitor</string>
     <string name="location_permission_required">위치 정보 권한이 필요합니다.</string>
     <string name="location_permission_grant">허용하기</string>
     <string name="location_permission_description">블루투스 ECG 센서의 검색을 위해서\n위치 정보 접근 권한을 허용해주세요.</string>
@@ -7,6 +8,7 @@
     <string name="bluetooth_disabled_description">ECG 센서를 검색하려면 블루투스를 켜주세요.</string>
     <string name="bluetooth_on">블루투스 켜기</string>
 
+    <string name="scan_title">ECG 센서 찾기</string>
     <string name="scan_scanning">검색 중..</string>
     <string name="scan_description">ECG 센서의 전원을 켜고\n휴대전화를 ECG 센서와 가깝게 유지하세요.</string>
 
@@ -16,7 +18,7 @@
     <string name="notification_bluetooth_disabled">블루투스가 꺼져있어 심전도 측정이 불가능합니다.\n블루투스를 켜주세요.</string>
     <string name="notification_failure">ECG 센서와의 연결에 실패하였습니다. 다시 시도해주세요.</string>
 
-    <string name="monitor_title">ECG Monitor</string>
+    <string name="monitor_title">그래프</string>
     <string name="monitor_menu_disconnect">연결 끊기</string>
     <string name="monitor_menu_disconnect_description">현재 연결된 기와의 페어링을 끊습니다.</string>
     <string name="monitor_no_heart_rate">--</string>
@@ -29,7 +31,6 @@
     <string name="monitor_disconnect_dialog_negative_button">닫기</string>
 
     <string name="banner_no_device">앱과 연결된 ECG 센서가 없습니다.\nECG 센서 찾기를 눌러 연결해주세요.</string>
-    <string name="banner_find_device">ECG 센서 찾기</string>
     <string name="banner_enable_bluetooth">블루투스 켜기</string>
     <string name="banner_bluetooth_disabled">블루투스가 꺼져있습니다. 블루투스를 켜주세요.</string>
 

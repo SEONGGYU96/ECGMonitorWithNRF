@@ -8,6 +8,7 @@ import androidx.fragment.app.viewModels
 import androidx.preference.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
+import com.seoultech.ecgmonitor.MainActivity
 import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.contact.data.Contact
 import com.seoultech.ecgmonitor.contact.ContactActivity
@@ -44,12 +45,14 @@ class SettingPreferenceFragment : PreferenceFragmentCompat() {
 
     override fun onResume() {
         super.onResume()
+        //주소록에서 추가하는 경우, 새로고침이 필요함
         preferenceScreen.addPreference(contactsCategory)
         settingViewModel.getContacts(this::initContacts)
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onPause() {
+        super.onPause()
+        //removeAll 이 즉시 실행되지 않기 때문에 화면이 가려지기 시작할 때 미리 목록을 제거
         contactsCategory.removeAll()
     }
 

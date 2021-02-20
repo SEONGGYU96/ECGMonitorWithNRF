@@ -7,9 +7,4 @@
         android:contentDescription="@string/monitor_menu_disconnect_description"
         app:showAsAction="never" />
 
-    <item
-        android:id="@+id/menu_monitor_setting"
-        android:title="@string/menu_monitor_setting"
-        app:showAsAction="never" />
-
 </menu>

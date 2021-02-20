@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.button.MaterialButton
+import com.seoultech.ecgmonitor.MainActivity
 import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.bluetooth.state.BluetoothStateLiveData
 import com.seoultech.ecgmonitor.bluetooth.state.BluetoothStateReceiver
@@ -43,6 +44,11 @@ class ScanFragment : Fragment(), View.OnClickListener {
     lateinit var bluetoothStateLiveData: BluetoothStateLiveData
 
     private var discovered = false
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        initToolbar()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -112,6 +118,11 @@ class ScanFragment : Fragment(), View.OnClickListener {
                 startActivity(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
             }
         }
+    }
+
+    private fun initToolbar() {
+        setHasOptionsMenu(false)
+        (requireActivity() as MainActivity).supportActionBar?.title = getString(R.string.scan_title)
     }
 
     //Let's start scanning

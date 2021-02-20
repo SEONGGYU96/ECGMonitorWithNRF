@@ -13,24 +13,6 @@
         android:layout_height="match_parent"
         tools:context=".bluetooth.scan.ScanFragment">
 
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/appbarlayout_scan"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="@style/AppTheme.AppBarOverlay"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/toolbar_scan"
-                android:layout_width="match_parent"
-                app:title="@string/banner_find_device"
-                android:layout_height="?actionBarSize"
-                app:popupTheme="@style/AppTheme.PopupOverlay" />
-
-        </com.google.android.material.appbar.AppBarLayout>
-
         <include
             android:id="@+id/include_scan_nopermission"
             layout="@layout/info_no_permission"
