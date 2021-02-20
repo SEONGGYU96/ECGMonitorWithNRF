@@ -39,6 +39,7 @@ class MonitorFragment : Fragment(), ECGStateCallback {
     private var userChangeRotate = false
     private var bluetoothBannerIsShowing = false
     private var noDeviceBanner: Banner? = null
+    private var disconnectMenuVisibility = false
 
     @Inject
     lateinit var bpmLiveData: BPMLiveData
@@ -51,6 +52,11 @@ class MonitorFragment : Fragment(), ECGStateCallback {
 
     private val ecgStateObserver = ECGStateObserver(this)
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        initToolbar()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -58,7 +64,6 @@ class MonitorFragment : Fragment(), ECGStateCallback {
     ): View {
         binding = FragmentMonitorBinding.inflate(inflater, container, false)
 
-        initToolbar()
         subscribeUi()
         setOnClickListener()
 
@@ -79,7 +84,11 @@ class MonitorFragment : Fragment(), ECGStateCallback {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.monitor_app_bar, menu)
-        setDisconnectMenuVisibility(isConnected)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        menu.findItem(R.id.menu_monitor_disconnect).isVisible = disconnectMenuVisibility
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -160,11 +169,11 @@ class MonitorFragment : Fragment(), ECGStateCallback {
     }
 
     private fun setDisconnectMenuVisibility(isVisible: Boolean) {
-        binding.toolbarMonitor.menu.getItem(0).isVisible = isVisible
+        disconnectMenuVisibility = isVisible
+        (requireActivity() as AppCompatActivity).invalidateOptionsMenu()
     }
 
     private fun initToolbar() {
-        (activity as AppCompatActivity).setSupportActionBar(binding.toolbarMonitor)
         setHasOptionsMenu(true)
     }
 
@@ -271,7 +280,6 @@ class MonitorFragment : Fragment(), ECGStateCallback {
         startMonitoring(false)
         setRotateButtonVisibility(false)
         changeBPMViewColor(R.color.colorGray)
-        setMenuVisibility(false)
     }
 
     private fun initBPMTextView() {

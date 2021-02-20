@@ -12,26 +12,6 @@
         android:layout_height="match_parent"
         tools:context=".monitor.MonitorFragment">
 
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/appbarlayout_monitor"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:theme="@style/AppTheme.AppBarOverlay"
-            android:translationZ="@dimen/elevation_default_top_app_bar"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <com.google.android.material.appbar.MaterialToolbar
-                android:id="@+id/toolbar_monitor"
-                android:layout_width="match_parent"
-                android:layout_height="?actionBarSize"
-                app:menu="@menu/monitor_app_bar"
-                app:popupTheme="@style/AppTheme.PopupOverlay"
-                app:title="@string/monitor_title" />
-
-        </com.google.android.material.appbar.AppBarLayout>
-
         <LinearLayout
             android:id="@+id/linearlayout_monitor_banner"
             android:layout_width="match_parent"
@@ -39,7 +19,7 @@
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/appbarlayout_monitor">
+            app:layout_constraintTop_toTopOf="parent">
 
             <com.sergivonavi.materialbanner.Banner
                 android:id="@+id/banner_monitor_bluetooth"
