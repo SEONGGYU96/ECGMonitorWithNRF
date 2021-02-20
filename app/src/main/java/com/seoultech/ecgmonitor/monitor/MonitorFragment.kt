@@ -209,9 +209,7 @@ class MonitorFragment : Fragment(), ECGStateCallback {
     }
 
     private fun navigateSettingFragment() {
-        requireActivity().run {
-            startActivity(Intent(this, SettingActivity::class.java))
-        }
+        (requireActivity() as MainActivity).navigateSettingFragment()
     }
 
     private fun subscribeUi() {

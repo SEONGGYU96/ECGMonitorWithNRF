@@ -9,6 +9,7 @@ import androidx.fragment.app.replace
 import com.seoultech.ecgmonitor.bluetooth.scan.ScanFragment
 import com.seoultech.ecgmonitor.databinding.ActivityMainBinding
 import com.seoultech.ecgmonitor.monitor.MonitorFragment
+import com.seoultech.ecgmonitor.setting.SettingPreferenceFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -33,6 +34,13 @@ class MainActivity : AppCompatActivity() {
             setReorderingAllowed(true)
             replace<ScanFragment>(R.id.containerview_main)
             addToBackStack("scan")
+        }
+    }
+
+    fun navigateSettingFragment() {
+        supportFragmentManager.commit {
+            setReorderingAllowed(true)
+            replace<SettingPreferenceFragment>(R.id.containerview_main)
         }
     }
 

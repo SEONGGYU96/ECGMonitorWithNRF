@@ -8,6 +8,7 @@ import androidx.fragment.app.viewModels
 import androidx.preference.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
+import com.seoultech.ecgmonitor.MainActivity
 import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.contact.data.Contact
 import com.seoultech.ecgmonitor.contact.ContactActivity
@@ -34,6 +35,16 @@ class SettingPreferenceFragment : PreferenceFragmentCompat() {
 
     private val contactInsertPreferenceButton: Preference by lazy(this::getContactInsertButton)
     private lateinit var smsSwitchPreference: SwitchPreferenceCompat
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        initToolbar()
+    }
+
+    private fun initToolbar() {
+        setHasOptionsMenu(false)
+        (requireActivity() as MainActivity).supportActionBar?.title = getString(R.string.setting_title)
+    }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.setting, rootKey)
