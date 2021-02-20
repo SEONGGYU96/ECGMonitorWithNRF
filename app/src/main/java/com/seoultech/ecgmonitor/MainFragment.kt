@@ -25,11 +25,12 @@ class MainFragment: Fragment() {
         binding = FragmentMainBinding.inflate(inflater, container, false)
 
         binding.viewpagerMain.run {
-            adapter = ECGFragmentStateAdapter(this@MainFragment)
+            adapter = MainFragmentStateAdapter(this@MainFragment)
 
             TabLayoutMediator(binding.tablayoutMain, this) { tab, position ->
                 tab.text = when (position) {
                     0 -> getString(R.string.monitor_title)
+                    1-> getString(R.string.bpmhistory_title)
                     else -> getString(R.string.setting_title)
                 }
             }.attach()
