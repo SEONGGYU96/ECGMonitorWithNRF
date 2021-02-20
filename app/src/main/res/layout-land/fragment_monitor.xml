@@ -29,7 +29,7 @@
                 android:layout_height="?actionBarSize"
                 app:menu="@menu/monitor_app_bar"
                 app:popupTheme="@style/AppTheme.PopupOverlay"
-                app:title="@string/monitor_title" />
+                app:title="@string/main_title" />
 
         </com.google.android.material.appbar.AppBarLayout>
 

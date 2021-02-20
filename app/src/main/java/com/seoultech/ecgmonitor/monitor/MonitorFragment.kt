@@ -172,7 +172,6 @@ class MonitorFragment : Fragment(), ECGStateCallback {
 
     private fun initToolbar() {
         setHasOptionsMenu(true)
-        (requireActivity() as MainActivity).supportActionBar?.title = getString(R.string.monitor_title)
     }
 
     private fun setOnClickListener() {

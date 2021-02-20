@@ -36,16 +36,6 @@ class SettingPreferenceFragment : PreferenceFragmentCompat() {
     private val contactInsertPreferenceButton: Preference by lazy(this::getContactInsertButton)
     private lateinit var smsSwitchPreference: SwitchPreferenceCompat
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        initToolbar()
-    }
-
-    private fun initToolbar() {
-        setHasOptionsMenu(false)
-        (requireActivity() as MainActivity).supportActionBar?.title = getString(R.string.setting_title)
-    }
-
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.setting, rootKey)
         initSwitchPreferenceCallback()
@@ -55,12 +45,14 @@ class SettingPreferenceFragment : PreferenceFragmentCompat() {
 
     override fun onResume() {
         super.onResume()
+        //주소록에서 추가하는 경우, 새로고침이 필요함
         preferenceScreen.addPreference(contactsCategory)
         settingViewModel.getContacts(this::initContacts)
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onPause() {
+        super.onPause()
+        //removeAll 이 즉시 실행되지 않기 때문에 화면이 가려지기 시작할 때 미리 목록을 제거
         contactsCategory.removeAll()
     }
 
