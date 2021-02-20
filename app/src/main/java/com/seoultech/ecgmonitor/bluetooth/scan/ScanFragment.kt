@@ -186,7 +186,7 @@ class ScanFragment : Fragment(), View.OnClickListener {
 
     //Start next activity for connection
     private fun startMonitorActivity() {
-        parentFragmentManager.popBackStack()
+        findNavController().navigateUp()
     }
 
     //register BroadcastReceiver to know whether bluetooth is off

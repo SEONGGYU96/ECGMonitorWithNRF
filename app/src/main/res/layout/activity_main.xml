@@ -33,8 +33,10 @@
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/containerview_main"
-            android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="match_parent"
+            app:defaultNavHost="true"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            app:navGraph="@navigation/navigation_ecg"
             android:layout_height="match_parent"/>
 
     </LinearLayout>

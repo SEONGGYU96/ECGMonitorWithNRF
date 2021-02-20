@@ -13,6 +13,7 @@ import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.seoultech.ecgmonitor.MainActivity
+import com.seoultech.ecgmonitor.MainFragmentDirections
 import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.databinding.FragmentMonitorBinding
 import com.seoultech.ecgmonitor.ecgstate.ECGStateCallback
@@ -20,7 +21,7 @@ import com.seoultech.ecgmonitor.ecgstate.ECGStateLiveData
 import com.seoultech.ecgmonitor.ecgstate.ECGStateObserver
 import com.seoultech.ecgmonitor.bpm.data.BPMLiveData
 import com.seoultech.ecgmonitor.bpm.data.HeartBeatSampleLiveData
-import com.seoultech.ecgmonitor.setting.SettingActivity
+import com.seoultech.ecgmonitor.findNavController
 import com.sergivonavi.materialbanner.Banner
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -95,10 +96,6 @@ class MonitorFragment : Fragment(), ECGStateCallback {
         return when (item.itemId) {
             R.id.menu_monitor_disconnect -> {
                 showDisconnectDialog()
-                true
-            }
-            R.id.menu_monitor_setting -> {
-                navigateSettingFragment()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -199,17 +196,13 @@ class MonitorFragment : Fragment(), ECGStateCallback {
             .setRightButton(getString(R.string.scan_title)) {
                 it.dismiss()
                 noDeviceBanner = null
-//                val direction = MonitorFragmentDirections.actionMonitorFragmentToScanFragment()
-//                findNavController().navigate(direction)
-                (requireActivity() as MainActivity).navigateScanFragment()
+                requireParentFragment()
+                    .findNavController()
+                    .navigate(MainFragmentDirections.actionMainFragmentToScanFragment())
             }
             .create()
         banner.show()
         noDeviceBanner = banner
-    }
-
-    private fun navigateSettingFragment() {
-        (requireActivity() as MainActivity).navigateSettingFragment()
     }
 
     private fun subscribeUi() {
