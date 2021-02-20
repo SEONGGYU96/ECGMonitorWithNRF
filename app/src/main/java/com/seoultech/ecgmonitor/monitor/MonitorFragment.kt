@@ -12,12 +12,12 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.seoultech.ecgmonitor.MainActivity
 import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.databinding.FragmentMonitorBinding
 import com.seoultech.ecgmonitor.ecgstate.ECGStateCallback
 import com.seoultech.ecgmonitor.ecgstate.ECGStateLiveData
 import com.seoultech.ecgmonitor.ecgstate.ECGStateObserver
-import com.seoultech.ecgmonitor.findNavController
 import com.seoultech.ecgmonitor.bpm.data.BPMLiveData
 import com.seoultech.ecgmonitor.bpm.data.HeartBeatSampleLiveData
 import com.seoultech.ecgmonitor.setting.SettingActivity
@@ -175,6 +175,7 @@ class MonitorFragment : Fragment(), ECGStateCallback {
 
     private fun initToolbar() {
         setHasOptionsMenu(true)
+        (requireActivity() as MainActivity).supportActionBar?.title = getString(R.string.monitor_title)
     }
 
     private fun setOnClickListener() {
@@ -195,11 +196,12 @@ class MonitorFragment : Fragment(), ECGStateCallback {
         }
         val banner = Banner.Builder(requireContext()).setParent(binding.linearlayoutMonitorBanner)
             .setMessage(getString(R.string.banner_no_device))
-            .setRightButton(getString(R.string.banner_find_device)) {
+            .setRightButton(getString(R.string.scan_title)) {
                 it.dismiss()
                 noDeviceBanner = null
-                val direction = MonitorFragmentDirections.actionMonitorFragmentToScanFragment()
-                findNavController().navigate(direction)
+//                val direction = MonitorFragmentDirections.actionMonitorFragmentToScanFragment()
+//                findNavController().navigate(direction)
+                (requireActivity() as MainActivity).navigateScanFragment()
             }
             .create()
         banner.show()

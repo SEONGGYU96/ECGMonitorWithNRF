@@ -6,6 +6,7 @@ import android.view.Menu
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
+import com.seoultech.ecgmonitor.bluetooth.scan.ScanFragment
 import com.seoultech.ecgmonitor.databinding.ActivityMainBinding
 import com.seoultech.ecgmonitor.monitor.MonitorFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -24,6 +25,14 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.commit {
             setReorderingAllowed(true)
             replace<MonitorFragment>(R.id.containerview_main)
+        }
+    }
+
+    fun navigateScanFragment() {
+        supportFragmentManager.commit {
+            setReorderingAllowed(true)
+            replace<ScanFragment>(R.id.containerview_main)
+            addToBackStack("scan")
         }
     }
 
