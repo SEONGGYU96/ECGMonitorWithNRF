@@ -2,6 +2,7 @@ package com.seoultech.ecgmonitor
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
@@ -25,6 +26,7 @@ class MainFragment: Fragment() {
         binding = FragmentMainBinding.inflate(inflater, container, false)
 
         binding.viewpagerMain.run {
+            isUserInputEnabled = false
             adapter = MainFragmentStateAdapter(this@MainFragment)
 
             TabLayoutMediator(binding.tablayoutMain, this) { tab, position ->
