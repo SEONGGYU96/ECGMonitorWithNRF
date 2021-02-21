@@ -4,15 +4,18 @@ import com.seoultech.ecgmonitor.bpm.data.BPM
 
 interface BPMDataSource {
 
-    interface GetRecentBPMsCallback {
-        fun onRecentBPMsLoaded(bpms: List<BPM>)
+    interface GetBPMCallback {
+        fun onBPMLoaded(bpm: List<BPM>)
 
         fun onDataNotAvailable()
     }
 
-    fun getRecentBPMs(timeRangeMinute: Int, callback: GetRecentBPMsCallback)
+
+    fun getRecentBPMs(timeRangeMinute: Int, callback: GetBPMCallback)
 
     fun getAverageOfBPM(timeRangeMinute: Int, callback: (Int) -> Unit)
+
+    fun getBPMinRange(startTime: Long, endTime: Long, callback: GetBPMCallback)
 
     fun insertBPM(bpmValue: Int)
 }

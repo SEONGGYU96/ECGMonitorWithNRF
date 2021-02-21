@@ -239,7 +239,7 @@ class MonitorFragment : Fragment(), ECGStateCallback {
         enableUi()
         dismissNoDeviceBannerIfItShowing()
         Snackbar.make(
-            binding.root,
+            requireParentFragment().requireView().rootView,
             getString(R.string.monitor_snackbar_connected),
             Snackbar.LENGTH_SHORT
         ).show()

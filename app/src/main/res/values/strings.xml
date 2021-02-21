@@ -72,4 +72,6 @@
     <string name="contactsearch_result_count">%d개 검색됨</string>
     <string name="contactsearch_no_result">검색 결과가 없습니다.</string>
 
+    <string name="bpmhistory_title">기록</string>
+
 </resources>
