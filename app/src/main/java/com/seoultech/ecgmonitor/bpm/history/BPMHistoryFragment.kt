@@ -6,28 +6,40 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import com.seoultech.ecgmonitor.databinding.FragmentBpmHistoryBinding
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
+@AndroidEntryPoint
 class BPMHistoryFragment: Fragment() {
 
     private lateinit var binding : FragmentBpmHistoryBinding
+
+    private val bpmHistoryViewModel : BPMHistoryViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = FragmentBpmHistoryBinding.inflate(inflater, container, false)
+        binding = FragmentBpmHistoryBinding.inflate(inflater, container, false).apply {
+            lifecycleOwner = viewLifecycleOwner
+        }
+
+        bpmHistoryViewModel.bpmData.observe(viewLifecycleOwner) {
+            binding.bpmhistoryviewerBpmhistory.setBPMData(it)
+        }
 
         binding.bpmdaypickerBpmhistory.run {
             setStartTimeInMillis(
                 GregorianCalendar().apply { add(Calendar.MONTH, -1) }.timeInMillis)
             setDayClickListener {
-                //Todo: 선택한 날의 데이터 불러오기
-                Log.d("TEST", it.toString())
+                bpmHistoryViewModel.getBPMDataOnDate(it)
             }
         }
+
+
         return binding.root
     }
 }

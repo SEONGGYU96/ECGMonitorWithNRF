@@ -62,8 +62,8 @@ class AbnormalBPMDetectorImpl(
     private fun checkWasAbnormal(callback: (wasAbnormal: Boolean) -> Unit) {
         bpmDataSource.getRecentBPMs(
             CRITERIA_ABNORMAL_MINUTE,
-            object : BPMDataSource.GetRecentBPMsCallback {
-                override fun onRecentBPMsLoaded(bpms: List<BPM>) {
+            object : BPMDataSource.GetBPMCallback {
+                override fun onBPMLoaded(bpms: List<BPM>) {
                     if (bpms.size < CRITERIA_ABNORMAL_MINUTE) {
                         callback(false)
                     } else {

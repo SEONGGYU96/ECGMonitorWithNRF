@@ -17,14 +17,14 @@ class BPMLocalDataSource(private val bpmDao: BPMDao) : BPMDataSource {
 
     override fun getRecentBPMs(
         timeRangeMinute: Int,
-        callback: BPMDataSource.GetRecentBPMsCallback
+        callback: BPMDataSource.GetBPMCallback
     ) {
         GlobalScope.launch(Dispatchers.IO) {
             val result = bpmDao.getBpmsAbove(TimeUtil.getMillisecondBefore(timeRangeMinute))
             if (result.isEmpty()) {
                 callback.onDataNotAvailable()
             } else {
-                callback.onRecentBPMsLoaded(result)
+                callback.onBPMLoaded(result)
             }
         }
     }
@@ -32,6 +32,21 @@ class BPMLocalDataSource(private val bpmDao: BPMDao) : BPMDataSource {
     override fun getAverageOfBPM(timeRangeMinute: Int, callback: (Int) -> Unit) {
         GlobalScope.launch(Dispatchers.IO) {
             callback(bpmDao.getAverageOfBPMAbove(TimeUtil.getMillisecondBefore(timeRangeMinute)))
+        }
+    }
+
+    override fun getBPMinRange(
+        startTime: Long,
+        endTime: Long,
+        callback: BPMDataSource.GetBPMCallback
+    ) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val result = bpmDao.getBPMInRange(startTime, endTime)
+            if (result.isEmpty()) {
+                callback.onDataNotAvailable()
+            } else {
+                callback.onBPMLoaded(result)
+            }
         }
     }
 

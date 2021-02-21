@@ -13,6 +13,9 @@ interface BPMDao {
     @Query("SELECT AVG(bpm) FROM bpm WHERE time >= :baseTime")
     suspend fun getAverageOfBPMAbove(baseTime: Long): Int
 
+    @Query("SELECT * FROM bpm WHERE time >= :startTime AND time <= :endTime")
+    suspend fun getBPMInRange(startTime: Long, endTime: Long): List<BPM>
+
     @Insert
     suspend fun insertBpm(bpm: BPM)
 }
