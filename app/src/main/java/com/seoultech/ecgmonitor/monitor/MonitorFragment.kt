@@ -104,6 +104,7 @@ class MonitorFragment : Fragment(), ECGStateCallback {
 
     override fun onPause() {
         super.onPause()
+        isConnected = false
         startMonitoring(false)
     }
 
