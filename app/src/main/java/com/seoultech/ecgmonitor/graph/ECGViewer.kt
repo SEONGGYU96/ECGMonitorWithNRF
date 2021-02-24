@@ -261,9 +261,8 @@ class ECGViewer @JvmOverloads constructor(context: Context,
      * @param data Only one data received right now.
      */
     fun addValue(data: Float, time: Long) {
-        // If a
         if (!isRunning) {
-            Log.e(TAG, "addValue() : Drawing is not started. Did you call start()?")
+//            Log.e(TAG, "addValue() : Drawing is not started. Did you call start()?")
             return
         }
 
@@ -295,9 +294,11 @@ class ECGViewer @JvmOverloads constructor(context: Context,
         if (isRunning) {
             return
         }
-        // Clear list before start.
+        // Init
         currentHeartRateList.clear()
         previousHeartRateList.clear()
+        previousAverage = 0f
+        sumOfValue = 0f
 
         // Record current time.
         startTime = System.currentTimeMillis()
