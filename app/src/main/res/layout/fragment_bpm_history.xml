@@ -16,18 +16,24 @@
             android:layout_height="wrap_content"
             android:paddingHorizontal="@dimen/entire_horizontal_margin"
             android:paddingVertical="40dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
-
-        <com.seoultech.ecgmonitor.bpm.history.BPMHistoryViewer
-            android:id="@+id/bpmhistoryviewer_bpmhistory"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/bpmdaypicker_bpmhistory"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/bpmdaypicker_bpmhistory">
+
+            <com.seoultech.ecgmonitor.bpm.history.BPMHistoryViewer
+                android:id="@+id/bpmhistoryviewer_bpmhistory"
+                android:layout_width="wrap_content"
+                android:layout_height="300dp" />
+
+        </HorizontalScrollView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

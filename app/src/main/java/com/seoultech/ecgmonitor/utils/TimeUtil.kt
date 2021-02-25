@@ -45,7 +45,7 @@ object TimeUtil {
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
         }
-        initCalendarBelowDay(calendar)
+        initCalendarBelowMinute(calendar)
     }
 
     fun initCalendarBelowDayToFull(calendar: Calendar) {
