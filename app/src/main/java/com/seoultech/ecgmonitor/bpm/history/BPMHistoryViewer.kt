@@ -1,6 +1,7 @@
 package com.seoultech.ecgmonitor.bpm.history
 
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -13,6 +14,7 @@ import com.seoultech.ecgmonitor.bpm.data.BPM
 import com.seoultech.ecgmonitor.utils.TimeUtil
 import java.util.*
 import kotlin.math.max
+import kotlin.math.min
 
 class BPMHistoryViewer @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
@@ -23,7 +25,9 @@ class BPMHistoryViewer @JvmOverloads constructor(
         private const val GRAPH_WIDTH = 2f
         private const val DOT_RADIUS = 6f
         private const val NUMBER_OF_HORIZONTAL_DATA = 1440 //하루 1,440 분
-        private const val GAP_OF_DATA_PX = 10f
+        private const val GAP_OF_DATA_DP = 10
+        private const val PADDING_VERTICAL_DP = 20
+        private const val PADDING_HORIZONTAL_DP = 16
     }
 
     private var measuredVerticalSize = 0f
@@ -38,10 +42,20 @@ class BPMHistoryViewer @JvmOverloads constructor(
     private var measuredSizeIsInitialized = false
     private var dataGapIsInitialized = false
 
+    private val paddingVerticalPx = PADDING_VERTICAL_DP.px
+    private val paddingHorizontalPx = PADDING_HORIZONTAL_DP.px
+    private val horizontalGapOfDataPx = GAP_OF_DATA_DP.px
+
     private var tempCalendar = GregorianCalendar()
 
     private val graphPaint = Paint(ANTI_ALIAS_FLAG).apply {
         color = context.getColor(R.color.colorPrimary)
+        style = Paint.Style.STROKE
+        strokeWidth = GRAPH_WIDTH
+    }
+
+    private val gridPaint = Paint().apply {
+        color = context.getColor(R.color.colorGray)
         style = Paint.Style.STROKE
         strokeWidth = GRAPH_WIDTH
     }
@@ -55,7 +69,7 @@ class BPMHistoryViewer @JvmOverloads constructor(
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         setMeasuredDimension(
-            (NUMBER_OF_HORIZONTAL_DATA * max(GAP_OF_DATA_PX, 1f)).toInt(),
+            (NUMBER_OF_HORIZONTAL_DATA * horizontalGapOfDataPx + paddingHorizontalPx * 2).toInt(),
             getDefaultSize(suggestedMinimumHeight, heightMeasureSpec)
         )
     }
@@ -67,7 +81,6 @@ class BPMHistoryViewer @JvmOverloads constructor(
         }
         if (!maxAndMinBPMIsInitialized || !dataGapIsInitialized || !measuredSizeIsInitialized) {
             Log.e(TAG, "onDraw(): values is not initialized yet")
-
             return
         }
 
@@ -75,6 +88,9 @@ class BPMHistoryViewer @JvmOverloads constructor(
             canvas.drawColor(Color.WHITE)
             return
         }
+
+        canvas.drawLine(0f, 0f, measuredHorizontalSize, 0f, gridPaint)
+        canvas.drawLine(0f, measuredVerticalSize, measuredHorizontalSize, measuredVerticalSize, gridPaint)
 
         tempCalendar.timeInMillis = bpmData[0].time
         TimeUtil.initCalendarBelowDay(tempCalendar)
@@ -84,11 +100,11 @@ class BPMHistoryViewer @JvmOverloads constructor(
 
         for (bpm in bpmData) {
             val minute = TimeUtil.getMinuteDiff(bpm.time, startMillis)
-            val currentX = minute * GAP_OF_DATA_PX
+            val currentX = minute * horizontalGapOfDataPx + paddingHorizontalPx
 //            Log.d(TAG, "minute : $minute, bpm : $bpm, currentX: $currentX")
-            val currentY = measuredVerticalSize - ((bpm.bpm - minBPM) * verticalDataGapUnit)
+            val currentY = (measuredVerticalSize - paddingVerticalPx) - ((bpm.bpm - minBPM) * verticalDataGapUnit)
 
-            if (lastX == -1f || lastY == -1f || currentX - lastX > GAP_OF_DATA_PX) {
+            if (lastX == -1f || lastY == -1f || currentX - lastX > horizontalGapOfDataPx) {
                 canvas.drawCircle(lastX, lastY, DOT_RADIUS, graphPaint)
                 canvas.drawCircle(currentX, currentY, DOT_RADIUS, graphPaint)
 //                Log.d(TAG, "drawCircle : $currentX, $currentY")
@@ -117,8 +133,7 @@ class BPMHistoryViewer @JvmOverloads constructor(
     }
 
     private fun initVerticalDataGapUnit() {
-//        horizontalDataGapUnit = measuredHorizontalSize / NUMBER_OF_HORIZONTAL_DATA
-        verticalDataGapUnit = measuredVerticalSize / (maxBPM - minBPM)
+        verticalDataGapUnit = (measuredVerticalSize - paddingVerticalPx * 2) / (maxBPM - minBPM)
         dataGapIsInitialized = true
     }
 
@@ -129,9 +144,14 @@ class BPMHistoryViewer @JvmOverloads constructor(
                 minBPM = bpm.bpm
                 maxAndMinBPMIsInitialized = true
             } else {
-                maxBPM = maxBPM.coerceAtLeast(bpm.bpm)
-                minBPM = minBPM.coerceAtMost(bpm.bpm)
+                maxBPM = max(maxBPM, bpm.bpm)
+                minBPM = min(minBPM, bpm.bpm)
             }
         }
     }
 }
+
+val Float.dp: Int
+   get() = (this / Resources.getSystem().displayMetrics.density).toInt()
+val Int.px: Float
+   get() = this * Resources.getSystem().displayMetrics.density
