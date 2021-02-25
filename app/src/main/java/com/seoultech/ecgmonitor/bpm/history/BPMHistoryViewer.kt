@@ -9,6 +9,7 @@ import android.graphics.Paint.ANTI_ALIAS_FLAG
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import androidx.annotation.ColorRes
 import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.bpm.data.BPM
 import com.seoultech.ecgmonitor.utils.TimeUtil
@@ -22,10 +23,10 @@ class BPMHistoryViewer @JvmOverloads constructor(
 
     companion object {
         private const val TAG = "BPMHistoryViewer"
-        private const val GRAPH_WIDTH = 2f
+        private const val GRAPH_WIDTH_DP = 1
         private const val DOT_RADIUS = 6f
         private const val NUMBER_OF_HORIZONTAL_DATA = 1440 //하루 1,440 분
-        private const val GAP_OF_DATA_DP = 10
+        private const val GAP_OF_DATA_DP = 5
         private const val PADDING_VERTICAL_DP = 20
         private const val PADDING_HORIZONTAL_DP = 16
     }
@@ -45,20 +46,15 @@ class BPMHistoryViewer @JvmOverloads constructor(
     private val paddingVerticalPx = PADDING_VERTICAL_DP.px
     private val paddingHorizontalPx = PADDING_HORIZONTAL_DP.px
     private val horizontalGapOfDataPx = GAP_OF_DATA_DP.px
+    private val graphWidthPx = GRAPH_WIDTH_DP.px
 
     private var tempCalendar = GregorianCalendar()
 
-    private val graphPaint = Paint(ANTI_ALIAS_FLAG).apply {
-        color = context.getColor(R.color.colorPrimary)
-        style = Paint.Style.STROKE
-        strokeWidth = GRAPH_WIDTH
-    }
+    private val graphPaint = getStrokePaint(R.color.colorPrimary, graphWidthPx, true)
 
-    private val gridPaint = Paint().apply {
-        color = context.getColor(R.color.colorGray)
-        style = Paint.Style.STROKE
-        strokeWidth = GRAPH_WIDTH
-    }
+    private val gridPaint = getStrokePaint(R.color.colorGray, graphWidthPx, false)
+
+    private val circlePaint = getPaint(R.color.colorPrimary, true)
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         dataGapIsInitialized = false
@@ -90,7 +86,13 @@ class BPMHistoryViewer @JvmOverloads constructor(
         }
 
         canvas.drawLine(0f, 0f, measuredHorizontalSize, 0f, gridPaint)
-        canvas.drawLine(0f, measuredVerticalSize, measuredHorizontalSize, measuredVerticalSize, gridPaint)
+        canvas.drawLine(
+            0f,
+            measuredVerticalSize,
+            measuredHorizontalSize,
+            measuredVerticalSize,
+            gridPaint
+        )
 
         tempCalendar.timeInMillis = bpmData[0].time
         TimeUtil.initCalendarBelowDay(tempCalendar)
@@ -102,11 +104,12 @@ class BPMHistoryViewer @JvmOverloads constructor(
             val minute = TimeUtil.getMinuteDiff(bpm.time, startMillis)
             val currentX = minute * horizontalGapOfDataPx + paddingHorizontalPx
 //            Log.d(TAG, "minute : $minute, bpm : $bpm, currentX: $currentX")
-            val currentY = (measuredVerticalSize - paddingVerticalPx) - ((bpm.bpm - minBPM) * verticalDataGapUnit)
+            val currentY =
+                (measuredVerticalSize - paddingVerticalPx) - ((bpm.bpm - minBPM) * verticalDataGapUnit)
 
             if (lastX == -1f || lastY == -1f || currentX - lastX > horizontalGapOfDataPx) {
-                canvas.drawCircle(lastX, lastY, DOT_RADIUS, graphPaint)
-                canvas.drawCircle(currentX, currentY, DOT_RADIUS, graphPaint)
+                canvas.drawCircle(lastX, lastY, DOT_RADIUS, circlePaint)
+                canvas.drawCircle(currentX, currentY, DOT_RADIUS, circlePaint)
 //                Log.d(TAG, "drawCircle : $currentX, $currentY")
             } else {
                 canvas.drawLine(lastX, lastY, currentX, currentY, graphPaint)
@@ -114,6 +117,24 @@ class BPMHistoryViewer @JvmOverloads constructor(
             }
             lastX = currentX
             lastY = currentY
+        }
+    }
+
+    private fun getStrokePaint(@ColorRes colorRes: Int, width: Float, isAntiAlias: Boolean): Paint {
+        return getPaint(colorRes, isAntiAlias).apply {
+            style = Paint.Style.STROKE
+            strokeWidth = width
+        }
+    }
+
+    private fun getPaint(@ColorRes colorRes: Int, isAntiAlias: Boolean): Paint {
+        val paint = if (isAntiAlias) {
+            Paint(ANTI_ALIAS_FLAG)
+        } else {
+            Paint()
+        }
+        return paint.apply {
+            this.color = context.getColor(colorRes)
         }
     }
 
@@ -152,6 +173,6 @@ class BPMHistoryViewer @JvmOverloads constructor(
 }
 
 val Float.dp: Int
-   get() = (this / Resources.getSystem().displayMetrics.density).toInt()
+    get() = (this / Resources.getSystem().displayMetrics.density).toInt()
 val Int.px: Float
-   get() = this * Resources.getSystem().displayMetrics.density
+    get() = this * Resources.getSystem().displayMetrics.density
