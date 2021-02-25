@@ -6,6 +6,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Paint.ANTI_ALIAS_FLAG
+import android.graphics.Rect
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
@@ -29,6 +30,10 @@ class BPMHistoryViewer @JvmOverloads constructor(
         private const val GAP_OF_DATA_DP = 5
         private const val PADDING_VERTICAL_DP = 20
         private const val PADDING_HORIZONTAL_DP = 16
+        private const val TEXT_SIZE = 24f
+        private const val TIME_TEXT_FORMAT = "%s %d시"
+        private const val TIME_TEXT_AM = "오전"
+        private const val TIME_TEXT_PM = "오후"
     }
 
     private var measuredVerticalSize = 0f
@@ -48,6 +53,13 @@ class BPMHistoryViewer @JvmOverloads constructor(
     private val horizontalGapOfDataPx = GAP_OF_DATA_DP.px
     private val graphWidthPx = GRAPH_WIDTH_DP.px
 
+
+    private fun getTextHeight(): Int {
+        val rect = Rect()
+        textPaint.getTextBounds("후", 0, 1, rect)
+        return rect.height()
+    }
+
     private var tempCalendar = GregorianCalendar()
 
     private val graphPaint = getStrokePaint(R.color.colorPrimary, graphWidthPx, true)
@@ -55,6 +67,13 @@ class BPMHistoryViewer @JvmOverloads constructor(
     private val gridPaint = getStrokePaint(R.color.colorGray, graphWidthPx, false)
 
     private val circlePaint = getPaint(R.color.colorPrimary, true)
+
+    private val textPaint = getPaint(R.color.colorGray, true).apply {
+        textSize = TEXT_SIZE
+        textAlign = Paint.Align.CENTER
+    }
+
+    private val measuredTextHeight = getTextHeight()
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         dataGapIsInitialized = false
@@ -85,39 +104,9 @@ class BPMHistoryViewer @JvmOverloads constructor(
             return
         }
 
-        canvas.drawLine(0f, 0f, measuredHorizontalSize, 0f, gridPaint)
-        canvas.drawLine(
-            0f,
-            measuredVerticalSize,
-            measuredHorizontalSize,
-            measuredVerticalSize,
-            gridPaint
-        )
-
-        tempCalendar.timeInMillis = bpmData[0].time
-        TimeUtil.initCalendarBelowDay(tempCalendar)
-        val startMillis = tempCalendar.timeInMillis
-        var lastX = -1f
-        var lastY = -1f
-
-        for (bpm in bpmData) {
-            val minute = TimeUtil.getMinuteDiff(bpm.time, startMillis)
-            val currentX = minute * horizontalGapOfDataPx + paddingHorizontalPx
-//            Log.d(TAG, "minute : $minute, bpm : $bpm, currentX: $currentX")
-            val currentY =
-                (measuredVerticalSize - paddingVerticalPx) - ((bpm.bpm - minBPM) * verticalDataGapUnit)
-
-            if (lastX == -1f || lastY == -1f || currentX - lastX > horizontalGapOfDataPx) {
-                canvas.drawCircle(lastX, lastY, DOT_RADIUS, circlePaint)
-                canvas.drawCircle(currentX, currentY, DOT_RADIUS, circlePaint)
-//                Log.d(TAG, "drawCircle : $currentX, $currentY")
-            } else {
-                canvas.drawLine(lastX, lastY, currentX, currentY, graphPaint)
-//                Log.d(TAG, "drawLine : $lastX, $lastY -> $currentX, $currentY")
-            }
-            lastX = currentX
-            lastY = currentY
-        }
+        drawTopAndBottomGrid(canvas)
+        drawVerticalGridAndTime(canvas)
+        drawBPMGraph(canvas)
     }
 
     private fun getStrokePaint(@ColorRes colorRes: Int, width: Float, isAntiAlias: Boolean): Paint {
@@ -154,7 +143,8 @@ class BPMHistoryViewer @JvmOverloads constructor(
     }
 
     private fun initVerticalDataGapUnit() {
-        verticalDataGapUnit = (measuredVerticalSize - paddingVerticalPx * 2) / (maxBPM - minBPM)
+        verticalDataGapUnit =
+            (measuredVerticalSize - paddingVerticalPx * 2 - measuredTextHeight) / (maxBPM - minBPM)
         dataGapIsInitialized = true
     }
 
@@ -169,6 +159,84 @@ class BPMHistoryViewer @JvmOverloads constructor(
                 minBPM = min(minBPM, bpm.bpm)
             }
         }
+    }
+
+    private fun drawTopAndBottomGrid(canvas: Canvas) {
+        canvas.drawLine(0f, 0f, measuredHorizontalSize, 0f, gridPaint)
+
+        val gridAreaHeight = measuredVerticalSize - measuredTextHeight
+        canvas.drawLine(
+            0f,
+            gridAreaHeight,
+            measuredHorizontalSize,
+            gridAreaHeight,
+            gridPaint
+        )
+    }
+
+    private fun drawVerticalGridAndTime(canvas: Canvas) {
+        for (hour in 0..23) {
+            val currentX = hour * horizontalGapOfDataPx * 60 + paddingHorizontalPx
+            drawVerticalGrid(canvas, currentX)
+            drawTimeText(canvas, hour, currentX)
+        }
+    }
+
+    private fun drawTimeText(canvas: Canvas, hour: Int, x: Float) {
+        val amPmText = if (hour < 12) {
+            TIME_TEXT_AM
+        } else {
+            TIME_TEXT_PM
+        }
+        val time = if (hour <= 12) {
+            hour
+        } else {
+            hour - 12
+        }
+        val text = String.format(TIME_TEXT_FORMAT, amPmText, time)
+        canvas.drawText(text, x, measuredVerticalSize, textPaint)
+    }
+
+    private fun drawVerticalGrid(canvas: Canvas, x: Float) {
+        canvas.drawLine(
+            x,
+            0f,
+            x,
+            measuredVerticalSize - measuredTextHeight,
+            gridPaint
+        )
+    }
+
+    private fun drawBPMGraph(canvas: Canvas) {
+        tempCalendar.timeInMillis = bpmData[0].time
+        TimeUtil.initCalendarBelowDay(tempCalendar)
+        val startMillis = tempCalendar.timeInMillis
+        var lastX = -1f
+        var lastY = -1f
+        val graphAreaHeight = measuredVerticalSize - paddingVerticalPx - measuredTextHeight
+
+        for (bpm in bpmData) {
+            val currentX = getXPosition(bpm.time, startMillis)
+            val currentY = getYPosition(bpm.bpm, graphAreaHeight)
+
+            if (lastX == -1f || lastY == -1f || currentX - lastX > horizontalGapOfDataPx) {
+                canvas.drawCircle(lastX, lastY, DOT_RADIUS, circlePaint)
+                canvas.drawCircle(currentX, currentY, DOT_RADIUS, circlePaint)
+            } else {
+                canvas.drawLine(lastX, lastY, currentX, currentY, graphPaint)
+            }
+            lastX = currentX
+            lastY = currentY
+        }
+    }
+
+    private fun getXPosition(time: Long, startMillis: Long): Float {
+        val minute = TimeUtil.getMinuteDiff(time, startMillis)
+        return  minute * horizontalGapOfDataPx + paddingHorizontalPx
+    }
+
+    private fun getYPosition(bpm: Int, graphAreaHeight: Float): Float {
+        return graphAreaHeight - ((bpm - minBPM) * verticalDataGapUnit)
     }
 }
 
