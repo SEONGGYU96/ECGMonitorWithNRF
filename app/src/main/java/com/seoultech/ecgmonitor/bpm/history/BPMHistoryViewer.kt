@@ -30,7 +30,7 @@ class BPMHistoryViewer @JvmOverloads constructor(
         private const val GAP_OF_DATA_DP = 5
         private const val PADDING_VERTICAL_DP = 20
         private const val PADDING_HORIZONTAL_DP = 16
-        private const val TEXT_SIZE = 24f
+        private const val TEXT_SIZE = 30f
         private const val TIME_TEXT_FORMAT = "%s %d시"
         private const val TIME_TEXT_AM = "오전"
         private const val TIME_TEXT_PM = "오후"
@@ -39,11 +39,12 @@ class BPMHistoryViewer @JvmOverloads constructor(
     private var measuredVerticalSize = 0f
     private var measuredHorizontalSize = 0f
     private var verticalDataGapUnit = 0f
-//    private var horizontalDataGapUnit = 0f
+    private var graphAreaHeight = 0f
 
     private var bpmData = mutableListOf<BPM>()
     private var maxBPM = 0
     private var minBPM = 0
+    private var averageOfBPM = 0
     private var maxAndMinBPMIsInitialized = false
     private var measuredSizeIsInitialized = false
     private var dataGapIsInitialized = false
@@ -52,7 +53,6 @@ class BPMHistoryViewer @JvmOverloads constructor(
     private val paddingHorizontalPx = PADDING_HORIZONTAL_DP.px
     private val horizontalGapOfDataPx = GAP_OF_DATA_DP.px
     private val graphWidthPx = GRAPH_WIDTH_DP.px
-
 
     private fun getTextHeight(): Int {
         val rect = Rect()
@@ -80,6 +80,7 @@ class BPMHistoryViewer @JvmOverloads constructor(
         measuredHorizontalSize = w.toFloat()
         measuredVerticalSize = h.toFloat()
         measuredSizeIsInitialized = true
+        graphAreaHeight = measuredVerticalSize - paddingVerticalPx - measuredTextHeight
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -137,7 +138,7 @@ class BPMHistoryViewer @JvmOverloads constructor(
         maxAndMinBPMIsInitialized = false
         bpmData.clear()
         bpmData.addAll(data)
-        initMaxAndMinData()
+        initMaxAndMinAndAverageBPM()
         initVerticalDataGapUnit()
         invalidate()
     }
@@ -148,7 +149,7 @@ class BPMHistoryViewer @JvmOverloads constructor(
         dataGapIsInitialized = true
     }
 
-    private fun initMaxAndMinData() {
+    private fun initMaxAndMinAndAverageBPM() {
         for (bpm in bpmData) {
             if (!maxAndMinBPMIsInitialized) {
                 maxBPM = bpm.bpm
@@ -158,20 +159,14 @@ class BPMHistoryViewer @JvmOverloads constructor(
                 maxBPM = max(maxBPM, bpm.bpm)
                 minBPM = min(minBPM, bpm.bpm)
             }
+            averageOfBPM += bpm.bpm
         }
+        averageOfBPM /= bpmData.size
     }
 
     private fun drawTopAndBottomGrid(canvas: Canvas) {
-        canvas.drawLine(0f, 0f, measuredHorizontalSize, 0f, gridPaint)
-
-        val gridAreaHeight = measuredVerticalSize - measuredTextHeight
-        canvas.drawLine(
-            0f,
-            gridAreaHeight,
-            measuredHorizontalSize,
-            gridAreaHeight,
-            gridPaint
-        )
+        drawHorizontalGrid(canvas, 0f)
+        drawHorizontalGrid(canvas, measuredVerticalSize - measuredTextHeight)
     }
 
     private fun drawVerticalGridAndTime(canvas: Canvas) {
@@ -213,11 +208,10 @@ class BPMHistoryViewer @JvmOverloads constructor(
         val startMillis = tempCalendar.timeInMillis
         var lastX = -1f
         var lastY = -1f
-        val graphAreaHeight = measuredVerticalSize - paddingVerticalPx - measuredTextHeight
 
         for (bpm in bpmData) {
             val currentX = getXPosition(bpm.time, startMillis)
-            val currentY = getYPosition(bpm.bpm, graphAreaHeight)
+            val currentY = getYPosition(bpm.bpm)
 
             if (lastX == -1f || lastY == -1f || currentX - lastX > horizontalGapOfDataPx) {
                 canvas.drawCircle(lastX, lastY, DOT_RADIUS, circlePaint)
@@ -232,11 +226,15 @@ class BPMHistoryViewer @JvmOverloads constructor(
 
     private fun getXPosition(time: Long, startMillis: Long): Float {
         val minute = TimeUtil.getMinuteDiff(time, startMillis)
-        return  minute * horizontalGapOfDataPx + paddingHorizontalPx
+        return minute * horizontalGapOfDataPx + paddingHorizontalPx
     }
 
-    private fun getYPosition(bpm: Int, graphAreaHeight: Float): Float {
+    private fun getYPosition(bpm: Int): Float {
         return graphAreaHeight - ((bpm - minBPM) * verticalDataGapUnit)
+    }
+
+    private fun drawHorizontalGrid(canvas: Canvas, y: Float) {
+        canvas.drawLine(0f, y, measuredHorizontalSize, y, gridPaint)
     }
 }
 
