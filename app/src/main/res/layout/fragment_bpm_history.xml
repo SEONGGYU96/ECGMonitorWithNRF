@@ -21,6 +21,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <HorizontalScrollView
+            android:id="@+id/scrollview_bpmhistory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -34,6 +35,15 @@
                 android:layout_height="300dp" />
 
         </HorizontalScrollView>
+
+        <include
+            android:id="@+id/layout_bpmhistory_nodata"
+            layout="@layout/info_no_history"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/bpmdaypicker_bpmhistory" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

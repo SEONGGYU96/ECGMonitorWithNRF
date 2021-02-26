@@ -58,6 +58,17 @@ class BPMLocalDataSource(private val bpmDao: BPMDao) : BPMDataSource {
         }
     }
 
+    override fun getFirstDate(callback: BPMDataSource.GetFirstDateCallback) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val result = bpmDao.getFirstDate()
+            if (result == null) {
+                callback.onDataNotAvailable()
+            } else {
+                callback.onFirstDateLoaded(result)
+            }
+        }
+    }
+
     private fun getNormalizedTime(): Long {
         val current = GregorianCalendar()
         val next = (current.clone() as GregorianCalendar).apply { add(Calendar.MINUTE, 1) }
