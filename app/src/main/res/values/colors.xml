@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryDark">#3700B3</color>
-    <color name="colorAccent">#03DAC5</color>
+    <color name="colorPrimary">#CD5050</color>
+    <color name="colorPrimaryDark">@color/colorPrimary</color>
+    <color name="colorAccent">@color/colorPrimary</color>
+    <color name="colorAccentOnPrimary">@color/white</color>
+    <color name="colorMonitorBackground">#E8E8E8</color>
+
+    <color name="colorGray">#B4B4B4</color>
+    
+    <color name="colorContactBackground">#F1F2F3</color>
+    <color name="colorContactResultBackground">#FBFCFD</color>
+    <color name="colorContactSearchBar">#E5E6E7</color>
 </resources>

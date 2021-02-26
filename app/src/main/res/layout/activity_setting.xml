@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appbarlayout_setting"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/AppTheme.AppBarOverlay"
+            android:translationZ="@dimen/elevation_default_top_app_bar">
+
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar_setting"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                app:popupTheme="@style/AppTheme.PopupOverlay"
+                app:title="@string/setting_title" />
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/fragmentcontainer_setting_preference"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </LinearLayout>
+
+</layout>

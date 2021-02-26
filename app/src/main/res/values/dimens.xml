@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="entire_horizontal_margin">16dp</dimen>
+    <dimen name="entire_vertical_margin">16dp</dimen>
+    <dimen name="entire_padding_bottom">32dp</dimen>
+    <dimen name="item_vertical_padding">8dp</dimen>
+    <dimen name="device_item_name_margin_horizontal">16dp</dimen>
+
+    <!-- Material -->
+    <dimen name="keyline_0">2dp</dimen>
+    <dimen name="keyline_1">4dp</dimen>
+    <dimen name="keyline_2">8dp</dimen>
+    <dimen name="keyline_4">16dp</dimen>
+    <dimen name="keyline_5">24dp</dimen>
+
+    <dimen name="component_label_horizontal_margin">@dimen/keyline_4</dimen>
+    <dimen name="elevation_default_top_app_bar">4dp</dimen>
+
+    <dimen name="size_monitor_heart_rate">85sp</dimen>
+
+    <dimen name="height_scanning_progress">90dp</dimen>
+
+    <dimen name="margin_contact_title_verticlal">10dp</dimen>
+    <dimen name="margin_contact_result_text_start">20dp</dimen>
+    <dimen name="margin_contact_result_text_top">20dp</dimen>
+    <dimen name="margin_contact_result_recyclerview_top">10dp</dimen>
+</resources>
