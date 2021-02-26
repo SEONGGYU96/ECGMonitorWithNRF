@@ -10,6 +10,11 @@ interface BPMDataSource {
         fun onDataNotAvailable()
     }
 
+    interface GetFirstDateCallback {
+        fun onFirstDateLoaded(timeInMillis: Long)
+
+        fun onDataNotAvailable()
+    }
 
     fun getRecentBPMs(timeRangeMinute: Int, callback: GetBPMCallback)
 
@@ -18,4 +23,6 @@ interface BPMDataSource {
     fun getBPMinRange(startTime: Long, endTime: Long, callback: GetBPMCallback)
 
     fun insertBPM(bpmValue: Int)
+
+    fun getFirstDate(callback: GetFirstDateCallback)
 }

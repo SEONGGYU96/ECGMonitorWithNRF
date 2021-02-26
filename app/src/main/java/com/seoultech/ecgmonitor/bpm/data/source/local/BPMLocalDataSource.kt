@@ -52,8 +52,33 @@ class BPMLocalDataSource(private val bpmDao: BPMDao) : BPMDataSource {
 
     override fun insertBPM(bpmValue: Int) {
         GlobalScope.launch(Dispatchers.IO) {
-            bpmDao.insertBpm(BPM(GregorianCalendar().timeInMillis, bpmValue))
-            Log.d(TAG, "$bpmValue is inserted")
+
+            bpmDao.insertBpm(BPM(getNormalizedTime(), bpmValue))
+            Log.d(TAG, "insertBPM() : $bpmValue is inserted")
+        }
+    }
+
+    override fun getFirstDate(callback: BPMDataSource.GetFirstDateCallback) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val result = bpmDao.getFirstDate()
+            if (result == null) {
+                callback.onDataNotAvailable()
+            } else {
+                callback.onFirstDateLoaded(result)
+            }
+        }
+    }
+
+    private fun getNormalizedTime(): Long {
+        val current = GregorianCalendar()
+        val next = (current.clone() as GregorianCalendar).apply { add(Calendar.MINUTE, 1) }
+        TimeUtil.initCalendarBelowMinute(next)
+        val before = current.clone() as GregorianCalendar
+        TimeUtil.initCalendarBelowMinute(before)
+        return if (current.timeInMillis - before.timeInMillis < next.timeInMillis - current.timeInMillis) {
+            before.timeInMillis
+        } else {
+            next.timeInMillis
         }
     }
 }

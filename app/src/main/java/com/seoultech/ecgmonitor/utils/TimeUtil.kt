@@ -33,13 +33,19 @@ object TimeUtil {
         return abs(diff).toInt()
     }
 
+    fun initCalendarBelowMinute(calendar: Calendar) {
+        calendar.apply {
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+    }
+
     fun initCalendarBelowDay(calendar: Calendar) {
         calendar.apply {
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
         }
+        initCalendarBelowMinute(calendar)
     }
 
     fun initCalendarBelowDayToFull(calendar: Calendar) {

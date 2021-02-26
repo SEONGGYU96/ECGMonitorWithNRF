@@ -18,4 +18,7 @@ interface BPMDao {
 
     @Insert
     suspend fun insertBpm(bpm: BPM)
+
+    @Query("SELECT time FROM bpm ORDER BY time LIMIT 1")
+    suspend fun getFirstDate(): Long?
 }

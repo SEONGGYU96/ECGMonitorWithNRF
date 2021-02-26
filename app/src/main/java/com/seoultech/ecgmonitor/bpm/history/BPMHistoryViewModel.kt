@@ -1,6 +1,5 @@
 package com.seoultech.ecgmonitor.bpm.history
 
-import android.util.Log
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -18,6 +17,23 @@ class BPMHistoryViewModel @ViewModelInject constructor(
     val bpmData : LiveData<List<BPM>>
         get() = _bpmData
 
+    private val _firstDate = MutableLiveData<Long?>(null)
+    val firstDate: LiveData<Long?>
+        get() = _firstDate
+
+    private fun getFirstDate() {
+        bpmDataSource.getFirstDate(object: BPMDataSource.GetFirstDateCallback {
+            override fun onFirstDateLoaded(timeInMillis: Long) {
+                _firstDate.postValue(timeInMillis)
+                getBPMDataOnDate(GregorianCalendar())
+            }
+
+            override fun onDataNotAvailable() {
+                _firstDate.value = -1L
+            }
+        })
+    }
+
     fun getBPMDataOnDate(baseCalendar: Calendar) {
         val startTime = GregorianCalendar().apply { timeInMillis = baseCalendar.timeInMillis }
         val endTime = GregorianCalendar().apply { timeInMillis = baseCalendar.timeInMillis }
@@ -32,5 +48,9 @@ class BPMHistoryViewModel @ViewModelInject constructor(
                 _bpmData.postValue(mutableListOf())
             }
         })
+    }
+
+    fun refresh() {
+        getFirstDate()
     }
 }
