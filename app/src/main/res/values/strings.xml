@@ -75,5 +75,6 @@
     <string name="bpmhistory_title">기록</string>
     <string name="history_no_data_title">측정된 데이터가 없습니다.</string>
     <string name="history_no_data_describe">ECG 센서와 연결하여 심박수 데이터를 기록할 수 있습니다.</string>
+    <string name="history_selected_date_format">%d년 %d월 %d일</string>
 
 </resources>

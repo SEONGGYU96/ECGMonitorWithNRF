@@ -6,8 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.databinding.FragmentBpmHistoryBinding
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.*
 
 @AndroidEntryPoint
 class BPMHistoryFragment : Fragment() {
@@ -25,13 +27,24 @@ class BPMHistoryFragment : Fragment() {
             lifecycleOwner = viewLifecycleOwner
         }
 
+        setDateText(GregorianCalendar())
+
         subscribeUI()
 
         binding.bpmdaypickerBpmhistory.setDayClickListener {
             bpmHistoryViewModel.getBPMDataOnDate(it)
+            setDateText(it)
         }
 
         return binding.root
+    }
+
+    private fun setDateText(calendar: Calendar) {
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH) + 1
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        binding.textviewBpmhistorySeleteddate.text =
+            String.format(getString(R.string.history_selected_date_format), year, month, day)
     }
 
     override fun onResume() {

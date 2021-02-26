@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<layout xmlns:app="http://schemas.android.com/apk/res-auto">
+<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tool="http://schemas.android.com/tools">
 
     <data>
 
@@ -20,10 +21,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/textview_bpmhistory_seleteddate"
+            style="@style/Widget.Subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/entire_horizontal_margin"
+            android:textColor="?colorPrimary"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/bpmdaypicker_bpmhistory"
+            tool:text="2021년 2월 1일" />
+
         <HorizontalScrollView
             android:id="@+id/scrollview_bpmhistory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:scrollbars="none"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -43,7 +56,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/bpmdaypicker_bpmhistory" />
+            app:layout_constraintTop_toBottomOf="@id/textview_bpmhistory_seleteddate" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
