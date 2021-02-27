@@ -53,7 +53,7 @@
 
         </LinearLayout>
 
-        <com.seoultech.ecgmonitor.graph.ECGViewer
+        <com.seoultech.ecgmonitor.monitor.ECGViewer
             android:id="@+id/ecggraph_monitor"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

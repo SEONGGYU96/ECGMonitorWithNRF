@@ -7,7 +7,6 @@ import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainable
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainer
 import com.seoultech.ecgmonitor.bluetooth.state.BluetoothStateLiveData
 import com.seoultech.ecgmonitor.bluetooth.state.BluetoothStateReceiver
-import com.seoultech.ecgmonitor.ecgstate.ECGStateLiveData
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -32,8 +31,8 @@ class BluetoothModule {
     ) : BluetoothGattConnectible = BluetoothGattConnector(context, gattContainable)
 
     @Provides
-    fun provideBluetoothStateReceiver(ecgStateLiveData: ECGStateLiveData): BluetoothStateReceiver =
-        BluetoothStateReceiver(ecgStateLiveData)
+    fun provideBluetoothStateReceiver(bluetoothConnectStateLiveData: com.seoultech.ecgmonitor.ecgstate.BluetoothConnectStateLiveData): BluetoothStateReceiver =
+        BluetoothStateReceiver(bluetoothConnectStateLiveData)
 
     @Provides
     @Singleton

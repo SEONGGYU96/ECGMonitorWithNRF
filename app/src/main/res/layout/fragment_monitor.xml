@@ -67,7 +67,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/linearlayout_monitor_banner" />
 
-        <com.seoultech.ecgmonitor.graph.ECGViewer
+        <com.seoultech.ecgmonitor.monitor.ECGViewer
             android:id="@+id/ecggraph_monitor"
             android:layout_width="match_parent"
             android:layout_height="300dp"

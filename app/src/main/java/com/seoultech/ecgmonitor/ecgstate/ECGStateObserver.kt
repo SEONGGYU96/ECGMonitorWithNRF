@@ -2,14 +2,14 @@ package com.seoultech.ecgmonitor.ecgstate
 
 import androidx.lifecycle.Observer
 
-class ECGStateObserver(private val ecgStateCallback: ECGStateCallback): Observer<ECGStateLiveData> {
+class ECGStateObserver(private val ecgStateCallback: ECGStateCallback): Observer<BluetoothConnectStateLiveData> {
     private var isBluetoothDisabled = false
 
-    override fun onChanged(ecgStateLiveData: ECGStateLiveData) {
-        if (!ecgStateLiveData.isBounded()) {
+    override fun onChanged(bluetoothConnectStateLiveData: BluetoothConnectStateLiveData) {
+        if (!bluetoothConnectStateLiveData.isBounded()) {
             ecgStateCallback.beforeBounded()
         } else {
-            if (!ecgStateLiveData.isBluetoothEnabled()) {
+            if (!bluetoothConnectStateLiveData.isBluetoothEnabled()) {
                 isBluetoothDisabled = true
                 ecgStateCallback.onBluetoothDisabled()
             } else {
@@ -17,10 +17,10 @@ class ECGStateObserver(private val ecgStateCallback: ECGStateCallback): Observer
                     ecgStateCallback.onBluetoothEnabled()
                     isBluetoothDisabled = false
                 } else {
-                    if (ecgStateLiveData.isFailed()) {
+                    if (bluetoothConnectStateLiveData.isFailed()) {
                         ecgStateCallback.onFailure()
                     } else {
-                        if (ecgStateLiveData.isConnected()) {
+                        if (bluetoothConnectStateLiveData.isConnected()) {
                             ecgStateCallback.onConnected()
                         } else {
                             ecgStateCallback.onDisconnected()

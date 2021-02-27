@@ -12,12 +12,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import com.seoultech.ecgmonitor.MainActivity
 import com.seoultech.ecgmonitor.MainFragmentDirections
 import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.databinding.FragmentMonitorBinding
 import com.seoultech.ecgmonitor.ecgstate.ECGStateCallback
-import com.seoultech.ecgmonitor.ecgstate.ECGStateLiveData
+import com.seoultech.ecgmonitor.ecgstate.BluetoothConnectStateLiveData
 import com.seoultech.ecgmonitor.ecgstate.ECGStateObserver
 import com.seoultech.ecgmonitor.bpm.data.BPMLiveData
 import com.seoultech.ecgmonitor.bpm.data.HeartBeatSampleLiveData
@@ -49,7 +48,7 @@ class MonitorFragment : Fragment(), ECGStateCallback {
     lateinit var heartBeatSampleLiveData: HeartBeatSampleLiveData
 
     @Inject
-    lateinit var ecgStateLiveData: ECGStateLiveData
+    lateinit var bluetoothConnectStateLiveData: BluetoothConnectStateLiveData
 
     private val ecgStateObserver = ECGStateObserver(this)
 
@@ -163,7 +162,7 @@ class MonitorFragment : Fragment(), ECGStateCallback {
     }
 
     private fun refresh() {
-        ecgStateLiveData.refresh()
+        bluetoothConnectStateLiveData.refresh()
     }
 
     private fun setDisconnectMenuVisibility(isVisible: Boolean) {
@@ -210,7 +209,7 @@ class MonitorFragment : Fragment(), ECGStateCallback {
             binding.ecggraphMonitor.addValue(it.value, it.time)
         })
 
-        ecgStateLiveData.observe(viewLifecycleOwner, ecgStateObserver)
+        bluetoothConnectStateLiveData.observe(viewLifecycleOwner, ecgStateObserver)
 
         bpmLiveData.observe(viewLifecycleOwner) {
             binding.textviewMonitorHeartrate.text = it.toString()

@@ -17,5 +17,5 @@ class ECGStateModule {
     fun providesECGStateLiveData(
         heartBeatSampleLiveData: HeartBeatSampleLiveData,
         gattContainable: GattContainable
-    ): ECGStateLiveData = ECGStateLiveData(heartBeatSampleLiveData, gattContainable)
+    ): BluetoothConnectStateLiveData = BluetoothConnectStateLiveData(heartBeatSampleLiveData, gattContainable)
 }

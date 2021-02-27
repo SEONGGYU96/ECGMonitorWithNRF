@@ -12,13 +12,13 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.button.MaterialButton
-import com.seoultech.ecgmonitor.MainActivity
+import com.seoultech.ecgmonitor.main.MainActivity
 import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.bluetooth.state.BluetoothStateLiveData
 import com.seoultech.ecgmonitor.bluetooth.state.BluetoothStateReceiver
 import com.seoultech.ecgmonitor.databinding.FragmentScanBinding
 import com.seoultech.ecgmonitor.findNavController
-import com.seoultech.ecgmonitor.service.GattConnectionMaintenanceService
+import com.seoultech.ecgmonitor.service.GattConnectionService
 import com.seoultech.ecgmonitor.utils.PermissionUtil
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -176,10 +176,10 @@ class ScanFragment : Fragment(), View.OnClickListener {
     private fun startConnectionService(device: BluetoothDevice) {
         val intent = Intent(
             requireContext(),
-            GattConnectionMaintenanceService::class.java
+            GattConnectionService::class.java
         ).apply {
             //You must hand over the device that attempts to connect
-            putExtra(GattConnectionMaintenanceService.EXTRA_DISCOVERED_DEVICE, device)
+            putExtra(GattConnectionService.EXTRA_DISCOVERED_DEVICE, device)
         }
         requireActivity().startService(intent)
     }

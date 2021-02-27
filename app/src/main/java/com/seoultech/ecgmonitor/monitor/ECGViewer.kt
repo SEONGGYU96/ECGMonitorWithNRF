@@ -1,4 +1,4 @@
-package com.seoultech.ecgmonitor.graph
+package com.seoultech.ecgmonitor.monitor
 
 import android.content.Context
 import android.graphics.Canvas

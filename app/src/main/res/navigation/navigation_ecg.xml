@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/mainFragment"
-        android:name="com.seoultech.ecgmonitor.MainFragment"
+        android:name="com.seoultech.ecgmonitor.main.MainFragment"
         android:label="ViewPagerFragment">
         <action
             android:id="@+id/action_mainFragment_to_scanFragment"

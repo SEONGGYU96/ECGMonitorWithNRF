@@ -6,10 +6,10 @@ import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainable
 import com.seoultech.ecgmonitor.bluetooth.state.BluetoothStateObservable
 import com.seoultech.ecgmonitor.bpm.data.HeartBeatSampleLiveData
 
-class ECGStateLiveData(
+class BluetoothConnectStateLiveData(
     private val heartBeatSampleLiveData: HeartBeatSampleLiveData,
     private val gattContainable: GattContainable
-    ) : LiveData<ECGStateLiveData>(), BluetoothStateObservable, BluetoothConnectStateCallback {
+    ) : LiveData<BluetoothConnectStateLiveData>(), BluetoothStateObservable, BluetoothConnectStateCallback {
 
     private var isBluetoothEnabled = true
     //연결 여부

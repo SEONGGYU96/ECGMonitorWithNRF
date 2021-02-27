@@ -10,10 +10,10 @@ import android.content.IntentFilter
 import android.os.IBinder
 import android.util.Log
 import androidx.lifecycle.Observer
-import com.seoultech.ecgmonitor.MainActivity
+import com.seoultech.ecgmonitor.main.MainActivity
 import com.seoultech.ecgmonitor.bluetooth.state.BluetoothStateReceiver
 import com.seoultech.ecgmonitor.ecgstate.ECGStateCallback
-import com.seoultech.ecgmonitor.ecgstate.ECGStateLiveData
+import com.seoultech.ecgmonitor.ecgstate.BluetoothConnectStateLiveData
 import com.seoultech.ecgmonitor.ecgstate.ECGStateObserver
 import com.seoultech.ecgmonitor.bluetooth.connect.BluetoothGattConnectible
 import com.seoultech.ecgmonitor.bluetooth.gatt.GattContainable
@@ -29,7 +29,7 @@ import javax.inject.Inject
  * 최초 연결 후 의도적인 연결 해제 외에는 종료되지 않아야 함
  */
 @AndroidEntryPoint
-class GattConnectionMaintenanceService : Service(), ECGStateCallback {
+class GattConnectionService : Service(), ECGStateCallback {
 
     companion object {
         private const val TAG = "ConnectionService"
@@ -48,7 +48,7 @@ class GattConnectionMaintenanceService : Service(), ECGStateCallback {
 
     //GATT 연결 상태 라이브데이터 (싱글턴)
     @Inject
-    lateinit var ecgStateLiveData: ECGStateLiveData
+    lateinit var bluetoothConnectStateLiveData: BluetoothConnectStateLiveData
 
     //Notification 생성 모듈
     @Inject
@@ -100,7 +100,7 @@ class GattConnectionMaintenanceService : Service(), ECGStateCallback {
             //intent로 전달된 BluetoothDevice가 있으면 해당 기기와 연결 실행 및 ForegroundService 시작
             connect(discoveredDevice) //BluetoothDevice 가 있으면 연결
             boundedDevice = discoveredDevice
-            ecgStateLiveData.observeForever(ecgStateObserver)
+            bluetoothConnectStateLiveData.observeForever(ecgStateObserver)
 
             setNotification(State.CONNECTED)
             registerBluetoothStateBroadcastReceiver()
@@ -113,7 +113,7 @@ class GattConnectionMaintenanceService : Service(), ECGStateCallback {
         super.onDestroy()
 
         //서비스 종료 시 Observer들을 수동으로 해제해주어야함
-        ecgStateLiveData.removeObserver(ecgStateObserver)
+        bluetoothConnectStateLiveData.removeObserver(ecgStateObserver)
         stopOperatingBPM()
         unRegisterBluetoothStateBroadcastReceiver()
     }
@@ -165,7 +165,7 @@ class GattConnectionMaintenanceService : Service(), ECGStateCallback {
     }
 
     private fun connect(device: BluetoothDevice) {
-        gattConnector.connect(device, ecgStateLiveData)
+        gattConnector.connect(device, bluetoothConnectStateLiveData)
         Log.d(TAG, "connect(): Try connect with ${device.address}")
     }
 

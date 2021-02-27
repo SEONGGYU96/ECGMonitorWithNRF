@@ -19,7 +19,7 @@
         android:theme="@style/AppTheme">
         <activity android:name=".contact.ContactActivity" />
         <activity android:name=".setting.SettingActivity" />
-        <activity android:name=".MainActivity" />
+        <activity android:name=".main.MainActivity" />
         <activity
             android:name=".SplashActivity"
             android:theme="@style/SplashTheme">
@@ -30,7 +30,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".service.GattConnectionMaintenanceService" />
+        <service android:name=".service.GattConnectionService" />
     </application>
 
 </manifest>

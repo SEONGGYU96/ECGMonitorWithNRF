@@ -8,7 +8,6 @@ import androidx.fragment.app.viewModels
 import androidx.preference.*
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputLayout
-import com.seoultech.ecgmonitor.MainActivity
 import com.seoultech.ecgmonitor.R
 import com.seoultech.ecgmonitor.contact.data.Contact
 import com.seoultech.ecgmonitor.contact.ContactActivity
