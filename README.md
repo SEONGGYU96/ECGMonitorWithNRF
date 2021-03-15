@@ -2,7 +2,7 @@
 
 <img src="https://img.shields.io/badge/Android-v1.0.0-3DDC84?logo=android">  
 
-[Nordic - nrf52840](https://www.nordicsemi.com/Products/Low-power-short-range-wireless/nRF52840) 블루투스 동글을 이용한 ECG ploat 및 심전도 관련 헬스케어 어플리케이션  
+[Nordic - nrf52840](https://www.nordicsemi.com/Products/Low-power-short-range-wireless/nRF52840) 블루투스 동글을 이용한 ECG plot 및 심전도 관련 헬스케어 어플리케이션  
 
 사용자의 심전도를 24시간 측정하는 IoT 기기(nrf52840)로부터 실시간으로 데이터를 전송받아 저장/가공/분석해주는 헬스케어 어플리케이션을 계획하고 제작하였습니다. nrf52840과 최초 1회 연결 후에는 의도적으로 연결을 끊지 않는 한 연결이 지속돼야하며, 연결이 불안정하거나 기기와의 거리가 멀어져 연결이 잠시 끊어지더라도 연결 가능한 상태가 되면 자동으로 연결되도록 구현하는 것이 중요했습니다. 또한 1초당 수십개의 데이터를 수신하기 때문에 이를 처리하는 과정에서 발생하는 많은 예외 상황들에 대처하고 UI 갱신이나 앱 퍼포먼스에 끼치는 영향을 최소화하기 위해 스레드와 객체 풀을 활용한 난이도 있는 프로젝트입니다.
 
